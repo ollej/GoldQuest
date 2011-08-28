@@ -26,6 +26,7 @@ THE SOFTWARE.
 """
 
 import random
+import logging
 
 class Hero(object):
     id = 0
@@ -114,6 +115,7 @@ class Hero(object):
         return '%s the %s' % (name, epithet)
 
     def get_attributes(self):
+        logging.info(self.__dict__)
         attribs = self.__dict__
         attribs['status'] = ""
         if not self.alive:

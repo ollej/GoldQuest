@@ -27,11 +27,12 @@ THE SOFTWARE.
 
 import random
 import yaml
+import os
+import logging
 
 from Hero import Hero
 from Monster import Monster
 from Level import Level
-from SqlDataHandler import SqlDataHandler
 
 class GoldQuestException(Exception):
     pass
@@ -54,26 +55,34 @@ class GoldQuest(object):
         Calls L{setup_tables} to setup table metadata and L{setup_session}
         to instantiate the db session.
         """
-        self.cfg = cfg
+        self._cfg = cfg
         try:
-            debug = self.cfg.getboolan('LOCAL', 'debug')
+            debug = self._cfg.getboolan('LOCAL', 'debug')
         except AttributeError:
             debug = False
+
+        path = os.path.abspath(__file__)
+        self.basepath = os.path.dirname(path)
+
+        # Read text data
         self.read_texts()
-        datahandler = self.cfg.get('LOCAL', 'datahandler')
+
+        datahandler = self._cfg.get('LOCAL', 'datahandler')
         if datahandler == 'sqlite':
-            self.dh = SqlDataHandler(debug)
+            from SqlDataHandler import SqlDataHandler
+            self._dh = SqlDataHandler(debug)
         elif datahandler == 'datastore':
-            self.dh = DataStoreDataHandler(debug)
+            from DataStoreDataHandler import DataStoreDataHandler
+            self._dh = DataStoreDataHandler(debug)
         else:
             raise GoldQuestConfigException, "Unknown datahandler: %s" % datahandler
 
-        self.hero = self.dh.get_alive_hero()
+        self.hero = self._dh.get_alive_hero()
         if self.hero and not self.level:
-            self.level = Level(self.hero.level)
+            self.level = self.get_level(self.hero.level) #Level(self.hero.level)
 
     def read_texts(self):
-        f = open('extras/goldquest.dat')
+        f = open('%s/extras/goldquest.dat' % self.basepath)
         self._gamedata = yaml.load(f)
         f.close()
 
@@ -132,14 +141,15 @@ class GoldQuest(object):
         return msg
 
     def save_data(self):
-        self.dh.save_data(self.hero, self.level)
+        self._dh.save_data(self.hero, self.level)
 
     def get_alive_hero(self):
-        hero = self.dh.get_alive_hero()
+        hero = self._dh.get_alive_hero()
         return hero
 
     def get_level(self, lvl):
-        level = self.dh.get_level(lvl)
+        level = self._dh.get_level(lvl)
+        logging.info('read level:', level)
         if not level:
             level = Level(lvl)
         texts = self.get_level_texts(lvl)
@@ -147,8 +157,8 @@ class GoldQuest(object):
             for k, v in texts.items():
                 if v:
                     setattr(level, k , v)
-        if not level.boss:
-            level.boss = random.choice(self._gamedata['boss'])
+        if not level._boss:
+            level._boss = random.choice(self._gamedata['boss'])
         return level
 
     def reroll(self):
@@ -156,7 +166,8 @@ class GoldQuest(object):
             msg = self.get_text('noreroll') % self.hero.get_attributes()
             return msg
         else:
-            self.sh.clear_levels()
+            # Clear all old level data.
+            self._dh.clear_levels()
             # Reroll new hero.
             self.hero = Hero()
             self.hero.reroll()
@@ -164,7 +175,7 @@ class GoldQuest(object):
             self.save_data()
             msg = self.get_text('newhero')
             msg = msg % self.hero.get_attributes()
-            msg = msg + " " + self.level.text
+            msg = "%s %s" % (msg, self.level._text)
             return msg
 
     def search_treasure(self):
@@ -232,7 +243,7 @@ class GoldQuest(object):
             levels = 10
         depth = self.hero.go_deeper(levels)
         self.level = self.get_level(depth)
-        msg = self.level.text or self.get_text('deeper')
+        msg = self.level._text or self.get_text('deeper')
         msg = msg % self.hero.get_attributes()
         return msg
 

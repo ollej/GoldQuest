@@ -33,8 +33,8 @@ class Level(object):
     depth = None
     killed = None
     looted = None
-    boss = None
-    text = None
+    _boss = None
+    _text = None
 
     def __init__(self, depth=None):
         self.killed = 0
@@ -47,8 +47,8 @@ class Level(object):
     def get_monster(self, name):
         if self.killed == self.depth - 1:
             boss = True
-            if self.boss:
-                name = self.boss
+            if self._boss:
+                name = self._boss
         else:
             boss = False
         if self.has_monsters():
