@@ -25,17 +25,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-from sqlalchemy import Table, Column, Integer, Boolean, String, MetaData, ForeignKey, Sequence, create_engine
-from sqlalchemy.orm import mapper, sessionmaker
 import random
 import yaml
 
-from utils.Conf import *
 from Hero import Hero
 from Monster import Monster
 from Level import Level
+from SqlDataHandler import SqlDataHandler
 
-class GoldQuest(BridgeClass):
+class GoldQuestException(Exception):
+    pass
+
+class GoldQuestConfigException(GoldQuestException):
+    pass
+
+class GoldQuest(object):
     _gamedata = None
     cfg = None
     hero = None
@@ -56,48 +60,17 @@ class GoldQuest(BridgeClass):
         except AttributeError:
             debug = False
         self.read_texts()
-        self.engine = create_engine('sqlite:///extras/quest.db', echo=debug)
-        self.setup_tables()
-        self.setup_session()
-        self.hero = self.get_alive_hero()
+        datahandler = self.cfg.get('LOCAL', 'datahandler')
+        if datahandler == 'sqlite':
+            self.dh = SqlDataHandler(debug)
+        elif datahandler == 'datastore':
+            self.dh = DataStoreDataHandler(debug)
+        else:
+            raise GoldQuestConfigException, "Unknown datahandler: %s" % datahandler
+
+        self.hero = self.dh.get_alive_hero()
         if self.hero and not self.level:
             self.level = Level(self.hero.level)
-
-    def setup_session(self):
-        """
-        Start a SQLAlchemy db session.
-
-        Saves the session instance in C{self.session}
-        """
-        Session = sessionmaker(bind=self.engine)
-        self.session = Session()
-
-    def setup_tables(self):
-        """
-        Defines the tables to use for L{Hero}
-        The Metadata instance is saved to C{self.metadata}
-        """
-        self.metadata = MetaData()
-        hero_table = Table('hero', self.metadata,
-            Column('id', Integer, Sequence('hero_id_seq'), primary_key=True),
-            Column('name', String(100)),
-            Column('health', Integer),
-            Column('strength', Integer),
-            Column('hurt', Integer),
-            Column('kills', Integer),
-            Column('gold', Integer),
-            Column('level', Integer),
-            Column('alive', Boolean),
-        )
-        mapper(Hero, hero_table)
-        level_table = Table('level', self.metadata,
-            Column('id', Integer, Sequence('hero_id_seq'), primary_key=True),
-            Column('depth', Integer),
-            Column('killed', Integer),
-            Column('looted', Integer),
-        )
-        mapper(Level, level_table)
-        self.metadata.create_all(self.engine)
 
     def read_texts(self):
         f = open('extras/goldquest.dat')
@@ -159,16 +132,14 @@ class GoldQuest(BridgeClass):
         return msg
 
     def save_data(self):
-        self.session.add(self.hero)
-        self.session.add(self.level)
-        self.session.commit()
+        self.dh.save_data(self.hero, self.level)
 
     def get_alive_hero(self):
-        hero = self.session.query(Hero).filter_by(alive=True).first()
+        hero = self.dh.get_alive_hero()
         return hero
 
     def get_level(self, lvl):
-        level = self.session.query(Level).filter_by(depth=lvl).first()
+        level = self.dh.get_level(lvl)
         if not level:
             level = Level(lvl)
         texts = self.get_level_texts(lvl)
@@ -185,8 +156,7 @@ class GoldQuest(BridgeClass):
             msg = self.get_text('noreroll') % self.hero.get_attributes()
             return msg
         else:
-            # Delete all old Level data.
-            self.session.query(Level).delete()
+            self.sh.clear_levels()
             # Reroll new hero.
             self.hero = Hero()
             self.hero.reroll()
