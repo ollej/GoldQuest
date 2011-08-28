@@ -88,8 +88,9 @@ factory = protocol.ServerFactory()
 factory.protocol = GoldQuestServer
 factory.clients = []
 
-cfg = Conf('../config.ini', 'LOCAL')
-cfg.set('debug', True)
+cfg = ConfigParser.ConfigParser()
+cfg.read('../config.ini')
+cfg.set('LOCAL', 'debug', True)
 game = GoldQuest(cfg)
 
 application = service.Application("GoldQuest")
