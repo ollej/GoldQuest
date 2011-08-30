@@ -129,7 +129,7 @@ class GoldQuest(object):
             msg = self.rest()
         elif command in ['fight', 'kill', 'slay', u'slåss']:
             msg = self.fight()
-        elif command in ['deeper', 'descend', 'vidare']:
+        elif command in ['deeper', 'down', 'descend', 'vidare']:
             msg = self.go_deeper(rest)
         elif command in ['loot', 'search', u'sök', 'finna']:
             msg = self.search_treasure()

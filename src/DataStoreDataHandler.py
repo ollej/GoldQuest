@@ -59,7 +59,7 @@ class DataStoreDataHandler(object):
         for attr in ds.properties():
             if attr[0] != '_':
                 value = getattr(ds, attr)
-                logging.info("setting value - attr: %s value: %s" % (attr, value))
+                #logging.info("setting value - attr: %s value: %s" % (attr, value))
                 setattr(obj, attr, value)
         return obj
 
@@ -69,19 +69,15 @@ class DataStoreDataHandler(object):
         #for attr, value in obj.__dict__.iteritems():
         for attr in obj._ds.properties():
             value = getattr(obj, attr)
-            logging.info("attr: %s value: %s" % (attr, value))
+            #logging.info("attr: %s value: %s" % (attr, value))
             if attr[0] != '_': # and hasattr(obj.ds, attr):
                 setattr(obj._ds, attr, value)
         return obj
 
     def save_data(self, hero, level):
         hero = self.prepare_object(hero, DSHero)
-        logging.info(hero)
-        logging.info(hero._ds)
         hero._ds.put()
         level = self.prepare_object(level, DSLevel)
-        logging.info(level)
-        logging.info(level._ds)
         level._ds.put()
 
     def get_alive_hero(self):
@@ -96,9 +92,9 @@ class DataStoreDataHandler(object):
         query.filter('depth =', lvl)
         levelds = query.get()
         if levelds:
-            logging.info('Read level %d from database.' % lvl)
+            #logging.info('Read level %d from database.' % lvl)
             return self.create_object(Level(), levelds, DSLevel)
-        logging.info('No saved level at %d' % lvl)
+        #logging.info('No saved level at %d' % lvl)
 
     def clear_levels(self):
         # Delete all old Level data.
