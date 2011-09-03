@@ -39,7 +39,7 @@ The only thing you need to do is to place the following HTML code somewhere on y
 
     <iframe src="http://gold-quest.appspot.com/game.html" 
             id="goldquestIframe" 
-            width="230" height="380" 
+            width="250" height="380" 
             frameborder="0" scrolling="no" />
 
 Gold Quest API
@@ -96,7 +96,8 @@ The hero will try to loot killed monsters for loot.
 #### /api/deeper ####
 Sends the hero one level deeper into the dungeon (and increases the hero's level as well).
 
- * level - Integer, the level the hero is on in the dungeon.
+ * hero - Object
+   * level - Integer, the level the hero is on in the dungeon.
 
 #### /api/rest ####
 If the hero has been hurt, a small amount of health is restored.
