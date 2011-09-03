@@ -46,10 +46,28 @@ $(document).ready(function() {
     }
 
     function onStats(data, textStatus, jqXhr) {
+        var hero, heroDiv = $('#heroDiv');
+        if (!data['data'] || !data['data']['hero']) return;
+        hero = data['data']['hero']
         if (console && console.log) console.log('Got stats!', data, textStatus, jqXhr);
-        var re = /^Stats: /;
-        data = data.message.replace(re, '');
-        $('#heroDiv').html(data);
+        //var re = /^Stats: /;
+        //data = data.message.replace(re, '');
+        //$('#heroDiv').html(data);
+        hero['current_health'] = (hero['health'] - hero['hurt']);
+        hero['hurthealth'] = '' + hero['current_health'] + '/' + hero['health'];
+        //if (console && console.log) console.log('heroDiv:' + heroDiv.html() + '|', 'hero', hero);
+        if ($.trim(heroDiv.html()) == '') {
+            var stats = $.tache(getTemplates().charsheet, hero);
+            heroDiv.html(stats);
+        } else {
+            for (var field in hero) if (hero.hasOwnProperty(field)) {
+                if (console && console.log) console.log('field', field, 'value', hero[field]);
+                var valueDiv = $('#' + field + 'Value');
+                if (valueDiv) {
+                    valueDiv.html(hero[field]);
+                }
+            }
+        }
     }
 
     // Setup command buttons

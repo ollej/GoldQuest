@@ -18,16 +18,6 @@ html, body {
   max-height: 480px;
 }
 
-/*
-#contentDiv {
-  position: absolute:
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  background: white;
-}
-*/
 #heroDiv {
   position: fixed;
   top: 0;
@@ -41,6 +31,39 @@ html, body {
   overflow: hidden;
   border-bottom: thin solid black;
 }
+
+#nameValue {
+  font-size: 18px;
+  line-height: 20px;
+}
+
+#charsheetList {
+  list-style-type: none;
+  display: inline;
+}
+
+.statItem {
+  display: inline;
+}
+
+.statItem img {
+  padding: 0 2px 4px 0;
+  vertical-align: middle;
+}
+
+li.statItem {
+  padding-left: 3px;
+}
+
+li.statItem:first-child {
+  padding-left: 0;
+}
+
+.statValue {
+  font-size: 14px;
+  line-height: 20px;
+}
+
 #heroDiv, #actionList li, #taskbarContainer {
   background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#ddd), to(#d7d7d7));
   background-image: -webkit-linear-gradient(top, #ddd, #d7d7d7);
@@ -49,16 +72,17 @@ html, body {
   background-image: -o-linear-gradient(top, #ddd, #d7d7d7);
   background-image: linear-gradient(top, #ddd, #d7d7d7);
 }
+
 #contentDiv {
   margin: 0;
   width: 100%;
 }
+
 #actionsDiv {
-  /* position: absolute; */
-  /* bottom: 40px; */
   height: 100%;
   width: 100%;
 }
+
 #actionList {
   width: 100%;
   padding-top: 42px;
@@ -68,16 +92,20 @@ html, body {
   bottom: 0;
   list-style-type: none;
 }
+
 #actionList li {
   border-top: 1px solid #D1D1D1;
   text-shadow: 0 1px 1px #fff;
   padding: 3px 5px 5px 5px;
   font-family: Arial,"Helvetica Neue",sans-serif; font-size: 15px; line-height: 19px; word-wrap: break-word; color: #444;
 }
+
 #actionList li:nth-child(odd) {
 }
+
 #actionList li:nth-child(even) {
 }
+
 #taskbarWrapper {
   position: fixed;
   bottom: 0;
@@ -86,20 +114,29 @@ html, body {
   text-align: center;
   border-top: thin solid black;
 }
+
 #taskbarContainer {
   height: 37px;
 }
+
 #taskbarDiv {
   position: relative;
 }
+
 .taskDiv {
   display: inline;
 }
+
 .taskDiv button {
   background: none;
   border: none;
 }
+
 .taskDiv button img {
   margin: 2px 1px 3px 1px;
+}
+
+.taskDiv:hover {
+    background-image: url(../images/icon-hover.png);
 }
 

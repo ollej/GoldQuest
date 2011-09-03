@@ -1,5 +1,6 @@
   <div id="mainDiv">
-    <div id="heroDiv"></div>
+    <div id="heroDiv">
+    </div>
     <div id="contentDiv">
       <div id="actionsDiv">
         <ul id="actionList"></ul>
@@ -7,24 +8,26 @@
     </div>
     <div id="taskbarWrapper">
       <div id="taskbarContainer">
-          <div id="taskbarDiv">
-        <div id="fightDiv" class="taskDiv"><button id="fightBtn" name="fight" class="commandBtn"><img src="images/icon-fight.png" width="32" height="32" alt="Fight" title="Fight" /></button></div>
-        <div id="lootDiv" class="taskDiv"><button id="lootBtn" name="loot" class="commandBtn"><img src="images/icon-loot.png" width="32" height="32" alt="Loot" title="Loot" /></button></div>
-        <div id="deeperDiv" class="taskDiv"><button id="deeperBtn" name="deeper" class="commandBtn"><img src="images/icon-deeper.png" width="32" height="32" alt="Deeper" title="Deeper" /></button></div>
-        <div id="restDiv" class="taskDiv"><button id="restBtn" name="rest" class="commandBtn"><img src="images/icon-rest.png" width="32" height="32" alt="Rest" title="Rest" /></button></div>
-        <div id="statsDiv" class="taskDiv"><button id="statsBtn" name="stats" class="commandBtn"><img src="images/icon-stats.png" width="32" height="32" alt="Stats" title="Stats" /></button></div>
-        <div id="rerollDiv" class="taskDiv"><button id="rerollBtn" name="reroll" class="commandBtn"><img src="images/icon-reroll.png" width="32" height="32" alt="Reroll" title="Reroll" /></button></div>
+        <div id="taskbarDiv">
+          <div id="fightDiv" class="taskDiv"><button id="fightBtn" name="fight" class="commandBtn"><img src="images/icon-fight.png" width="32" height="32" alt="Fight" title="Fight" /></button></div>
+          <div id="lootDiv" class="taskDiv"><button id="lootBtn" name="loot" class="commandBtn"><img src="images/icon-loot.png" width="32" height="32" alt="Loot" title="Loot" /></button></div>
+          <div id="deeperDiv" class="taskDiv"><button id="deeperBtn" name="deeper" class="commandBtn"><img src="images/icon-deeper.png" width="32" height="32" alt="Deeper" title="Deeper" /></button></div>
+          <div id="restDiv" class="taskDiv"><button id="restBtn" name="rest" class="commandBtn"><img src="images/icon-rest.png" width="32" height="32" alt="Rest" title="Rest" /></button></div>
+          <div id="statsDiv" class="taskDiv"><button id="statsBtn" name="stats" class="commandBtn"><img src="images/icon-stats.png" width="32" height="32" alt="Stats" title="Stats" /></button></div>
+          <div id="rerollDiv" class="taskDiv"><button id="rerollBtn" name="reroll" class="commandBtn"><img src="images/icon-reroll.png" width="32" height="32" alt="Reroll" title="Reroll" /></button></div>
         </div>
       </div>
     </div>
   </div>
   <div id="charsheetTemplate" style="display: none">
-    <h1>[[ name ]]</h1>
-    <div class="statDiv" id="strengthStatDiv"><img src="images/tiny-icon-strength.png" width="16" height="16" alt="Strength" title="Strength" /><span class="statValue" id="strengthValue">[[ strength ]]</span></div>
-    <div class="statDiv" id="healthStatDiv"><img src="images/tiny-icon-health.png" width="16" height="16" alt="Health" title="Health" /><span class="statValue" id="healthValue">[[ current_health ]]/[[ health ]]</span></div>
-    <div class="statDiv" id="levelStatDiv"><img src="images/tiny-icon-level.png" width="16" height="16" alt="Level" title="Level" /><span class="statValue" id="levelValue">[[ level ]]</span></div>
-    <div class="statDiv" id="killsStatDiv"><img src="images/tiny-icon-kills.png" width="16" height="16" alt="Kills" title="Kills" /><span class="statValue" id="killsValue">[[ kills ]]</span></div>
-    <div class="statDiv" id="goldStatDiv"><img src="images/tiny-icon-gold.png" width="16" height="16" alt="Gold" title="Gold" /><span class="statValue" id="goldValue">[[ gold ]]</span></div>
+        <h1 id="nameValue">[[ name ]]</h1>
+        <ul id="charsheetList">
+          <li class="statItem" id="strengthStatDiv"><img src="images/tiny-icon-strength.png" width="16" height="16" alt="Strength" title="Strength" /><span class="statValue" id="strengthValue">[[ strength ]]</span></li>
+          <li class="statItem" id="healthStatDiv"><img src="images/tiny-icon-health.png" width="16" height="16" alt="Health" title="Health" /><span class="statValue" id="hurthealthValue">[[ current_health ]]/[[ health ]]</span></li>
+          <li class="statItem" id="levelStatDiv"><img src="images/tiny-icon-level.png" width="16" height="16" alt="Level" title="Level" /><span class="statValue" id="levelValue">[[ level ]]</span></li>
+          <li class="statItem" id="killsStatDiv"><img src="images/tiny-icon-kills.png" width="16" height="16" alt="Kills" title="Kills" /><span class="statValue" id="killsValue">[[ kills ]]</span></li>
+          <li class="statItem" id="goldStatDiv"><img src="images/tiny-icon-gold.png" width="16" height="16" alt="Gold" title="Gold" /><span class="statValue" id="goldValue">[[ gold ]]</span></li>
+        </ul>
   </div>
   <div id="actionlineTemplate" style="display: none">
     <li class='actionLine'>[[ line ]]</li>
