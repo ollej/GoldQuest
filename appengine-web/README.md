@@ -62,9 +62,9 @@ The main URL for the API is the following:
 In text/plain mode, only the message will be returned in the body. Otherwise all messages
 will contain the following data:
 
-    message - String, text message describing the result of the action.
-    success - Boolean, true if the request was a success.
-    data - Object, additional data depending on request type.
+ * message - String, text message describing the result of the action.
+ * success - Boolean, true if the request was a success.
+ * data - Object, additional data depending on request type.
 
 ### Routes ###
 The following API requests are available.
