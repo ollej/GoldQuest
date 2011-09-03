@@ -136,7 +136,3 @@ li.statItem:first-child {
   margin: 2px 1px 3px 1px;
 }
 
-.taskDiv:hover {
-    background-image: url(../images/icon-hover.png);
-}
-

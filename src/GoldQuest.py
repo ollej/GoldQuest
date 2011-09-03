@@ -331,7 +331,9 @@ class GoldQuest(object):
         response = {
             'message': msg,
             'data': {
-                'level': attribs['level'],
+                'hero': {
+                    'level': attribs['level'],
+                }
             }
         }
         return response

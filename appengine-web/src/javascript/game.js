@@ -33,11 +33,15 @@ $(document).ready(function() {
     }
 
     function onAction(data, textStatus, jqXhr) {
+        var line;
         if (console && console.log) console.log('Success!', data, textStatus, jqXhr);
         //var line = $("<span class='actionLine'>" + data + "</span>");
         //$('#actionsDiv').append(line);
         //var line = $("<li class='actionLine'>" + data + "</li>");
-        var line = $.tache(getTemplates().actionline, { 'line': data.message });
+        line = $.tache(getTemplates().actionline, { 'line': data.message });
+        if (data['data'] && data['data']['hero']) {
+            updateCharsheet(data['data']['hero']);
+        }
         $('#actionList').append(line);
     }
 
@@ -46,15 +50,22 @@ $(document).ready(function() {
     }
 
     function onStats(data, textStatus, jqXhr) {
-        var hero, heroDiv = $('#heroDiv');
+        var hero;
         if (!data['data'] || !data['data']['hero']) return;
         hero = data['data']['hero']
         if (console && console.log) console.log('Got stats!', data, textStatus, jqXhr);
         //var re = /^Stats: /;
         //data = data.message.replace(re, '');
         //$('#heroDiv').html(data);
-        hero['current_health'] = (hero['health'] - hero['hurt']);
-        hero['hurthealth'] = '' + hero['current_health'] + '/' + hero['health'];
+        updateCharsheet(hero);
+    }
+
+    function updateCharsheet(hero) {
+        var heroDiv = $('#heroDiv');
+        if (hero.hasOwnProperty('health') && hero.hasOwnProperty('hurt')) {
+            hero['current_health'] = (hero['health'] - hero['hurt']);
+            hero['hurthealth'] = '' + hero['current_health'] + '/' + hero['health'];
+        }
         //if (console && console.log) console.log('heroDiv:' + heroDiv.html() + '|', 'hero', hero);
         if ($.trim(heroDiv.html()) == '') {
             var stats = $.tache(getTemplates().charsheet, hero);
@@ -77,10 +88,28 @@ $(document).ready(function() {
         ajaxAction(cmd, fn);
     });
 
+    // Update charsheet when clicked.
     $('#heroDiv').live('click', function(event) {
         ajaxAction('stats', onStats);
     });
 
+    // Add highlight when hovering over task buttons.
+    $('.taskImg').hover(
+        function(ev) {
+            var el = $(this);
+            var img = el.attr('src');
+            el.attr('src', 'images/icon-hover.png');
+            el.css('background', 'url(' + img + ')');
+        },
+        function(ev) {
+            var el = $(this);
+            var img = 'images/icon-' + el.attr('alt').toLowerCase() + '.png';
+            el.attr('src', img);
+            el.css('background', '');
+        }
+    );
+
+    // Load stats.
     ajaxAction('stats', onStats);
 
 });
