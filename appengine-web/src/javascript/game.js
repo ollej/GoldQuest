@@ -22,10 +22,11 @@ $(document).ready(function() {
         $.ajax({
             url: gameUrl + cmd,
             headers: { 
-                Accept : "text/plain; charset=utf-8",
-                "Content-Type": "text/plain; charset=utf-8"
+                //'Accept': 'text/plain; charset=utf-8',
+                'Accept': 'application/json',
+                'Content-Type': 'text/plain; charset=utf-8'
             },
-            dataType: 'text',
+            dataType: 'json',
             success: successFn || onAction,
             error: onError
         });
@@ -36,7 +37,7 @@ $(document).ready(function() {
         //var line = $("<span class='actionLine'>" + data + "</span>");
         //$('#actionsDiv').append(line);
         //var line = $("<li class='actionLine'>" + data + "</li>");
-        var line = $.tache(getTemplates().actionline, { 'line': data });
+        var line = $.tache(getTemplates().actionline, { 'line': data.message });
         $('#actionList').append(line);
     }
 
@@ -47,7 +48,7 @@ $(document).ready(function() {
     function onStats(data, textStatus, jqXhr) {
         if (console && console.log) console.log('Got stats!', data, textStatus, jqXhr);
         var re = /^Stats: /;
-        data = data.replace(re, '');
+        data = data.message.replace(re, '');
         $('#heroDiv').html(data);
     }
 

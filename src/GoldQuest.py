@@ -67,6 +67,7 @@ class GoldQuest(object):
         # Read text data
         self.read_texts()
 
+        # Configure datahandler backend.
         datahandler = self._cfg.get('LOCAL', 'datahandler')
         if datahandler == 'sqlite':
             from SqlDataHandler import SqlDataHandler
@@ -113,8 +114,17 @@ class GoldQuest(object):
             name = None
         return self.level.get_monster(name)
 
-    def play(self, command):
-        msg = ""
+    def return_response(self, response, asdict):
+        if asdict:
+            if not 'success' in response:
+                response['success'] = 1
+            return response
+        else:
+            return response['message']
+
+
+    def play(self, command, asdict=False):
+        response = ""
         command = command.strip().lower()
         try:
             (command, rest) = command.split(' ')
@@ -122,23 +132,29 @@ class GoldQuest(object):
             rest = ""
         rest = rest.strip()
         if command in ['reroll']:
-            return self.reroll()
+            response = self.reroll()
+            return self.return_response(response, asdict)
         if not self.hero or not self.hero.alive:
-            return self.get_text('nochampion')
+            msg = self.get_text('nochampion')
+            response = {
+                'message': msg,
+                'success': 0,
+            }
+            return self.return_response(response, asdict)
         if command in ['rest', 'vila']:
-            msg = self.rest()
+            response = self.rest()
         elif command in ['fight', 'kill', 'slay', u'slåss']:
-            msg = self.fight()
+            response = self.fight()
         elif command in ['deeper', 'down', 'descend', 'vidare']:
-            msg = self.go_deeper(rest)
+            response = self.go_deeper(rest)
         elif command in ['loot', 'search', u'sök', 'finna']:
-            msg = self.search_treasure()
+            response = self.search_treasure()
         elif command in ['charsheet', 'stats', u'formulär']:
-            msg = self.show_charsheet()
+            response = self.show_charsheet()
         else:
             return None
         self.save_data()
-        return msg
+        return self.return_response(response, asdict)
 
     def save_data(self):
         self._dh.save_data(self.hero, self.level)
@@ -156,15 +172,18 @@ class GoldQuest(object):
         if texts:
             for k, v in texts.items():
                 if v:
-                    setattr(level, k , v)
+                    setattr(level, '_%s' % k , v)
         if not level._boss:
             level._boss = random.choice(self._gamedata['boss'])
         return level
 
     def reroll(self):
         if self.hero and self.hero.alive:
-            msg = self.get_text('noreroll') % self.hero.get_attributes()
-            return msg
+            response = {
+                'message': self.get_text('noreroll') % self.hero.get_attributes(),
+                'success': 0,
+            }
+            return response
         else:
             # Clear all old level data.
             self._dh.clear_levels()
@@ -172,32 +191,61 @@ class GoldQuest(object):
             self.hero = Hero()
             self.hero.reroll()
             self.level = self.get_level(self.hero.level)
+            attribs = self.hero.get_attributes()
             self.save_data()
             msg = self.get_text('newhero')
-            msg = msg % self.hero.get_attributes()
-            msg = "%s %s" % (msg, self.level._text)
-            return msg
+            try:
+                msg = msg % attribs
+            except KeyError, e:
+                #print "Key not found in hero attribs:", e, attribs
+                logging.info("Couldn't find a given text replacement:", e)
+            if self.level._text:
+                msg = "%s %s" % (msg, self.level._text)
+            response = {
+                'message': msg,
+                'data': {
+                    'hero': attribs,
+                }
+            }
+            return response
 
     def search_treasure(self):
         #loot = self.hero.search_treasure()
+        loot = 0
+        msg = ''
+        response = {
+            'message': msg,
+            'data': {
+                'loot': loot,
+                'hero': {
+                }
+            }
+        }
         attribs = self.hero.get_attributes()
         if self.level.can_loot():
             loot = self.level.get_loot()
-            attribs['loot'] = loot
             if loot > 0:
                 msg = self.get_text('foundloot')
                 # Should be a method on Hero
                 self.hero.gold = self.hero.gold + loot
+                response['data']['loot'] = loot
+                attribs['loot'] = loot
+                attribs['gold'] = self.hero.gold
+                response['data']['hero']['gold'] = self.hero.gold
             elif loot < 0:
                 attribs['trap_hurt'] = abs(loot)
                 self.hero.injure(attribs['trap_hurt'])
                 msg = self.get_text('foundtrap')
+                response['data']['hero']['trap_hurt'] = attribs['trap_hurt']
+                response['data']['hero']['hurt'] = self.hero.hurt
             else:
                 msg = self.get_text('nogold')
         else:
             msg = self.get_text('noloot')
+            response['success'] = 0
         msg = msg % attribs
-        return msg
+        response['message'] = msg
+        return response
 
     def sneak_attack(self):
         if self.level.has_monsters():
@@ -207,6 +255,7 @@ class GoldQuest(object):
             if unlucky < 20:
                 #self.logprint("Sneak attack!")
                 monster = self.get_monster(self.level.depth)
+                monster_health = monster.health
                 won = self.hero.fight(monster)
                 if won:
                     msg = self.get_text('rest_attack_won')
@@ -215,14 +264,36 @@ class GoldQuest(object):
                 attribs = self.hero.get_attributes()
                 attribs['monster_name'] = monster.name
                 msg = msg % attribs
-                return msg
+                # FIXME: the hero.fight() method should return needed info.
+                response = {
+                    'message': msg,
+                    'success': 0,
+                    'data': {
+                        'hero': {
+                            'hurt': attribs['hurt'],
+                            'health': attribs['health'],
+                            'kills': attribs['kills'],
+                            'alive': attribs['alive'],
+                            'rested': 0,
+                        },
+                        'monster': {
+                            'name': monster.name,
+                            'strength': monster.strength,
+                            'health': monster_health,
+                            'hurt': monster_health - monster.health,
+                            'boss': monster.boss,
+                            'count': 1,
+                        },
+                    }
+                }
+                return response
 
     def rest(self):
         # If there are monsters alive on the level, there is a
         # risk of a sneak attack while resting.
-        msg = self.sneak_attack()
-        if msg:
-            return msg
+        response = self.sneak_attack()
+        if response:
+            return response
         rested = self.hero.rest()
         if rested:
             if self.hero.hurt:
@@ -234,7 +305,16 @@ class GoldQuest(object):
         attribs = self.hero.get_attributes()
         attribs['rested'] = rested
         msg = restmsg % attribs
-        return msg
+        response = {
+            'message': msg,
+            'data': {
+                'health': attribs['health'],
+                'hurt': attribs['hurt'],
+                'alive': attribs['alive'],
+                'rested': attribs['rested'],
+            }
+        }
+        return response
 
     def go_deeper(self, levels=1):
         try:
@@ -246,16 +326,28 @@ class GoldQuest(object):
         depth = self.hero.go_deeper(levels)
         self.level = self.get_level(depth)
         msg = self.level._text or self.get_text('deeper')
-        msg = msg % self.hero.get_attributes()
-        return msg
+        attribs = self.hero.get_attributes()
+        msg = msg % attribs
+        response = {
+            'message': msg,
+            'data': {
+                'level': attribs['level'],
+            }
+        }
+        return response
 
     def fight(self):
         monster = self.get_monster(self.level.depth)
-        attribs = self.hero.get_attributes()
         if not monster:
             msg = self.get_text('nomonsters')
-            return msg % attribs
+            response = {
+                'message': msg % self.hero.get_attributes(),
+                'success': 0,
+            }
+            return response
+        monster_health = monster.health
         won = self.hero.fight(monster)
+        attribs = self.hero.get_attributes()
         if won:
             msg = self.get_text('killed')
             attribs['slayed'] = self.get_text('slayed')
@@ -264,17 +356,43 @@ class GoldQuest(object):
         attribs['monster'] = monster.name
         msg = msg % attribs
         msg = self.firstupper(msg)
-        return msg
+        response = {
+            'message': msg,
+            'data': {
+                'hero': {
+                    'hurt': attribs['hurt'],
+                    'kills': attribs['kills'],
+                    'alive': attribs['alive'],
+                },
+                'monster': {
+                    'name': monster.name,
+                    'strength': monster.strength,
+                    'health': monster_health,
+                    'hurt': monster_health - monster.health,
+                    'boss': monster.boss,
+                    'count': 1,
+                }
+            }
+        }
+        return response
+
+    def show_charsheet(self):
+        msg = self.get_text('charsheet')
+        attribs = self.hero.get_attributes()
+        msg = msg % attribs
+        response = {
+            'message': msg,
+            'data': {
+                'hero': attribs,
+            }
+        }
+        return response
 
     def roll(self, sides, times=1):
         total = 0
         for i in range(times):
             total = total + random.randint(1, sides)
         return total
-
-    def show_charsheet(self):
-        msg = self.get_text('charsheet')
-        return msg % self.hero.get_attributes()
 
     def firstupper(self, text):
         first = text[0].upper()

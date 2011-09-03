@@ -115,8 +115,14 @@ class Hero(object):
         return '%s the %s' % (name, epithet)
 
     def get_attributes(self):
-        logging.info(self.__dict__)
-        attribs = self.__dict__
+        #logging.info(self.__dict__)
+        #attribs = self.__dict__
+        attribs = dict()
+        for k, v in self.__dict__.items():
+            #logging.info('%s = %s' % (k, v))
+            print 'k', k, 'v', v
+            if k[0:1] != '_':
+                attribs[k] = v
         attribs['status'] = ""
         if not self.alive:
             attribs['status'] = " (Deceased)"

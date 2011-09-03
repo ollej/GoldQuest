@@ -1429,6 +1429,7 @@ content_byteranges = content_type('multipart/byteranges') # RFC 2616 sect 14.16
 content_opaque = content_type('application/octet-stream')
 content_html = content_type('text/html')
 content_xhtml = content_type('application/xhtml+xml')
+content_json = content_type('application/json')
 
 
 def acceptable_content_type( accept_header, content_types, ignore_wildcard=True ):

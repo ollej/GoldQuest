@@ -32,12 +32,14 @@ class Monster(object):
     strength = None
     health = None
     level = None
+    boss = None
 
     def __init__(self, level=None, name=None, boss=False):
         if not level:
             level = 1
         self.strength = random.randint(1, level)
         self.health = random.randint(1, level)
+        self.boss = boss
         if boss:
             self.strength = self.strength + level
             self.health = self.health + level

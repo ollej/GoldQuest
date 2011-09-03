@@ -87,9 +87,11 @@ Makes the hero look for a monster and fight it to the death.
 #### /api/loot ####
 The hero will try to loot killed monsters for loot.
 
- * gold - The amount of gold the hero found.
+ * loot - The amount of gold the hero found.
  * hero - Object, the new values of the hero
    * gold - Integer, the amount of gold the hero has looted.
+   * trap_hurt - Integer, the amount of health lost if there was a sneak attack.
+   * hurt - Integer, the total amount of hurt the hero has, if there was a sneak attack.
 
 #### /api/deeper ####
 Sends the hero one level deeper into the dungeon (and increases the hero's level as well).
@@ -103,6 +105,7 @@ If the hero has been hurt, a small amount of health is restored.
    * health - The maximum health of the hero.
    * hurt - Integer, amount of hurt the hero has received.
    * alive - Boolean, true if the hero is still alive.
+   * rested - Integer, the amount of health restored during rest.
 
 #### /api/stats ####
 Returns information about the hero's stats.

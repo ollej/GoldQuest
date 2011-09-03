@@ -29,7 +29,7 @@ import ConfigParser
 import sys
 import os
 import logging
-import simplejson as json
+import simplejson
 import string
 import httpheader
 
@@ -79,10 +79,15 @@ class PageHandler(webapp.RequestHandler):
         """
         accept = self.request.headers['Accept']
         logging.info('Accept content-type: %s' % accept)
-        if httpheader.acceptable_content_type(accept, 'text/html'):
-            self.output_html(page, template_values, layout)
-        elif httpheader.acceptable_content_type(accept, 'application/json'):
+        logging.info(template_values)
+        #(mime, parms, qval, accept_parms) = httpheader.parse_accept_header(accept)
+        acceptparams = httpheader.parse_accept_header(accept)
+        logging.info(acceptparams)
+        #logging.info('mime: %s, parms: %s, qval: %s, accept_parms: %s' % (mime, parms, qval, accept_parms))
+        if httpheader.acceptable_content_type(accept, 'application/json'):
             self.output_json(template_values)
+        elif httpheader.acceptable_content_type(accept, 'text/html'):
+            self.output_html(page, template_values, layout)
         elif httpheader.acceptable_content_type(accept, 'application/xml'):
             self.output_xml(template_values)
         else:
@@ -91,7 +96,7 @@ class PageHandler(webapp.RequestHandler):
         return
         (mime, encoding) = self.parse_accept(accept)
         if mime == 'text/plain':
-            self.output_text(template_values['message'])
+            self.output_text(template_values['response']['message'])
         elif mime == 'application/json':
             self.output_json(template_values)
         elif mime == 'application/xml':
@@ -101,14 +106,15 @@ class PageHandler(webapp.RequestHandler):
 
     def output_json(self, template_values=None):
         self.response.headers.add_header('Content-Type', 'application/json', charset='utf-8')
-        json = json.dumps(template_values)
-        self.response.out.write(json)
+        jsondata = simplejson.dumps(template_values)
+        self.response.out.write(jsondata)
 
     def output_xml(self, template_values=None):
         self.response.headers.add_header('Content-Type', 'application/xml', charset='utf-8')
         serializer = Py2XML.Py2XML()
-        xml = serializer.parse(template_values)
-        self.response.out.write(xml)
+        values = { 'response': template_values }
+        xmldata = serializer.parse(values)
+        self.response.out.write(xmldata)
 
     def output_text(self, content):
         self.response.headers.add_header('Content-Type', 'text/plain', charset='utf-8')
@@ -139,17 +145,11 @@ class GoldQuestHandler(PageHandler):
         return super(GoldQuestHandler, self).output_html('api', values, layout)
 
     def get(self, command):
-        response = self.game.play(command)
-        if response:
+        response = self.game.play(command, True)
+        if response and response['message']:
+            logging.info(response)
             #self.response.out.write(response)
-            values = {
-                'message': response,
-                'success': True,
-                'data': {
-
-                }
-            }
-            self.show_page(command, values, 'default')
+            self.show_page(command, response, 'default')
         else:
             self.response.set_status(404)
 
