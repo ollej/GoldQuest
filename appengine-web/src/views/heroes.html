@@ -1,0 +1,13 @@
+<h1>Heroes</h1>
+<ol>
+{% for hero in heroes %}
+<li><b>{{ hero.name }}</b>
+    Gold: {{ hero.gold }}
+    Kills: {{ hero.kills }}
+    Level: {{ hero.level }}
+    Hurt: {{ hero.hurt }}
+    Strength: {{ hero.strength }}
+    Health: {{ hero.health }}
+    Alive: {% if hero.alive %}yes{% else %}no{% endif %}
+{% endfor %}
+</ol>

@@ -1,0 +1,105 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: Arial,"Helvetica Neue",sans-serif;
+  font-size: 15px;
+  line-height: 19px;
+  word-wrap: break-word;
+  color: #444;
+  background: white;
+}
+
+#mainDiv {
+  max-width: 320px;
+  max-height: 480px;
+}
+
+/*
+#contentDiv {
+  position: absolute:
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: white;
+}
+*/
+#heroDiv {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  padding: 3px 2px 0px 3px;
+  font-size: 13px;
+  line-height: 18px;
+  z-index: 1;
+  overflow: hidden;
+  border-bottom: thin solid black;
+}
+#heroDiv, #actionList li, #taskbarContainer {
+  background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#ddd), to(#d7d7d7));
+  background-image: -webkit-linear-gradient(top, #ddd, #d7d7d7);
+  background-image: -moz-linear-gradient(top, #ddd, #d7d7d7);
+  background-image: -ms-linear-gradient(top, #ddd, #d7d7d7);
+  background-image: -o-linear-gradient(top, #ddd, #d7d7d7);
+  background-image: linear-gradient(top, #ddd, #d7d7d7);
+}
+#contentDiv {
+  margin: 0;
+  width: 100%;
+}
+#actionsDiv {
+  /* position: absolute; */
+  /* bottom: 40px; */
+  height: 100%;
+  width: 100%;
+}
+#actionList {
+  width: 100%;
+  padding-top: 42px;
+  padding-bottom: 38px;
+  overflow: auto;
+  position: absolute;
+  bottom: 0;
+  list-style-type: none;
+}
+#actionList li {
+  border-top: 1px solid #D1D1D1;
+  text-shadow: 0 1px 1px #fff;
+  padding: 3px 5px 5px 5px;
+  font-family: Arial,"Helvetica Neue",sans-serif; font-size: 15px; line-height: 19px; word-wrap: break-word; color: #444;
+}
+#actionList li:nth-child(odd) {
+}
+#actionList li:nth-child(even) {
+}
+#taskbarWrapper {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  border-top: thin solid black;
+}
+#taskbarContainer {
+  height: 37px;
+}
+#taskbarDiv {
+  position: relative;
+}
+.taskDiv {
+  display: inline;
+}
+.taskDiv button {
+  background: none;
+  border: none;
+}
+.taskDiv button img {
+  margin: 2px 1px 3px 1px;
+}
+
