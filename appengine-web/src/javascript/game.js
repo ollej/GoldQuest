@@ -72,7 +72,7 @@ $(document).ready(function() {
             heroDiv.html(stats);
         } else {
             for (var field in hero) if (hero.hasOwnProperty(field)) {
-                if (console && console.log) console.log('field', field, 'value', hero[field]);
+                //if (console && console.log) console.log('field', field, 'value', hero[field]);
                 var valueDiv = $('#' + field + 'Value');
                 if (valueDiv) {
                     valueDiv.html(hero[field]);
