@@ -120,7 +120,7 @@ class Hero(object):
         attribs = dict()
         for k, v in self.__dict__.items():
             #logging.info('%s = %s' % (k, v))
-            print 'k', k, 'v', v
+            #print 'k', k, 'v', v
             if k[0:1] != '_':
                 attribs[k] = v
         attribs['status'] = ""
