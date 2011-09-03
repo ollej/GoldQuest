@@ -9,6 +9,39 @@ The Gold Quest web game is available on the following URL:
 
     http://gold-quest.appspot.com/
 
+Gold Quest
+----------
+Gold Quest is a simple multi-user co-op text based dungeon quest game with multiple client options.
+
+The main Gold Quest code is available here:
+
+    https://github.com/ollej/GoldQuest/
+
+Gold Quest Web
+--------------
+The web version of Gold Quest allows players from anywhere to easily play Gold Quest
+by simpling clicking on buttons for each action.
+
+There is also a list of the top 10 heroes of all time available.
+
+Gold Quest Widget
+-----------------
+
+The Gold Quest Widget is a widget that can be inserted into any web page to
+allow the visitors to the site to play the game.
+
+Currently all players on all sites will play the same hero, but there are plans to
+allow site owners to authenticate and create their own hero. This would allow for
+co-op within the site and friendly rivalry between sites.
+
+### Installation ###
+The only thing you need to do is to place the following HTML code somewhere on your site.
+
+    <iframe src="http://gold-quest.appspot.com/game.html" 
+            id="goldquestIframe" 
+            width="230" height="380" 
+            frameborder="0" scrolling="no" />
+
 Gold Quest API
 --------------
 
@@ -19,6 +52,11 @@ application/xml or text/javascript
 
 If the request was successful, the HTTP Response Status will be 200, otherwise
 a proper failure status is sent.
+
+### API URL ###
+The main URL for the API is the following:
+
+    http://gold-quest.appspot.com/api/
 
 ### Example Response ###
 In text/plain mode, only the message will be returned in the body. Otherwise all messages
@@ -43,6 +81,8 @@ Makes the hero look for a monster and fight it to the death.
    * hurt - Integer, amount of hurt the hero inflicted on the monster.
    * strength - Integer, the strength of the monster.
    * health - Integer, the original health of the monster.
+   * boss - Boolean, true if this was a boss.
+   * count - Integer, number of monsters in this encounter.
 
 #### /api/loot ####
 The hero will try to loot killed monsters for loot.
