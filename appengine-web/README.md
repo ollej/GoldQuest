@@ -48,7 +48,7 @@ Gold Quest API
 The API doesn't require any authentication for any of the current requests.
 
 Responses will be returned based on given Accept header, either text/plain,
-application/xml or text/javascript
+text/html, application/xml or application/json
 
 If the request was successful, the HTTP Response Status will be 200, otherwise
 a proper failure status is sent.

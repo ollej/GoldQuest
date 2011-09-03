@@ -29,6 +29,9 @@ import ConfigParser
 import sys
 import os
 import logging
+import simplejson as json
+import string
+import httpheader
 
 #os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 from google.appengine.dist import use_library
@@ -42,32 +45,115 @@ from django.template import TemplateDoesNotExist
 from GoldQuest import GoldQuest
 from GoldQuest.DataStoreDataHandler import *
 
-class GoldQuestHandler(webapp.RequestHandler):
-    def __init__(self):
-        cfg = ConfigParser.ConfigParser()
-        config_path = os.path.join(os.path.dirname(__file__), 'config.ini')
-        cfg.read(config_path)
-        self.game = GoldQuest.GoldQuest(cfg)
+import Py2XML
+import dumpdict
 
-    def get(self, command):
-        response = self.game.play(command)
-        if response:
-            self.response.out.write(response)
-        else:
-            self.response.set_status(404)
+class PageHandler(webapp.RequestHandler):
+    """
+    Default page handler, supporting html templates, layouts, output formats etc.
+    """
 
-class MainPageHandler(webapp.RequestHandler):
     basepath = os.path.dirname(__file__)
+
+    def parse_accept(self, accept):
+        logging.info('accept: %s' % accept)
+        (mime, charset) = string.split(accept, '; ', 2)
+        encoding = 'utf-8'
+        if charset:
+            (foo, encoding) = string.split(charset, '=', 2)
+        return (mime, encoding)
 
     def get_template(self, page, values, layout='default'):
         page = "%s.html" % page
         path = os.path.join(self.basepath, 'views', page)
         logging.info('template pathname: %s' % path)
         content = template.render(path, values)
-        path = os.path.join(self.basepath, 'views', 'layouts', '%s.html' % layout)
-        content = template.render(path, { 'content': content })
+        if layout:
+            path = os.path.join(self.basepath, 'views', 'layouts', '%s.html' % layout)
+            content = template.render(path, { 'content': content })
         return content
 
+    def show_page(self, page, template_values=None, layout='default'):
+        """
+        Select output format based on Accept headers.
+        """
+        accept = self.request.headers['Accept']
+        logging.info('Accept content-type: %s' % accept)
+        if httpheader.acceptable_content_type(accept, 'text/html'):
+            self.output_html(page, template_values, layout)
+        elif httpheader.acceptable_content_type(accept, 'application/json'):
+            self.output_json(template_values)
+        elif httpheader.acceptable_content_type(accept, 'application/xml'):
+            self.output_xml(template_values)
+        else:
+            #elif httpheader.acceptable_content_type(accept, 'text/plain'):
+            self.output_text(template_values['message'])
+        return
+        (mime, encoding) = self.parse_accept(accept)
+        if mime == 'text/plain':
+            self.output_text(template_values['message'])
+        elif mime == 'application/json':
+            self.output_json(template_values)
+        elif mime == 'application/xml':
+            self.output_xml(template_values)
+        else:
+            self.output_html(page, template_values, layout)
+
+    def output_json(self, template_values=None):
+        self.response.headers.add_header('Content-Type', 'application/json', charset='utf-8')
+        json = json.dumps(template_values)
+        self.response.out.write(json)
+
+    def output_xml(self, template_values=None):
+        self.response.headers.add_header('Content-Type', 'application/xml', charset='utf-8')
+        serializer = Py2XML.Py2XML()
+        xml = serializer.parse(template_values)
+        self.response.out.write(xml)
+
+    def output_text(self, content):
+        self.response.headers.add_header('Content-Type', 'text/plain', charset='utf-8')
+        self.response.out.write(content)
+
+    def output_html(self, page, template_values=None, layout='default'):
+        try:
+            content = self.get_template(page, template_values, layout)
+            self.response.out.write(content)
+        except TemplateDoesNotExist:
+            self.response.set_status(404)
+
+class GoldQuestHandler(PageHandler):
+    def __init__(self):
+        cfg = ConfigParser.ConfigParser()
+        config_path = os.path.join(os.path.dirname(__file__), 'config.ini')
+        cfg.read(config_path)
+        self.game = GoldQuest.GoldQuest(cfg)
+
+    def output_html(self, page, template_values=None, layout='default'):
+        """
+        Override the html output to print data.
+        """
+        values = {
+            'command': page,
+            'content': dumpdict.dumpdict(template_values, br='<br/>', html=1),
+        }
+        return super(GoldQuestHandler, self).output_html('api', values, layout)
+
+    def get(self, command):
+        response = self.game.play(command)
+        if response:
+            #self.response.out.write(response)
+            values = {
+                'message': response,
+                'success': True,
+                'data': {
+
+                }
+            }
+            self.show_page(command, values, 'default')
+        else:
+            self.response.set_status(404)
+
+class MainPageHandler(PageHandler):
     def get(self, page):
         template_values = {}
         (pagename, ext) = os.path.splitext(page)
@@ -97,12 +183,6 @@ class MainPageHandler(webapp.RequestHandler):
         values = {}
         self.show_page('game', values, 'bare')
 
-    def show_page(self, page, template_values=None, layout='default'):
-        try:
-            content = self.get_template(page, template_values, layout)
-            self.response.out.write(content)
-        except TemplateDoesNotExist:
-            self.response.set_status(404)
 
 def main():
     application = webapp.WSGIApplication([(r'/api/(.*)', GoldQuestHandler),

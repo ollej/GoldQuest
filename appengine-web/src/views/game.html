@@ -20,8 +20,11 @@
   </div>
   <div id="charsheetTemplate" style="display: none">
     <h1>[[ name ]]</h1>
-    <p>Str: [[ strength ]] &lt;3: [[ current_health ]]/[[ health ]] Lvl: [[ level ]]
-    Kills: [[ kills ]] Gold: [[ gold ]]</p>
+    <div class="statDiv" id="strengthStatDiv"><img src="images/tiny-icon-strength.png" width="16" height="16" alt="Strength" title="Strength" /><span class="statValue" id="strengthValue">[[ strength ]]</span></div>
+    <div class="statDiv" id="healthStatDiv"><img src="images/tiny-icon-health.png" width="16" height="16" alt="Health" title="Health" /><span class="statValue" id="healthValue">[[ current_health ]]/[[ health ]]</span></div>
+    <div class="statDiv" id="levelStatDiv"><img src="images/tiny-icon-level.png" width="16" height="16" alt="Level" title="Level" /><span class="statValue" id="levelValue">[[ level ]]</span></div>
+    <div class="statDiv" id="killsStatDiv"><img src="images/tiny-icon-kills.png" width="16" height="16" alt="Kills" title="Kills" /><span class="statValue" id="killsValue">[[ kills ]]</span></div>
+    <div class="statDiv" id="goldStatDiv"><img src="images/tiny-icon-gold.png" width="16" height="16" alt="Gold" title="Gold" /><span class="statValue" id="goldValue">[[ gold ]]</span></div>
   </div>
   <div id="actionlineTemplate" style="display: none">
     <li class='actionLine'>[[ line ]]</li>

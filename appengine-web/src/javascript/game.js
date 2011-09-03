@@ -21,6 +21,10 @@ $(document).ready(function() {
     function ajaxAction(cmd, successFn) {
         $.ajax({
             url: gameUrl + cmd,
+            headers: { 
+                Accept : "text/plain; charset=utf-8",
+                "Content-Type": "text/plain; charset=utf-8"
+            },
             dataType: 'text',
             success: successFn || onAction,
             error: onError
