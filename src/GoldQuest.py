@@ -362,6 +362,7 @@ class GoldQuest(object):
             'message': msg,
             'data': {
                 'hero': {
+                    'health': attribs['health'],
                     'hurt': attribs['hurt'],
                     'kills': attribs['kills'],
                     'alive': attribs['alive'],

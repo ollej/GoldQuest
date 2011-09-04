@@ -68,13 +68,22 @@ $(document).ready(function() {
             //if (console && console.log) console.log('Action already handled:', data.id);
             return;
         }
+
+        // Make sure this action isn't handled again.
         handledActions.push(data.id);
+
+        // Add action to list.
         line = $.tache(getTemplates().actionline, { 'line': data.message, 'id': data.id });
         if (data['data'] && data['data']['hero']) {
             updateCharsheet(data['data']['hero']);
         }
         $('#actionList').append(line);
         clearLines();
+
+        // If character was rerolled, update stats.
+        if (data['command'] == 'reroll') {
+            ajaxAction('stats', onStats);
+        }
     }
 
     function updateCharsheet(hero) {

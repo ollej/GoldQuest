@@ -10,6 +10,9 @@ hero:
     - Xena
     - Altair
     - Adele
+    - Lara
+    - Kull
+    - Barbarella
   epithet:
     - "%(name)s the Barbarian"
     - "%(name)s the Invincible"

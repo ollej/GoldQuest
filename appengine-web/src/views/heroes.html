@@ -1,4 +1,5 @@
 <h1>Heroes</h1>
+<p>The best gold collecting heroes of all time.</p>
 <ol>
 {% for hero in heroes %}
 <li><b>{{ hero.name }}</b>
@@ -11,3 +12,11 @@
     Alive: {% if hero.alive %}yes{% else %}no{% endif %}
 {% endfor %}
 </ol>
+
+<h2>Statistics</h1>
+<ul>
+    <li>Gold collected: <b>{{ gold }}</b></li>
+    <li>Total kills: <b>{{ kills }}</b></li>
+    <li>Maxiumum level: <b>{{ level }}</b></li>
+    <li>Total heroes: <b>{{ hero_count }}</b></li>
+</ul>

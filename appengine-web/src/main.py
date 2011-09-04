@@ -52,6 +52,38 @@ from GoldQuest.DataStoreDataHandler import *
 import Py2XML
 import dumpdict
 
+class KeyValueInt(db.Model):
+    """Shards for the counter"""
+    name = db.StringProperty(required=True, default='')
+    value = db.IntegerProperty(required=True, default=0)
+
+def get_value(name):
+    """Retrieve the value for a given key."""
+    k = db.Key.from_path('KeyValueInt', name)
+    val = db.get(k)
+    #val = KeyValueInt.all().filter('name =', name).get()
+    if not val:
+        val = KeyValueInt(key_name=name, name=name, value=0)
+    return val
+
+def set_value(name, value):
+    """Update the value for a given name."""
+    k = db.Key.from_path('KeyValueInt', name)
+    val = db.get(k)
+    if not val:
+        val = KeyValueInt(key_name=name, name=name, value=value)
+    else:
+        val.value = value
+    val.put()
+
+def inc_value(name, inc=1):
+    """Increment the value for a given sharded counter."""
+    def txn(name, inc):
+        val = get_value(name)
+        val.value += inc
+        val.put()
+    db.run_in_transaction(txn, name, inc)
+
 class PageHandler(webapp.RequestHandler):
     """
     Default page handler, supporting html templates, layouts, output formats etc.
@@ -150,11 +182,31 @@ class GoldQuestHandler(PageHandler):
             logging.info(response)
             #self.response.out.write(response)
             response['id'] = uuid.uuid4().hex
+            response['command'] = command
+            self.track_values(response)
             if command != 'stats':
                 self._channel.send_all_update(response)
             self.show_page(command, response, 'default')
         else:
             self.response.set_status(404)
+
+    def track_values(self, response):
+        command = response['command']
+        if command == 'loot':
+            try:
+                loot = response['data']['loot']
+            except KeyError, e:
+                pass
+            else:
+                inc_value('gold', loot)
+        elif command == 'fight':
+            try:
+                if response['data']['hero']['alive']:
+                    inc_value('kills')
+            except KeyError, e:
+                logging.info('Hero killed a monster, but response was broken.', e, response)
+        elif command == 'reroll':
+            inc_value('heroes')
 
 class MainPageHandler(PageHandler):
     _channel = None
@@ -182,8 +234,31 @@ class MainPageHandler(PageHandler):
 
     def page_heroes(self):
         heroes = DSHero.all().order("-gold").fetch(10)
+        gold = get_value('gold').value
+        kills = get_value('kills').value
+        hero_count = get_value('heroes').value
+        level = 0
+        high_level_hero = DSHero.all().order("-level").get()
+        if high_level_hero:
+            level = high_level_hero.level
+        # Temporary code to initialize the kill and gold counters.
+        if gold == 0:
+            for h in DSHero.all().fetch(1000):
+                gold += h.gold
+            set_value('gold', gold)
+        if kills == 0:
+            for h in DSHero.all().fetch(1000):
+                kills += h.kills
+            set_value('kills', kills)
+        if hero_count == 0:
+            hero_count = DSHero.all().count()
+            set_value('heroes', hero_count)
         values = {
             'heroes': heroes,
+            'gold': gold,
+            'kills': kills,
+            'level': level,
+            'hero_count': hero_count,
         }
         self.show_page('heroes', values)
 
@@ -237,7 +312,6 @@ class ChannelUpdater(object):
     def connect(self, client_id):
         """
         Add client_id to list of active clients.
-        TODO: Needs persistence
         """
         channels = self.get_channels()
         if not hasattr(channels, client_id):
@@ -248,7 +322,6 @@ class ChannelUpdater(object):
     def disconnect(self, client_id):
         """
         Remove client_id from list of active clients.
-        TODO: Needs persistence
         """
         channels = self.get_channels()
         try:

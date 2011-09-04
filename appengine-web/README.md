@@ -66,6 +66,7 @@ will contain the following data:
  * success - Boolean, true if the request was a success.
  * data - Object, additional data depending on request type.
  * id - String, an identifier for this action.
+ * command - String, the name of the action command called.
 
 ### Routes ###
 The following API requests are available.
@@ -74,6 +75,7 @@ The following API requests are available.
 Makes the hero look for a monster and fight it to the death.
 
  * hero - Object, the new values of the hero
+   * health - The maximum health of the hero. 
    * hurt - Integer, amount of hurt the hero has received.
    * kills - Integer, the number of monsters the hero has killed.
    * alive - Boolean, true if the hero is still alive.
