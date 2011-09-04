@@ -241,18 +241,6 @@ class MainPageHandler(PageHandler):
         high_level_hero = DSHero.all().order("-level").get()
         if high_level_hero:
             level = high_level_hero.level
-        # Temporary code to initialize the kill and gold counters.
-        if gold == 0:
-            for h in DSHero.all().fetch(1000):
-                gold += h.gold
-            set_value('gold', gold)
-        if kills == 0:
-            for h in DSHero.all().fetch(1000):
-                kills += h.kills
-            set_value('kills', kills)
-        if hero_count == 0:
-            hero_count = DSHero.all().count()
-            set_value('heroes', hero_count)
         values = {
             'heroes': heroes,
             'gold': gold,
