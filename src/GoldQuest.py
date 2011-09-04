@@ -308,10 +308,12 @@ class GoldQuest(object):
         response = {
             'message': msg,
             'data': {
-                'health': attribs['health'],
-                'hurt': attribs['hurt'],
-                'alive': attribs['alive'],
                 'rested': attribs['rested'],
+                'hero': {
+                    'health': attribs['health'],
+                    'hurt': attribs['hurt'],
+                    'alive': attribs['alive'],
+                }
             }
         }
         return response
