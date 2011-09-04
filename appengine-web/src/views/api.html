@@ -1,4 +1,150 @@
-<h1>API Response</h1>
-{% autoescape off %}
-{{content}}
-{% endautoescape %}
+<h1>Gold Quest API</h1>
+<p>The Gold Quest API allows external access to the game, to easily create new
+clients.</p>
+
+<h2>Available Commands</h2>
+<p>These are the commands that are available in the game. Clicking on the links will
+execute the command and show the result as an html page.</p>
+    <ul>
+        <li><a href="/api/stats">Character Sheet</a></li>
+        <li><a href="/api/fight">Fight</a></li>
+        <li><a href="/api/loot">Loot</a></li>
+        <li><a href="/api/deeper">Deeper</a></li>
+        <li><a href="/api/rest">Rest</a></li>
+        <li><a href="/api/reroll">Reroll</a></li>
+    </ul>
+
+<h2>Usage</h2>
+<p>All commands are done as a GET request to the given endpoint. No extra
+parameters are necessary.</p>
+
+<h3>Authentication</h3>
+<p>The API doesn't require any authentication for any of the current requests.</p> 
+ 
+<h3>Response Formats</h3>
+<p>Responses will be returned based on given Accept header, either text/plain,
+text/html, application/xml or application/json</p> 
+
+<p>The recommended format is JSON. The XML structure may change at any point.</p>
+
+<h4>Examples</h4>
+
+<pre><code>Accept: application/json
+</code></pre>
+
+<pre><code>Accept: text/plain
+</code></pre>
+ 
+<h3>Response Codes</h3>
+<p>If the request was successful, the HTTP Response Status will be 200, otherwise
+a proper failure status is sent.</p> 
+ 
+<h3>API URL</h3> 
+<p>The main URL for the API is the following:</p> 
+ 
+<pre><code>http://gold-quest.appspot.com
+</code></pre> 
+ 
+<h3>Example Responses</h3> 
+<p>In text/plain mode, only the message will be returned in the body. Otherwise all messages
+will contain the following data:</p> 
+ 
+<ul> 
+    <li>message - String, text message describing the result of the action.</li> 
+    <li>success - Boolean, 1 if the action was a success.</li> 
+    <li>data - Object, additional data depending on request type.</li> 
+</ul>
+
+<h3>Actions</h3> 
+<p>The following API requests are available.</p> 
+ 
+<h4>/api/fight</h4> 
+<p>Makes the hero look for a monster and fight it to the death.</p> 
+<ul> 
+    <li>hero - Object, the new values of the hero
+        <ul> 
+            <li>hurt - Integer, amount of hurt the hero has received.</li> 
+            <li>kills - Integer, the number of monsters the hero has killed.</li> 
+            <li>alive - Boolean, true if the hero is still alive.</li> 
+        </ul> 
+    </li> 
+    <li>monster - Object, data about the monster that was fought.
+        <ul> 
+            <li>name - String, name of the monster the hero fought.</li> 
+            <li>hurt - Integer, amount of hurt the hero inflicted on the monster.</li> 
+            <li>strength - Integer, the strength of the monster.</li> 
+            <li>health - Integer, the original health of the monster.</li> 
+            <li>boss - Boolean, true if this was a boss.</li> 
+            <li>count - Integer, number of monsters in this encounter.</li> 
+        </ul> 
+    </li> 
+</ul>
+
+<h4>/api/loot</h4> 
+<p>The hero will try to loot killed monsters for loot.</p> 
+<ul> 
+    <li>loot - The amount of gold the hero found.</li> 
+    <li>hero - Object, the new values of the hero
+        <ul> 
+            <li>gold - Integer, the amount of gold the hero has looted.</li> 
+            <li>trap_hurt - Integer, the amount of health lost if there was a sneak attack.</li> 
+            <li>hurt - Integer, the total amount of hurt the hero has, if there was a sneak attack.</li> 
+        </ul> 
+    </li> 
+</ul>
+
+<h4>/api/deeper</h4> 
+<p>Sends the hero one level deeper into the dungeon (and increases the hero's level as well).</p> 
+<ul> 
+    <li>hero - Object
+        <ul> 
+            <li>level - Integer, the level the hero is on in the dungeon.</li> 
+        </ul> 
+    </li> 
+</ul>
+
+<h4>/api/rest</h4> 
+<p>If the hero has been hurt, a small amount of health is restored.</p> 
+<ul> 
+    <li>hero - Object, the new values of the hero
+        <ul> 
+            <li>health - The maximum health of the hero.</li> 
+            <li>hurt - Integer, amount of hurt the hero has received.</li> 
+            <li>alive - Boolean, true if the hero is still alive.</li> 
+            <li>rested - Integer, the amount of health restored during rest.</li> 
+        </ul> 
+    </li> 
+</ul>
+
+<h4>/api/stats</h4> 
+<p>Returns information about the hero's stats.</p> 
+<ul> 
+    <li>hero - Object, the new values of the hero
+        <ul> 
+            <li>strength - The strength of the hero.</li> 
+            <li>health - The maximum health of the hero.</li> 
+            <li>hurt - Integer, amount of hurt the hero has received.</li> 
+            <li>gold - Integer, the amount of gold the hero has looted.</li> 
+            <li>kills - Integer, the number of monsters the hero has killed.</li> 
+            <li>level - Integer, the level the hero is on in the dungeon.</li> 
+            <li>alive - Boolean, true if the hero is still alive.</li> 
+        </ul> 
+    </li> 
+</ul>
+
+<h4>/api/reroll</h4> 
+<p>Rerolls a new character if the current hero has died.</p> 
+<ul> 
+    <li>hero - Object, the new values of the hero
+        <ul> 
+            <li>strength - The strength of the hero.</li> 
+            <li>health - The maximum health of the hero.</li> 
+            <li>hurt - Integer, amount of hurt the hero has received.</li> 
+            <li>gold - Integer, the amount of gold the hero has looted.</li> 
+            <li>kills - Integer, the number of monsters the hero has killed.</li> 
+            <li>level - Integer, the level the hero is on in the dungeon.</li> 
+            <li>alive - Boolean, true if the hero is still alive.</li> 
+        </ul> 
+    </li> 
+</ul>
+

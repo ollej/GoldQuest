@@ -1,33 +1,35 @@
 body {
-    font-family: Verdana, Helvetica, sans-serif;
-    background-color: #DDDDDD;
+  font-family: Verdana, Helvetica, sans-serif;
+  background-color: #DDDDDD;
 }
 
 #logoDiv {
-    margin: -50px 0 0 0;
-    padding: 0 20px 20px 20px;
-    float: left;
+  margin: -60px 0 0 0;
+  padding: 0 20px 20px 20px;
+  float: left;
+  position: fixed;
+  height: 100%;
 }
 
 #contentDiv {
-    padding-left: 20px;
-    float: left;
+  padding-left: 300px;
+  float: left;
 }
 
 .actionLine {
-    display: block;
+  display: block;
 }
 
 #commandDiv {
-    float: left;
+  float: left;
 }
 
 #gameDiv {
-    float: left;
-    padding-top: 20px;
-    padding-left: 40px;
+  float: left;
+  padding-top: 20px;
+  padding-left: 40px;
 }
 
 #goldquestIframe {
-    border: thin solid black;
+  border: thin solid black;
 }

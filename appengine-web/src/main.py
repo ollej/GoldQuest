@@ -55,14 +55,6 @@ class PageHandler(webapp.RequestHandler):
 
     basepath = os.path.dirname(__file__)
 
-    def parse_accept(self, accept):
-        logging.info('accept: %s' % accept)
-        (mime, charset) = string.split(accept, '; ', 2)
-        encoding = 'utf-8'
-        if charset:
-            (foo, encoding) = string.split(charset, '=', 2)
-        return (mime, encoding)
-
     def get_template(self, page, values, layout='default'):
         page = "%s.html" % page
         path = os.path.join(self.basepath, 'views', page)
@@ -72,6 +64,12 @@ class PageHandler(webapp.RequestHandler):
             path = os.path.join(self.basepath, 'views', 'layouts', '%s.html' % layout)
             content = template.render(path, { 'content': content })
         return content
+
+    def parse_pagename(self, page):
+        (pagename, ext) = os.path.splitext(page)
+        logging.info("page: %s pagename: %s ext: %s" % (page, pagename, ext))
+        # TODO: filter unwanted characters
+        return (pagename, ext)
 
     def show_page(self, page, template_values=None, layout='default'):
         """
@@ -94,15 +92,6 @@ class PageHandler(webapp.RequestHandler):
             #elif httpheader.acceptable_content_type(accept, 'text/plain'):
             self.output_text(template_values['message'])
         return
-        (mime, encoding) = self.parse_accept(accept)
-        if mime == 'text/plain':
-            self.output_text(template_values['response']['message'])
-        elif mime == 'application/json':
-            self.output_json(template_values)
-        elif mime == 'application/xml':
-            self.output_xml(template_values)
-        else:
-            self.output_html(page, template_values, layout)
 
     def output_json(self, template_values=None):
         self.response.headers.add_header('Content-Type', 'application/json', charset='utf-8')
@@ -142,7 +131,7 @@ class GoldQuestHandler(PageHandler):
             'command': page,
             'content': dumpdict.dumpdict(template_values, br='<br/>', html=1),
         }
-        return super(GoldQuestHandler, self).output_html('api', values, layout)
+        return super(GoldQuestHandler, self).output_html('api_response', values, layout)
 
     def get(self, command):
         response = self.game.play(command, True)
@@ -156,8 +145,7 @@ class GoldQuestHandler(PageHandler):
 class MainPageHandler(PageHandler):
     def get(self, page):
         template_values = {}
-        (pagename, ext) = os.path.splitext(page)
-        logging.info("page: %s pagename: %s ext: %s" % (page, pagename, ext))
+        (pagename, ext) = self.parse_pagename(page)
         if not pagename or pagename == 'index':
             self.show_page('index')
         elif page == 'favicon.ico':
@@ -168,7 +156,8 @@ class MainPageHandler(PageHandler):
             try:
                 func = getattr(self, func_name)
             except AttributeError:
-                self.response.set_status(404)
+                self.show_page(pagename, None, 'default')
+                #self.response.set_status(404)
             else:
                 func()
 
