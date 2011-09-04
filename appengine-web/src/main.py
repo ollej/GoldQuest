@@ -32,6 +32,8 @@ import logging
 import simplejson
 import string
 import httpheader
+import uuid
+from datetime import datetime
 
 #os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 from google.appengine.dist import use_library
@@ -40,6 +42,8 @@ use_library('django', '1.2')
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 from google.appengine.ext.webapp import template
+from google.appengine.api import channel
+from google.appengine.api import memcache
 from django.template import TemplateDoesNotExist
 
 from GoldQuest import GoldQuest
@@ -117,11 +121,16 @@ class PageHandler(webapp.RequestHandler):
             self.response.set_status(404)
 
 class GoldQuestHandler(PageHandler):
+    _cfg = None
+    _game = None
+    _channel = None
+
     def __init__(self):
-        cfg = ConfigParser.ConfigParser()
+        self._cfg = ConfigParser.ConfigParser()
         config_path = os.path.join(os.path.dirname(__file__), 'config.ini')
-        cfg.read(config_path)
-        self.game = GoldQuest.GoldQuest(cfg)
+        self._cfg.read(config_path)
+        self._game = GoldQuest.GoldQuest(self._cfg)
+        self._channel = ChannelUpdater()
 
     def output_html(self, page, template_values=None, layout='default'):
         """
@@ -134,15 +143,23 @@ class GoldQuestHandler(PageHandler):
         return super(GoldQuestHandler, self).output_html('api_response', values, layout)
 
     def get(self, command):
-        response = self.game.play(command, True)
+        response = self._game.play(command, True)
         if response and response['message']:
             logging.info(response)
             #self.response.out.write(response)
+            response['id'] = uuid.uuid4().hex
+            if command != 'stats':
+                self._channel.send_all_update(response)
             self.show_page(command, response, 'default')
         else:
             self.response.set_status(404)
 
 class MainPageHandler(PageHandler):
+    _channel = None
+
+    def __init__(self):
+        self._channel = ChannelUpdater()
+
     def get(self, page):
         template_values = {}
         (pagename, ext) = self.parse_pagename(page)
@@ -169,13 +186,96 @@ class MainPageHandler(PageHandler):
         self.show_page('heroes', values)
 
     def page_game(self):
-        values = {}
+        (token, client_id) = self._channel.create_channel()
+        values = {
+            'channel_token': token,
+            'channel_client_id': client_id,
+        }
         self.show_page('game', values, 'bare')
+
+class ChannelUpdater(object):
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(ChannelUpdater, cls).__new__(
+                                cls, *args, **kwargs)
+        return cls._instance
+
+    def __init__(self):
+        self._channels = self.get_channels()
+
+    def get_channels(self):
+        return simplejson.loads(memcache.get('channels') or '{}')
+
+    def set_channels(self, channels):
+        memcache.set('channels', simplejson.dumps(channels))
+
+    def create_channel(self):
+        client_id = uuid.uuid4().hex
+        token = channel.create_channel(client_id)
+        return (token, client_id)
+
+    def send_update(self, client_id, message):
+        """
+        Send a message as JSON to the client identified with client_id.
+        """
+        message = simplejson.dumps(message)
+        logging.info('Sending message to client: %s - %s' % (client_id, message))
+        channel.send_message(client_id, message)
+
+    def send_all_update(self, message):
+        """
+        Send message to all connected clients.
+        """
+        channels = self.get_channels()
+        for client_id in channels.iterkeys():
+            self.send_update(client_id, message)
+
+    def connect(self, client_id):
+        """
+        Add client_id to list of active clients.
+        TODO: Needs persistence
+        """
+        channels = self.get_channels()
+        if not hasattr(channels, client_id):
+            logging.info("Adding new client: %s" % client_id)
+            channels[client_id] = str(datetime.now())
+            self.set_channels(channels)
+
+    def disconnect(self, client_id):
+        """
+        Remove client_id from list of active clients.
+        TODO: Needs persistence
+        """
+        channels = self.get_channels()
+        try:
+            del channels[client_id]
+        except KeyError, e:
+            logging.info("Tried to remove unknown client: %s" % client_id)
+        else:
+            self.set_channels(channels)
+
+class ChannelHandler(webapp.RequestHandler):
+    _channel = None
+
+    def __init__(self):
+        self._channel = ChannelUpdater()
+
+    def post(self, action):
+        client_id = self.request.get('from')
+        logging.info('Channel client %s %s' % (client_id, action))
+        if action == 'connected':
+            self._channel.connect(client_id)
+        elif action == 'disconnected':
+            self._channel.disconnect(client_id)
 
 
 def main():
     application = webapp.WSGIApplication([(r'/api/(.*)', GoldQuestHandler),
-                                          (r'/(.*)', MainPageHandler)],
+                                          (r'/_ah/channel/(connected|disconnected)/', ChannelHandler),
+                                          (r'/(.*)', MainPageHandler),
+                                          ],
                                          debug=True)
     util.run_wsgi_app(application)
 

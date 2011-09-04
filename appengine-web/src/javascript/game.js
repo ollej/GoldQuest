@@ -1,6 +1,9 @@
 $(document).ready(function() {
-    var gameUrl = '/api/';
-    var templates;
+    var gameUrl = '/api/',
+        MAX_LINES = 50,
+        templates,
+        channel,
+        handledActions = [];
 
     function getTemplate(name) {
         var template = $('#' + name + 'Template').html();
@@ -13,9 +16,26 @@ $(document).ready(function() {
                 'actionline': getTemplate('actionline'),
                 'charsheet': getTemplate('charsheet')
             };
-            if (console && console.log) console.log('Read templates:', templates);
+            //if (console && console.log) console.log('Read templates:', templates);
         }
         return templates;
+    }
+
+    function onAction(data, textStatus, jqXhr) {
+        //if (console && console.log) console.log('Success!', data, textStatus, jqXhr);
+        handleAction(data);
+    }
+
+    function onError(jqXHR, textStatus, errorThrown) {
+        if (console && console.log) console.log('Error!', jqXHR, textStatus, errorThrown);
+    }
+
+    function onStats(data, textStatus, jqXhr) {
+        var hero;
+        if (!data['data'] || !data['data']['hero']) return;
+        hero = data['data']['hero']
+        //if (console && console.log) console.log('Got stats!', data, textStatus, jqXhr);
+        updateCharsheet(hero);
     }
 
     function ajaxAction(cmd, successFn) {
@@ -32,32 +52,29 @@ $(document).ready(function() {
         });
     }
 
-    function onAction(data, textStatus, jqXhr) {
+    function clearLines() {
+        var id, el;
+        while (handledActions.length > MAX_LINES) {
+            id = handledActions.shift();
+            el = $('#action_' + id);
+            //if (console && console.log) console.log('Removing action:', id, el);
+            el.remove();
+        }
+    }
+
+    function handleAction(data) {
         var line;
-        if (console && console.log) console.log('Success!', data, textStatus, jqXhr);
-        //var line = $("<span class='actionLine'>" + data + "</span>");
-        //$('#actionsDiv').append(line);
-        //var line = $("<li class='actionLine'>" + data + "</li>");
-        line = $.tache(getTemplates().actionline, { 'line': data.message });
+        if ($.inArray(data.id, handledActions) >= 0) {
+            //if (console && console.log) console.log('Action already handled:', data.id);
+            return;
+        }
+        handledActions.push(data.id);
+        line = $.tache(getTemplates().actionline, { 'line': data.message, 'id': data.id });
         if (data['data'] && data['data']['hero']) {
             updateCharsheet(data['data']['hero']);
         }
         $('#actionList').append(line);
-    }
-
-    function onError(jqXHR, textStatus, errorThrown) {
-        if (console && console.log) console.log('Error!', jqXHR, textStatus, errorThrown);
-    }
-
-    function onStats(data, textStatus, jqXhr) {
-        var hero;
-        if (!data['data'] || !data['data']['hero']) return;
-        hero = data['data']['hero']
-        if (console && console.log) console.log('Got stats!', data, textStatus, jqXhr);
-        //var re = /^Stats: /;
-        //data = data.message.replace(re, '');
-        //$('#heroDiv').html(data);
-        updateCharsheet(hero);
+        clearLines();
     }
 
     function updateCharsheet(hero) {
@@ -81,35 +98,76 @@ $(document).ready(function() {
         }
     }
 
-    // Setup command buttons
-    $('.commandBtn').live('click', function(event) {
-        var cmd = $(this).attr('name'),
-            fn = (cmd == 'stats') ? onStats : onAction;
-        ajaxAction(cmd, fn);
-    });
+    function onChannelOpened() {
+        //if (console && console.log) console.log('Channel was opened');
+    }
 
-    // Update charsheet when clicked.
-    $('#heroDiv').live('click', function(event) {
-        ajaxAction('stats', onStats);
-    });
-
-    // Add highlight when hovering over task buttons.
-    $('.taskImg').hover(
-        function(ev) {
-            var el = $(this);
-            var img = el.attr('src');
-            el.attr('src', 'images/icon-hover.png');
-            el.css('background', 'url(' + img + ')');
-        },
-        function(ev) {
-            var el = $(this);
-            var img = 'images/icon-' + el.attr('alt').toLowerCase() + '.png';
-            el.attr('src', img);
-            el.css('background', '');
+    function onChannelMessage(message) {
+        var data;
+        //if (console && console.log) console.log('Received message from channel:', message);
+        if (message.data) {
+            data = $.parseJSON(message.data);
+            handleAction(data);
         }
-    );
+    }
 
-    // Load stats.
-    ajaxAction('stats', onStats);
+    function onChannelError(error) {
+        if (console && console.log) console.log('Received an error from the channel:', error);
+    }
+
+    function onChannelClose() {
+        if (console && console.log) console.log('Channel was closed.');
+        // TODO: Request a new client_id and channel.
+    }
+
+    function setup_channel() {
+        var channel = new goog.appengine.Channel(channel_token);
+        socket = channel.open({
+            onopen: onChannelOpened,
+            onmessage: onChannelMessage,
+            onerror: onChannelError,
+            onclose: onChannelClose
+        });
+        return channel;
+    }
+
+    function setup() {
+        // Setup command buttons
+        $('.commandBtn').live('click', function(event) {
+            var cmd = $(this).attr('name'),
+                fn = (cmd == 'stats') ? onStats : onAction;
+            ajaxAction(cmd, fn);
+        });
+
+        // Update charsheet when clicked.
+        $('#heroDiv').live('click', function(event) {
+            ajaxAction('stats', onStats);
+        });
+
+        // Add highlight when hovering over task buttons.
+        $('.taskImg').hover(
+            function(ev) {
+                var el = $(this);
+                var img = el.attr('src');
+                el.attr('src', 'images/icon-hover.png');
+                el.css('background', 'url(' + img + ')');
+            },
+            function(ev) {
+                var el = $(this);
+                var img = 'images/icon-' + el.attr('alt').toLowerCase() + '.png';
+                el.attr('src', img);
+                el.css('background', '');
+            }
+        );
+
+        // Load stats.
+        ajaxAction('stats', onStats);
+
+        // Setup channel
+        channel = setup_channel();
+    }
+
+    // Call setup function.
+    setup();
 
 });

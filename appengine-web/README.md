@@ -65,6 +65,7 @@ will contain the following data:
  * message - String, text message describing the result of the action.
  * success - Boolean, true if the request was a success.
  * data - Object, additional data depending on request type.
+ * id - String, an identifier for this action.
 
 ### Routes ###
 The following API requests are available.
