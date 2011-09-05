@@ -111,25 +111,33 @@ class PageHandler(webapp.RequestHandler):
         """
         Select output format based on Accept headers.
         """
+        logging.info(template_values)
         accept = self.request.headers['Accept']
         logging.info('Accept content-type: %s' % accept)
-        logging.info(template_values)
         #(mime, parms, qval, accept_parms) = httpheader.parse_accept_header(accept)
         acceptparams = httpheader.parse_accept_header(accept)
         logging.info(acceptparams)
         #logging.info('mime: %s, parms: %s, qval: %s, accept_parms: %s' % (mime, parms, qval, accept_parms))
-        if httpheader.acceptable_content_type(accept, 'application/json'):
+        format = self.request.get("format")
+        logging.info('selected format: %s' % format)
+        if (format and format == 'json') or httpheader.acceptable_content_type(accept, 'application/json'):
             self.output_json(template_values)
-        elif not acceptparams or accept == '*/*' or httpheader.acceptable_content_type(accept, 'text/html'):
+        elif (not acceptparams or not accept or accept == '*/*' or httpheader.acceptable_content_type(accept, 'text/html')) and not format:
             self.output_html(page, template_values, layout)
-        elif httpheader.acceptable_content_type(accept, 'application/xml'):
+        elif (format and format == 'xml') or (httpheader.acceptable_content_type(accept, 'application/xml') and not format):
             self.output_xml(template_values)
-        elif template_values:
+        elif template_values or format == 'text':
             #elif httpheader.acceptable_content_type(accept, 'text/plain'):
-            try:
-                self.output_text(template_values['message'])
-            except KeyError, e:
-                self.output_text(template_values)
+                if isinstance(template_values, basestring):
+                    self.output_text(template_values)
+                else:
+                    try:
+                        self.output_text(template_values['message'])
+                    except KeyError, e:
+                        self.output_text(str(template_values))
+        else:
+            logging.info('Defaulting output to html.')
+            self.output_html(page, template_values, layout)
 
     def output_json(self, template_values=None):
         self.response.headers.add_header('Content-Type', 'application/json', charset='utf-8')
