@@ -120,11 +120,11 @@ class PageHandler(webapp.RequestHandler):
         #logging.info('mime: %s, parms: %s, qval: %s, accept_parms: %s' % (mime, parms, qval, accept_parms))
         if httpheader.acceptable_content_type(accept, 'application/json'):
             self.output_json(template_values)
-        elif accept == '*/*' or httpheader.acceptable_content_type(accept, 'text/html'):
+        elif not acceptparams or accept == '*/*' or httpheader.acceptable_content_type(accept, 'text/html'):
             self.output_html(page, template_values, layout)
         elif httpheader.acceptable_content_type(accept, 'application/xml'):
             self.output_xml(template_values)
-        else:
+        elif template_values:
             #elif httpheader.acceptable_content_type(accept, 'text/plain'):
             try:
                 self.output_text(template_values['message'])
