@@ -204,7 +204,9 @@ class GoldQuestHandler(PageHandler):
                 if response['data']['hero']['alive']:
                     inc_value('kills')
             except KeyError, e:
-                logging.info('Hero killed a monster, but response was broken.', e, response)
+                logging.info('Hero killed a monster, but response was broken.')
+                logging.info(e)
+                logging.info(response)
         elif command == 'reroll':
             inc_value('heroes')
 

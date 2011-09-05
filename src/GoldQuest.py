@@ -165,7 +165,6 @@ class GoldQuest(object):
 
     def get_level(self, lvl):
         level = self._dh.get_level(lvl)
-        logging.info('read level:', level)
         if not level:
             level = Level(lvl)
         texts = self.get_level_texts(lvl)
@@ -198,7 +197,7 @@ class GoldQuest(object):
                 msg = msg % attribs
             except KeyError, e:
                 #print "Key not found in hero attribs:", e, attribs
-                logging.info("Couldn't find a given text replacement:", e)
+                logging.info("Couldn't find a given text replacement: %s" % e)
             if self.level._text:
                 msg = "%s %s" % (msg, self.level._text)
             response = {
