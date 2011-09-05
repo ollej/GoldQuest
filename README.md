@@ -10,6 +10,11 @@ The object of Gold Quest is to collect as much gold as possible while traversing
 
 Available actions: fight, loot, deeper, rest, stats, reroll
 
+License
+-------
+
+Gold Quest is released under The MIT License. See LICENSE file for more details.
+
 Multiple Clients
 ----------------
 
@@ -45,6 +50,12 @@ It is possible to play Gold Quest by mentioning the different commands to the Tw
 
 The Twitter version is currently a stand-alone game with its own hero.
 
+http://twitter.com/#!/Gold_Quest
+
+To run the Twitter version you need to use the Twippy Twitter bot which has a Gold Quest plugin.
+
+https://github.com/ollej/Twippy
+
 ### Gold Quest Command Line ###
 
 There is a command line version of Gold Quest available that allows players to play the game at home using a command line interface.
@@ -60,3 +71,4 @@ The command-line interface is also stand-alone, meaning only the person running 
 Gold Quest is also available to be played in a chat environment. This is done via a plugin to the chat bot Shoutbridge. This supports Jabber/XMPP clients as well as UBB.threads forum system shoutbox.
 
 http://github.com/ollej/shoutbridge
+
