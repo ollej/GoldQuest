@@ -242,8 +242,6 @@ class MainPageHandler(PageHandler):
         (pagename, ext) = self.parse_pagename(page)
         if not pagename or pagename == 'index':
             self.show_page('index')
-        elif page == 'favicon.ico':
-            self.redirect('/images/favicon.ico')
         else:
             func_name = 'page_%s' % pagename
             logging.info('loading page: %s' % func_name)

@@ -7,6 +7,9 @@ inbound_services:
 - channel_presence
 
 handlers:
+- url: /favicon\.ico
+  static_files: static/images/favicon.ico
+  upload: static/images/favicon\.ico
 - url: /stylesheets
   static_dir: stylesheets
 - url: /javascript
