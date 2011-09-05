@@ -44,6 +44,7 @@ from google.appengine.ext.webapp import util
 from google.appengine.ext.webapp import template
 from google.appengine.api import channel
 from google.appengine.api import memcache
+from google.appengine.api import quota
 from django.template import TemplateDoesNotExist
 
 from GoldQuest import GoldQuest
@@ -168,11 +169,14 @@ class GoldQuestHandler(PageHandler):
     _channel = None
 
     def __init__(self):
+        start = quota.get_request_cpu_usage()
         self._cfg = ConfigParser.ConfigParser()
         config_path = os.path.join(os.path.dirname(__file__), 'config.ini')
         self._cfg.read(config_path)
         self._game = GoldQuest.GoldQuest(self._cfg)
         self._channel = ChannelUpdater()
+        end = quota.get_request_cpu_usage()
+        logging.info("GoldQuest init cost %d megacycles." % (end - start))
 
     def output_html(self, page, template_values=None, layout='default'):
         """
@@ -185,16 +189,25 @@ class GoldQuestHandler(PageHandler):
         return super(GoldQuestHandler, self).output_html('api_response', values, layout)
 
     def get(self, command):
+        start = quota.get_request_cpu_usage()
         response = self._game.play(command, True)
+        end = quota.get_request_cpu_usage()
+        logging.info("GoldQuest play %s cost %d megacycles." % (command, end - start))
         if response and response['message']:
             logging.info(response)
             #self.response.out.write(response)
             response['id'] = uuid.uuid4().hex
             response['command'] = command
+            start = quota.get_request_cpu_usage()
             self.track_values(response)
+            end = quota.get_request_cpu_usage()
+            logging.info("GoldQuest track values cost %d megacycles." % (end - start))
             if command != 'stats':
                 self._channel.send_all_update(response)
+            start = quota.get_request_cpu_usage()
             self.show_page(command, response, 'default')
+            end = quota.get_request_cpu_usage()
+            logging.info("GoldQuest show page cost %d megacycles." % (end - start))
         else:
             self.response.set_status(404)
 

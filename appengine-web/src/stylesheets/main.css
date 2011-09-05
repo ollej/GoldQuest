@@ -16,10 +16,6 @@ body {
   float: left;
 }
 
-.actionLine {
-  display: block;
-}
-
 #commandDiv {
   float: left;
 }
@@ -32,4 +28,10 @@ body {
 
 #goldquestIframe {
   border: thin solid black;
+}
+
+#footerDiv {
+  text-align: right;
+  font-size: 8pt;
+  clear: both;
 }
