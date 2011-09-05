@@ -41,6 +41,9 @@ $(document).ready(function() {
     function ajaxAction(cmd, successFn) {
         $.ajax({
             url: gameUrl + cmd,
+            data: {
+                format: 'json'
+            },
             headers: { 
                 //'Accept': 'text/plain; charset=utf-8',
                 'Accept': 'application/json',
