@@ -53,11 +53,21 @@ from GoldQuest.DataStoreDataHandler import *
 import Py2XML
 import dumpdict
 
+def LogUsageCPU(func):
+    def repl_func(*args):
+        start = quota.get_request_cpu_usage()
+        ret = func(*args)
+        end = quota.get_request_cpu_usage()
+        logging.debug("%s method cost %d megacycles." % (func.__name__, end - start))
+        return ret
+    return repl_func
+
 class KeyValueInt(db.Model):
     """Shards for the counter"""
     name = db.StringProperty(required=True, default='')
     value = db.IntegerProperty(required=True, default=0)
 
+@LogUsageCPU
 def get_value(name):
     """Retrieve the value for a given key."""
     k = db.Key.from_path('KeyValueInt', name)
@@ -67,6 +77,7 @@ def get_value(name):
         val = KeyValueInt(key_name=name, name=name, value=0)
     return val
 
+@LogUsageCPU
 def set_value(name, value):
     """Update the value for a given name."""
     k = db.Key.from_path('KeyValueInt', name)
@@ -77,6 +88,7 @@ def set_value(name, value):
         val.value = value
     val.put()
 
+@LogUsageCPU
 def inc_value(name, inc=1):
     """Increment the value for a given sharded counter."""
     def txn(name, inc):
@@ -92,10 +104,11 @@ class PageHandler(webapp.RequestHandler):
 
     basepath = os.path.dirname(__file__)
 
+    @LogUsageCPU
     def get_template(self, page, values, layout='default'):
         page = "%s.html" % page
         path = os.path.join(self.basepath, 'views', page)
-        logging.info('template pathname: %s' % path)
+        logging.debug('template pathname: %s' % path)
         content = template.render(path, values)
         if layout:
             path = os.path.join(self.basepath, 'views', 'layouts', '%s.html' % layout)
@@ -104,23 +117,24 @@ class PageHandler(webapp.RequestHandler):
 
     def parse_pagename(self, page):
         (pagename, ext) = os.path.splitext(page)
-        logging.info("page: %s pagename: %s ext: %s" % (page, pagename, ext))
+        logging.debug("page: %s pagename: %s ext: %s" % (page, pagename, ext))
         # TODO: filter unwanted characters
         return (pagename, ext)
 
+    @LogUsageCPU
     def show_page(self, page, template_values=None, layout='default'):
         """
         Select output format based on Accept headers.
         """
-        logging.info(template_values)
+        logging.debug(template_values)
         accept = self.request.headers['Accept']
-        logging.info('Accept content-type: %s' % accept)
+        logging.debug('Accept content-type: %s' % accept)
         #(mime, parms, qval, accept_parms) = httpheader.parse_accept_header(accept)
         acceptparams = httpheader.parse_accept_header(accept)
-        logging.info(acceptparams)
-        #logging.info('mime: %s, parms: %s, qval: %s, accept_parms: %s' % (mime, parms, qval, accept_parms))
+        logging.debug(acceptparams)
+        #logging.debug('mime: %s, parms: %s, qval: %s, accept_parms: %s' % (mime, parms, qval, accept_parms))
         format = self.request.get("format")
-        logging.info('selected format: %s' % format)
+        logging.debug('selected format: %s' % format)
         if (format and format == 'json') or httpheader.acceptable_content_type(accept, 'application/json'):
             self.output_json(template_values)
         elif (not acceptparams or not accept or accept == '*/*' or httpheader.acceptable_content_type(accept, 'text/html')) and not format:
@@ -137,14 +151,16 @@ class PageHandler(webapp.RequestHandler):
                     except KeyError, e:
                         self.output_text(str(template_values))
         else:
-            logging.info('Defaulting output to html.')
+            logging.debug('Defaulting output to html.')
             self.output_html(page, template_values, layout)
 
+    @LogUsageCPU
     def output_json(self, template_values=None):
         self.response.headers.add_header('Content-Type', 'application/json', charset='utf-8')
         jsondata = simplejson.dumps(template_values)
         self.response.out.write(jsondata)
 
+    @LogUsageCPU
     def output_xml(self, template_values=None):
         self.response.headers.add_header('Content-Type', 'application/xml', charset='utf-8')
         serializer = Py2XML.Py2XML()
@@ -152,10 +168,12 @@ class PageHandler(webapp.RequestHandler):
         xmldata = serializer.parse(values)
         self.response.out.write(xmldata)
 
+    @LogUsageCPU
     def output_text(self, content):
         self.response.headers.add_header('Content-Type', 'text/plain', charset='utf-8')
         self.response.out.write(content)
 
+    @LogUsageCPU
     def output_html(self, page, template_values=None, layout='default'):
         try:
             content = self.get_template(page, template_values, layout)
@@ -168,15 +186,19 @@ class GoldQuestHandler(PageHandler):
     _game = None
     _channel = None
 
+    @LogUsageCPU
     def __init__(self):
-        start = quota.get_request_cpu_usage()
+        start2 = quota.get_request_cpu_usage()
         self._cfg = ConfigParser.ConfigParser()
         config_path = os.path.join(self.basepath, 'config.ini')
         self._cfg.read(config_path)
+        end2 = quota.get_request_cpu_usage()
+        logging.debug("GoldQuest config read cost %d megacycles." % (end2 - start2))
+        start3 = quota.get_request_cpu_usage()
         self._game = GoldQuest.GoldQuest(self._cfg)
+        end3 = quota.get_request_cpu_usage()
+        logging.debug("GoldQuest instance creation cost %d megacycles." % (end3 - start3))
         self._channel = ChannelUpdater()
-        end = quota.get_request_cpu_usage()
-        logging.info("GoldQuest init cost %d megacycles." % (end - start))
 
     def output_html(self, page, template_values=None, layout='default'):
         """
@@ -188,29 +210,25 @@ class GoldQuestHandler(PageHandler):
         }
         return super(GoldQuestHandler, self).output_html('api_response', values, layout)
 
+    @LogUsageCPU
     def get(self, command):
         start = quota.get_request_cpu_usage()
         response = self._game.play(command, True)
         end = quota.get_request_cpu_usage()
-        logging.info("GoldQuest play %s cost %d megacycles." % (command, end - start))
+        logging.debug("GoldQuest play %s cost %d megacycles." % (command, end - start))
         if response and response['message']:
-            logging.info(response)
+            logging.debug(response)
             #self.response.out.write(response)
             response['id'] = uuid.uuid4().hex
             response['command'] = command
-            start = quota.get_request_cpu_usage()
             self.track_values(response)
-            end = quota.get_request_cpu_usage()
-            logging.info("GoldQuest track values cost %d megacycles." % (end - start))
             if command != 'stats':
                 self._channel.send_all_update(response)
-            start = quota.get_request_cpu_usage()
             self.show_page(command, response, 'default')
-            end = quota.get_request_cpu_usage()
-            logging.info("GoldQuest show page cost %d megacycles." % (end - start))
         else:
             self.response.set_status(404)
 
+    @LogUsageCPU
     def track_values(self, response):
         command = response['command']
         if command == 'loot':
@@ -221,22 +239,25 @@ class GoldQuestHandler(PageHandler):
             else:
                 inc_value('gold', loot)
         elif command == 'fight':
-            try:
-                if response['data']['hero']['alive']:
-                    inc_value('kills')
-            except KeyError, e:
-                logging.info('Hero killed a monster, but response was broken.')
-                logging.info(e)
-                logging.info(response)
+            if response['success']:
+                try:
+                    if response['data']['hero']['alive']:
+                        inc_value('kills')
+                except KeyError, e:
+                    logging.error('Hero killed a monster, but response was broken.')
+                    logging.error(e)
+                    logging.error(response)
         elif command == 'reroll':
             inc_value('heroes')
 
 class MainPageHandler(PageHandler):
     _channel = None
 
+    @LogUsageCPU
     def __init__(self):
         self._channel = ChannelUpdater()
 
+    @LogUsageCPU
     def get(self, page):
         template_values = {}
         (pagename, ext) = self.parse_pagename(page)
@@ -244,7 +265,7 @@ class MainPageHandler(PageHandler):
             self.show_page('index')
         else:
             func_name = 'page_%s' % pagename
-            logging.info('loading page: %s' % func_name)
+            logging.debug('loading page: %s' % func_name)
             try:
                 func = getattr(self, func_name)
             except AttributeError:
@@ -253,6 +274,7 @@ class MainPageHandler(PageHandler):
             else:
                 func()
 
+    @LogUsageCPU
     def page_heroes(self):
         heroes = DSHero.all().order("-gold").fetch(10)
         gold = get_value('gold').value
@@ -271,8 +293,12 @@ class MainPageHandler(PageHandler):
         }
         self.show_page('heroes', values)
 
+    @LogUsageCPU
     def page_game(self):
+        start = quota.get_request_cpu_usage()
         (token, client_id) = self._channel.create_channel()
+        end = quota.get_request_cpu_usage()
+        logging.debug("MainPageHandler create channel cost %d megacycles." % (end - start))
         values = {
             'channel_token': token,
             'channel_client_id': client_id,
@@ -291,6 +317,7 @@ class ChannelUpdater(object):
     def __init__(self):
         self._channels = self.get_channels()
 
+    @LogUsageCPU
     def get_channels(self):
         return simplejson.loads(memcache.get('channels') or '{}')
 
@@ -307,7 +334,7 @@ class ChannelUpdater(object):
         Send a message as JSON to the client identified with client_id.
         """
         message = simplejson.dumps(message)
-        logging.info('Sending message to client: %s - %s' % (client_id, message))
+        logging.debug('Sending message to client: %s - %s' % (client_id, message))
         channel.send_message(client_id, message)
 
     def send_all_update(self, message):
@@ -324,7 +351,7 @@ class ChannelUpdater(object):
         """
         channels = self.get_channels()
         if not hasattr(channels, client_id):
-            logging.info("Adding new client: %s" % client_id)
+            logging.debug("Adding new client: %s" % client_id)
             channels[client_id] = str(datetime.now())
             self.set_channels(channels)
 
@@ -336,7 +363,7 @@ class ChannelUpdater(object):
         try:
             del channels[client_id]
         except KeyError, e:
-            logging.info("Tried to remove unknown client: %s" % client_id)
+            logging.debug("Tried to remove unknown client: %s" % client_id)
         else:
             self.set_channels(channels)
 
@@ -348,13 +375,14 @@ class ChannelHandler(webapp.RequestHandler):
 
     def post(self, action):
         client_id = self.request.get('from')
-        logging.info('Channel client %s %s' % (client_id, action))
+        logging.debug('Channel client %s %s' % (client_id, action))
         if action == 'connected':
             self._channel.connect(client_id)
         elif action == 'disconnected':
             self._channel.disconnect(client_id)
 
 
+@LogUsageCPU
 def main():
     application = webapp.WSGIApplication([(r'/api/(.*)', GoldQuestHandler),
                                           (r'/_ah/channel/(connected|disconnected)/', ChannelHandler),

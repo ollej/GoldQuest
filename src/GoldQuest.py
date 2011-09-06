@@ -34,6 +34,9 @@ from Hero import Hero
 from Monster import Monster
 from Level import Level
 
+from google.appengine.api import quota
+from google.appengine.api import memcache
+
 class GoldQuestException(Exception):
     pass
 
@@ -65,9 +68,13 @@ class GoldQuest(object):
         self.basepath = os.path.dirname(path)
 
         # Read text data
+        start1 = quota.get_request_cpu_usage()
         self.read_texts()
+        end1 = quota.get_request_cpu_usage()
+        logging.debug("GoldQuest read texts cost %d megacycles." % (end1 - start1))
 
         # Configure datahandler backend.
+        start1 = quota.get_request_cpu_usage()
         datahandler = self._cfg.get('LOCAL', 'datahandler')
         if datahandler == 'sqlite':
             from SqlDataHandler import SqlDataHandler
@@ -77,15 +84,24 @@ class GoldQuest(object):
             self._dh = DataStoreDataHandler(debug)
         else:
             raise GoldQuestConfigException, "Unknown datahandler: %s" % datahandler
+        end1 = quota.get_request_cpu_usage()
+        logging.debug("GoldQuest datastore setup cost %d megacycles." % (end1 - start1))
 
+        start1 = quota.get_request_cpu_usage()
         self.hero = self._dh.get_alive_hero()
         if self.hero and not self.level:
             self.level = self.get_level(self.hero.level) #Level(self.hero.level)
+        end1 = quota.get_request_cpu_usage()
+        logging.debug("GoldQuest setup hero and level cost %d megacycles." % (end1 - start1))
 
     def read_texts(self):
-        f = open('%s/extras/goldquest.dat' % self.basepath)
-        self._gamedata = yaml.load(f)
-        f.close()
+        texts = memcache.get('goldquest_data')
+        if not texts:
+            f = open('%s/extras/goldquest.dat' % self.basepath)
+            texts = yaml.load(f)
+            f.close()
+            memcache.set('goldquest_data', texts)
+        self._gamedata = texts
 
     def get_text(self, text):
         texts = self._gamedata['texts'][text]
@@ -197,7 +213,7 @@ class GoldQuest(object):
                 msg = msg % attribs
             except KeyError, e:
                 #print "Key not found in hero attribs:", e, attribs
-                logging.info("Couldn't find a given text replacement: %s" % e)
+                logging.error("Couldn't find a given text replacement: %s" % str(e))
             if self.level._text:
                 msg = "%s %s" % (msg, self.level._text)
             response = {
