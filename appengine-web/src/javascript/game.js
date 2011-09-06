@@ -38,12 +38,13 @@ $(document).ready(function() {
         updateCharsheet(hero);
     }
 
-    function ajaxAction(cmd, successFn) {
+    function ajaxAction(cmd, successFn, url, data) {
+        data = data || {};
+        if (!data['format']) data['format'] = 'json';
+        url = url || gameUrl;
         $.ajax({
-            url: gameUrl + cmd,
-            data: {
-                format: 'json'
-            },
+            url: url + cmd,
+            data: data,
             headers: { 
                 //'Accept': 'text/plain; charset=utf-8',
                 'Accept': 'application/json',
@@ -122,6 +123,18 @@ $(document).ready(function() {
         }
     }
 
+    function onCreateChannel(data, textStatus, jqXhr) {
+        var token;
+        if (console && console.log) console.log('Channel created:', data, textStatus, jqXhr);
+        try {
+            channel_token = data['channel_token'];
+            channel_client_id = data['channel_client_id'];
+            channel = setup_channel(channel_token);
+        } catch (e) {
+            if (console && console.log) console.log('Failed setting up channel.', e);
+        }
+    }
+
     function onChannelOpened() {
         //if (console && console.log) console.log('Channel was opened');
     }
@@ -142,10 +155,11 @@ $(document).ready(function() {
     function onChannelClose() {
         if (console && console.log) console.log('Channel was closed.');
         // TODO: Request a new client_id and channel.
+        ajaxAction('createchannel', onCreateChannel, '/', { client_id: channel_client_id });
     }
 
-    function setup_channel() {
-        var channel = new goog.appengine.Channel(channel_token);
+    function setup_channel(token) {
+        var channel = new goog.appengine.Channel(token);
         socket = channel.open({
             onopen: onChannelOpened,
             onmessage: onChannelMessage,
@@ -188,10 +202,11 @@ $(document).ready(function() {
         ajaxAction('stats', onStats);
 
         // Setup channel
-        channel = setup_channel();
+        channel = setup_channel(channel_token);
     }
 
     // Call setup function.
     setup();
 
 });
+

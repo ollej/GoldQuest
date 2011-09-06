@@ -122,7 +122,7 @@ class PageHandler(webapp.RequestHandler):
         return (pagename, ext)
 
     @LogUsageCPU
-    def show_page(self, page, template_values=None, layout='default'):
+    def show_page(self, page, template_values=None, layout='default', default_format=None):
         """
         Select output format based on Accept headers.
         """
@@ -134,6 +134,8 @@ class PageHandler(webapp.RequestHandler):
         logging.debug(acceptparams)
         #logging.debug('mime: %s, parms: %s, qval: %s, accept_parms: %s' % (mime, parms, qval, accept_parms))
         format = self.request.get("format")
+        if not format and default_format:
+            format = default_format
         logging.debug('selected format: %s' % format)
         if format == 'html' or ((not acceptparams or not accept or accept == '*/*' or httpheader.acceptable_content_type(accept, 'text/html')) and not format):
             self.output_html(page, template_values, layout)
@@ -258,6 +260,15 @@ class MainPageHandler(PageHandler):
         self._channel = ChannelUpdater()
 
     @LogUsageCPU
+    def create_channel(self, client_id=None):
+        (token, client_id) = self._channel.create_channel(client_id)
+        values = {
+            'channel_token': token,
+            'channel_client_id': client_id,
+        }
+        return values
+
+    @LogUsageCPU
     def get(self, page):
         template_values = {}
         (pagename, ext) = self.parse_pagename(page)
@@ -295,15 +306,15 @@ class MainPageHandler(PageHandler):
 
     @LogUsageCPU
     def page_game(self):
-        start = quota.get_request_cpu_usage()
-        (token, client_id) = self._channel.create_channel()
-        end = quota.get_request_cpu_usage()
-        logging.debug("MainPageHandler create channel cost %d megacycles." % (end - start))
-        values = {
-            'channel_token': token,
-            'channel_client_id': client_id,
-        }
+        values = self.create_channel()
         self.show_page('game', values, 'bare')
+
+    @LogUsageCPU
+    def page_createchannel(self):
+        client_id = self.request.get('client_id')
+        values = self.create_channel(client_id)
+        self.show_page('createchannel', values, '')
+
 
 class ChannelUpdater(object):
     _instance = None
@@ -324,8 +335,12 @@ class ChannelUpdater(object):
     def set_channels(self, channels):
         memcache.set('channels', simplejson.dumps(channels))
 
-    def create_channel(self):
-        client_id = uuid.uuid4().hex
+    def create_id(self):
+        return uuid.uuid4().hex
+
+    def create_channel(self, client_id=None):
+        if not client_id:
+            client_id = self.create_id()
         token = channel.create_channel(client_id)
         return (token, client_id)
 
