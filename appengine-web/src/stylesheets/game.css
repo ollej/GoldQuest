@@ -64,7 +64,9 @@ li.statItem:first-child {
   line-height: 20px;
 }
 
-#heroDiv, #actionList li, #taskbarContainer {
+#heroDiv, #actionList li, #taskbarContainer, body {
+  background: #d7d7d7;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#d0d0d0', endColorstr='#d7d7d7');
   background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#ddd), to(#d7d7d7));
   background-image: -webkit-linear-gradient(top, #ddd, #d7d7d7);
   background-image: -moz-linear-gradient(top, #ddd, #d7d7d7);

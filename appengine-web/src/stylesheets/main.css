@@ -11,6 +11,10 @@ body {
   height: 100%;
 }
 
+#logoDiv img {
+  border: 0;
+}
+
 #contentDiv {
   padding-left: 300px;
   float: left;

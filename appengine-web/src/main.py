@@ -135,21 +135,21 @@ class PageHandler(webapp.RequestHandler):
         #logging.debug('mime: %s, parms: %s, qval: %s, accept_parms: %s' % (mime, parms, qval, accept_parms))
         format = self.request.get("format")
         logging.debug('selected format: %s' % format)
-        if (format and format == 'json') or httpheader.acceptable_content_type(accept, 'application/json'):
-            self.output_json(template_values)
-        elif (not acceptparams or not accept or accept == '*/*' or httpheader.acceptable_content_type(accept, 'text/html')) and not format:
+        if format == 'html' or ((not acceptparams or not accept or accept == '*/*' or httpheader.acceptable_content_type(accept, 'text/html')) and not format):
             self.output_html(page, template_values, layout)
-        elif (format and format == 'xml') or (httpheader.acceptable_content_type(accept, 'application/xml') and not format):
+        elif format == 'json' or httpheader.acceptable_content_type(accept, 'application/json'):
+            self.output_json(template_values)
+        elif format == 'xml' or (httpheader.acceptable_content_type(accept, 'application/xml') and not format):
             self.output_xml(template_values)
-        elif template_values or format == 'text':
+        elif format == 'text' or httpheader.acceptable_content_type(accept, 'text/plain'):
             #elif httpheader.acceptable_content_type(accept, 'text/plain'):
-                if isinstance(template_values, basestring):
-                    self.output_text(template_values)
-                else:
-                    try:
-                        self.output_text(template_values['message'])
-                    except KeyError, e:
-                        self.output_text(str(template_values))
+            if isinstance(template_values, basestring):
+                self.output_text(template_values)
+            else:
+                try:
+                    self.output_text(template_values['message'])
+                except KeyError, e:
+                    self.output_text(str(template_values))
         else:
             logging.debug('Defaulting output to html.')
             self.output_html(page, template_values, layout)
