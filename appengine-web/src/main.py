@@ -171,7 +171,7 @@ class GoldQuestHandler(PageHandler):
     def __init__(self):
         start = quota.get_request_cpu_usage()
         self._cfg = ConfigParser.ConfigParser()
-        config_path = os.path.join(os.path.dirname(__file__), 'config.ini')
+        config_path = os.path.join(self.basepath, 'config.ini')
         self._cfg.read(config_path)
         self._game = GoldQuest.GoldQuest(self._cfg)
         self._channel = ChannelUpdater()

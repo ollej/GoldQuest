@@ -82,11 +82,6 @@ $(document).ready(function() {
         }
         $('#actionList').append(line);
         clearLines();
-
-        // If character was rerolled, update stats.
-        if (data['command'] == 'reroll') {
-            ajaxAction('stats', onStats);
-        }
     }
 
     function updateCharsheet(hero) {

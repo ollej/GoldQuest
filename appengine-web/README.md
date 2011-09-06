@@ -115,8 +115,9 @@ If the hero has been hurt, a small amount of health is restored.
 Returns information about the hero's stats.
 
  * hero - Object, the new values of the hero
-   * strength - The strength of the hero.
-   * health - The maximum health of the hero.
+   * name - String, the hero's name.
+   * strength - Integer, the strength of the hero.
+   * health - Integer, the maximum health of the hero.
    * hurt - Integer, amount of hurt the hero has received.
    * gold - Integer, the amount of gold the hero has looted.
    * kills - Integer, the number of monsters the hero has killed.
@@ -127,8 +128,9 @@ Returns information about the hero's stats.
 Rerolls a new character if the current hero has died.
 
  * hero - Object, the new values of the hero
-   * strength - The strength of the hero.
-   * health - The maximum health of the hero.
+   * name - String, the hero's name.
+   * strength - Integer, the strength of the hero.
+   * health - Integer, the maximum health of the hero.
    * hurt - Integer, amount of hurt the hero has received.
    * gold - Integer, the amount of gold the hero has looted.
    * kills - Integer, the number of monsters the hero has killed.
