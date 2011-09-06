@@ -10,7 +10,6 @@ html, body {
   line-height: 19px;
   word-wrap: break-word;
   color: #444;
-  background: white;
 }
 
 #mainDiv {
@@ -25,43 +24,9 @@ html, body {
   width: 100%;
   height: 40px;
   padding: 3px 2px 0px 3px;
-  font-size: 13px;
-  line-height: 18px;
+  border-bottom: thin solid black;
   z-index: 1;
   overflow: hidden;
-  border-bottom: thin solid black;
-}
-
-#nameValue {
-  font-size: 18px;
-  line-height: 20px;
-}
-
-#charsheetList {
-  list-style-type: none;
-  display: inline;
-}
-
-.statItem {
-  display: inline;
-}
-
-.statItem img {
-  padding: 0 2px 4px 0;
-  vertical-align: middle;
-}
-
-li.statItem {
-  padding-left: 3px;
-}
-
-li.statItem:first-child {
-  padding-left: 0;
-}
-
-.statValue {
-  font-size: 14px;
-  line-height: 20px;
 }
 
 #heroDiv, #actionList li, #taskbarContainer, body {
@@ -106,6 +71,36 @@ li.statItem:first-child {
 }
 
 #actionList li:nth-child(even) {
+}
+
+#actionList li.actionFight {
+  list-style: none inside url(../images/tiny-icon-strength.png);
+  padding-left: 35px;
+  text-indent: -24px;
+}
+
+#actionList li.actionLoot {
+  list-style: none inside url(../images/tiny-icon-gold.png);
+  padding-left: 35px;
+  text-indent: -24px;
+}
+
+#actionList li.actionDeeper {
+  list-style: none inside url(../images/tiny-icon-level.png);
+  padding-left: 35px;
+  text-indent: -24px;
+}
+
+#actionList li.actionRest {
+  list-style: none inside url(../images/tiny-icon-health.png);
+  padding-left: 35px;
+  text-indent: -24px;
+}
+
+#actionList li.actionReroll {
+  list-style: none inside url(../images/tiny-icon-reroll.png);
+  padding-left: 35px;
+  text-indent: -24px;
 }
 
 #taskbarWrapper {

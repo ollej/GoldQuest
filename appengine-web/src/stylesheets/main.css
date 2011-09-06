@@ -1,6 +1,7 @@
 body {
-  font-family: Verdana, Helvetica, sans-serif;
+  font-family: Arial,"Helvetica Neue",sans-serif;
   background-color: #DDDDDD;
+  color: #444;
 }
 
 #logoDiv {

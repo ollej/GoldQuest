@@ -65,22 +65,39 @@ $(document).ready(function() {
         }
     }
 
+    function ucfirst(string)
+    {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
+    function getActionClass(cmd) {
+        return 'action' + ucfirst(cmd);
+    }
+
     function handleAction(data) {
-        var line;
+        var line, cls;
         if ($.inArray(data.id, handledActions) >= 0) {
             //if (console && console.log) console.log('Action already handled:', data.id);
+            // Highlight line.
+            $('#action_' + data.id).effect("highlight", {}, 500);
             return;
         }
 
         // Make sure this action isn't handled again.
         handledActions.push(data.id);
 
-        // Add action to list.
-        line = $.tache(getTemplates().actionline, { 'line': data.message, 'id': data.id });
+        // Update character sheet with new data.
         if (data['data'] && data['data']['hero']) {
             updateCharsheet(data['data']['hero']);
         }
+
+        // Add action to list.
+        cls = getActionClass(data['command']);
+        line = $.tache(getTemplates().actionline, { 'line': data.message, 'id': data.id, cls: cls });
         $('#actionList').append(line);
+
+
+        // Remove old lines.
         clearLines();
     }
 

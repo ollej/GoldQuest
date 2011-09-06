@@ -42,6 +42,13 @@ class DSHero(db.Model):
     level = db.IntegerProperty()
     alive = db.BooleanProperty()
 
+    def get_current_health(self):
+        return (self.health - self.hurt)
+
+    current_health = property(get_current_health)
+
+
+
 class DSLevel(db.Model):
     depth = db.IntegerProperty()
     killed = db.IntegerProperty()

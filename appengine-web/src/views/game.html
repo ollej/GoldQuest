@@ -1,5 +1,5 @@
   <div id="mainDiv">
-    <div id="heroDiv">
+    <div id="heroDiv" class="heroEl">
     </div>
     <div id="contentDiv">
       <div id="actionsDiv">
@@ -20,8 +20,8 @@
     </div>
   </div>
   <div id="charsheetTemplate" style="display: none">
-        <h1 id="nameValue">[[ name ]]</h1>
-        <ul id="charsheetList">
+        <h1 id="nameValue" class="nameValue">[[ name ]]</h1>
+        <ul class="charsheetList">
           <li class="statItem" id="strengthStatDiv"><img src="images/tiny-icon-strength.png" width="16" height="16" alt="Strength" title="Strength" /><span class="statValue" id="strengthValue">[[ strength ]]</span></li>
           <li class="statItem" id="healthStatDiv"><img src="images/tiny-icon-health.png" width="16" height="16" alt="Health" title="Health" /><span class="statValue" id="hurthealthValue">[[ current_health ]]/[[ health ]]</span></li>
           <li class="statItem" id="levelStatDiv"><img src="images/tiny-icon-level.png" width="16" height="16" alt="Level" title="Level" /><span class="statValue" id="levelValue">[[ level ]]</span></li>
@@ -30,9 +30,10 @@
         </ul>
   </div>
   <div id="actionlineTemplate" style="display: none">
-    <li class='actionLine' id="action_[[ id ]]">[[ line ]]</li>
+    <li class='actionLine [[ cls ]]' id="action_[[ id ]]">[[ line ]]</li>
   </div>
   <script type="text/javascript">
     var channel_client_id = '{{channel_client_id}}';
     var channel_token = '{{channel_token}}';
   </script>
+
