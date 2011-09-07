@@ -25,6 +25,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
+#os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+from google.appengine.dist import use_library
+use_library('django', '1.2')
+
 import ConfigParser
 import sys
 import os
@@ -34,10 +38,6 @@ import string
 import httpheader
 import uuid
 from datetime import datetime
-
-#os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
-from google.appengine.dist import use_library
-use_library('django', '1.2')
 
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
@@ -328,6 +328,10 @@ class MainPageHandler(PageHandler):
         client_id = self.request.get('client_id')
         values = self.create_channel(client_id)
         self.show_page('createchannel', values, '')
+
+    def page_mobile(self):
+        values = self.create_channel()
+        self.show_page('game', values, 'mobile')
 
 
 class ChannelUpdater(object):

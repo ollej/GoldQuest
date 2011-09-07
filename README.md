@@ -30,6 +30,20 @@ The Gold Quest Web basically just uses the Gold Quest Widget, but also has some 
 
 Visit Gold Quest Web here: http://gold-quest.appspot.com
 
+### Gold Quest Mobile ###
+There is a version of Gold Quest that is optimized to run on mobile devices such as iPhone and Android. Just visit the page linked below and bookmark it to your homepage to play on the go.
+
+Visit Gold Quest Mobile:
+
+http://gold-quest.appspot.com/mobile.html
+
+### Gold Quest Android App ###
+For Android users there is a downloadable app to easily play the game.
+
+Download the Gold Quest Android App from Android Market:
+
+https://market.android.com/details?id=com.jxdevelopment.goldquest
+
 ### Gold Quest Widget ###
 
 The Gold Quest Widget is a widget that can be installed on any web page. It uses the Gold Quest API to connect to the Gold Quest in the cloud.

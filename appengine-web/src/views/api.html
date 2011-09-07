@@ -22,17 +22,32 @@ parameters are necessary.</p>
 <p>The API doesn't require any authentication for any of the current requests.</p> 
  
 <h3>Response Formats</h3>
+<p>The API supports multiple different response formats. The preferred format is JSON,
+but XML and plain text is also available. For debugging purposes, the API can also
+return the information in HTML.</p>
+
+<h4>Accept Header</h4>
 <p>Responses will be returned based on given Accept header, either text/plain,
 text/html, application/xml or application/json</p> 
 
 <p>The recommended format is JSON. The XML structure may change at any point.</p>
 
-<h4>Examples</h4>
-
+<h5>Examples</h5>
 <pre><code>Accept: application/json
 </code></pre>
 
 <pre><code>Accept: text/plain
+</code></pre>
+
+<h4>URL Argument</h4>
+<p>It is also possible to use the format URL argument to set the format. This might
+be preferrable when doing a web client, since some browsers mangles the Accept headers,
+or just send plain wrong data.</p>
+
+<p>Available formats are: json, xml, text, html</p>
+
+<h5>Example</h5>
+<pre><code>http://gold-quest.appspot.com/api/stats?format=json
 </code></pre>
  
 <h3>Response Codes</h3>

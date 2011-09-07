@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Gold Quest</title>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="viewport" content="width = 320, initial-scale = 1.0, user-scalable = no" />
+    <link type="text/css" rel="stylesheet" href="/stylesheets/game.css" />
+    <link type="text/css" rel="stylesheet" href="/stylesheets/hero.css" />
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="/javascript/jquery.tache.js"></script>
+    <script type="text/javascript" src="/_ah/channel/jsapi"></script>
+    <script type="text/javascript" src="/javascript/game.js"></script>
+    </head>
+<body onload="init()">
+<div id="loading" style="position:absolute; width:100%; text-align:center; top:300px;">
+<img src="loading.gif" border="0" alt="Loading" title="Loading" /></div>
+<script type="text/javascript">
+var ld=(document.all);
+var ns4=document.layers;
+var ns6=document.getElementById&&!document.all;
+var ie4=document.all;
+if (ns4)
+    ld=document.loading;
+else if (ns6)
+    ld=document.getElementById("loading").style;
+else if (ie4)
+    ld=document.all.loading.style;
+function init()
+{
+if(ns4){ld.visibility="hidden";}
+else if (ns6||ie4) ld.display="none";
+}
+</script>
+<!--Your content goes below here-->
+{{ content }}
+<!--But above here-->
+</body>
+<!--Mobile Page Formatted by Brandon Anzaldi http://www.freebie-zone.co.cc/-->
+</html>
