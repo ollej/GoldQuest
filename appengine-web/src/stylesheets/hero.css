@@ -1,0 +1,54 @@
+.heroEl {
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.nameValue {
+  font-size: 18px;
+  line-height: 20px;
+}
+
+.charsheetList {
+  list-style-type: none;
+  display: inline;
+}
+
+.statItem {
+  display: inline;
+}
+
+.statItem img {
+  padding: 0 2px 4px 0;
+  vertical-align: middle;
+}
+
+li.statItem {
+  padding-left: 3px;
+}
+
+li.statItem:first-child {
+  padding-left: 0;
+}
+
+.statValue {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+#heroesList .nameValue {
+  display: inline-block;
+  width: 200px;
+}
+
+#heroesList ul {
+  padding-left: 1em;
+}
+
+#heroesList li {
+  padding: 3px 3px 3px 5px;
+}
+
+#heroesList li.heroEl:nth-child(odd) {
+  background: #d0d0d0;
+}
+

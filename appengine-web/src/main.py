@@ -46,6 +46,7 @@ from google.appengine.api import channel
 from google.appengine.api import memcache
 from google.appengine.api import quota
 from django.template import TemplateDoesNotExist
+from appengine_utilities.sessions import Session
 
 from GoldQuest import GoldQuest
 from GoldQuest.DataStoreDataHandler import *
@@ -258,10 +259,23 @@ class MainPageHandler(PageHandler):
     @LogUsageCPU
     def __init__(self):
         self._channel = ChannelUpdater()
+        self._session = Session()
 
     @LogUsageCPU
     def create_channel(self, client_id=None):
-        (token, client_id) = self._channel.create_channel(client_id)
+        token = None
+        try:
+            token = self._session['channel_token']
+            if not client_id:
+                client_id = self._session['channel_client_id']
+        except KeyError:
+            pass
+        if not token or not client_id:
+            (token, client_id) = self._channel.create_channel(client_id)
+            self._session['channel_token'] = token
+            self._session['channel_client_id'] = client_id
+        else:
+            logging.debug('Channel already exists with client_id %s and token %s', client_id, token)
         values = {
             'channel_token': token,
             'channel_client_id': client_id,
