@@ -54,6 +54,7 @@ from GoldQuest.DataStoreDataHandler import *
 import Py2XML
 import dumpdict
 
+# TODO: Move into own file.
 def LogUsageCPU(func):
     def repl_func(*args):
         start = quota.get_request_cpu_usage()
@@ -63,6 +64,7 @@ def LogUsageCPU(func):
         return ret
     return repl_func
 
+# TODO: Move into own module.
 class KeyValueInt(db.Model):
     """Shards for the counter"""
     name = db.StringProperty(required=True, default='')
@@ -98,6 +100,7 @@ def inc_value(name, inc=1):
         val.put()
     db.run_in_transaction(txn, name, inc)
 
+# TODO: Move into own file.
 class PageHandler(webapp.RequestHandler):
     """
     Default page handler, supporting html templates, layouts, output formats etc.
@@ -184,6 +187,7 @@ class PageHandler(webapp.RequestHandler):
         except TemplateDoesNotExist:
             self.response.set_status(404)
 
+# TODO: Move into own file.
 class GoldQuestHandler(PageHandler):
     _cfg = None
     _game = None
@@ -262,6 +266,8 @@ class GoldQuestHandler(PageHandler):
         elif command == 'reroll':
             inc_value('heroes')
 
+# TODO: Move into own file.
+# TODO: Don't setup channels if game doesn't have broadcast_actions
 class MainPageHandler(PageHandler):
     _channel = None
 
@@ -343,6 +349,7 @@ class MainPageHandler(PageHandler):
         self.show_page('game', values, 'mobile')
 
 
+# TODO: Move into separate channel module
 class ChannelUpdater(object):
     _instance = None
     _session = None
@@ -412,6 +419,7 @@ class ChannelUpdater(object):
         else:
             self.set_channels(channels)
 
+# TODO: Move into separate channel module
 class ChannelHandler(webapp.RequestHandler):
     _channel = None
 

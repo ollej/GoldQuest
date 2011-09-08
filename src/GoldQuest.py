@@ -50,6 +50,48 @@ class GamePlugin(object):
         'gamekey': 'gameplugin',
         'broadcast_actions': None,
         'actions': {
+            'fight': {
+                'img': 'images/icon-fight.png',
+            },
+            'rest': {
+                'img': 'images/icon-rest.png',
+            },
+            'loot': {
+                'img': 'images/icon-loot.png',
+            },
+            'deeper': {
+                'img': 'images/icon-deeper.png',
+            },
+            'reroll': {
+                'img': 'images/icon-reroll.png',
+            },
+            'stats': {
+            },
+        },
+        'stats_img': 'images/icon-stats.png',
+        'stats': {
+            'name': {
+            },
+            'strength': {
+                'img': 'images/tiny-icon-strength.png',
+            },
+            'health': {
+                'img': 'images/tiny-icon-health.png',
+            },
+            'hurt': {
+                'img': 'images/tiny-icon-hurt.png',
+            },
+            'level': {
+                'img': 'images/tiny-icon-level.png',
+            },
+            'kills': {
+                'img': 'images/tiny-icon-kills.png',
+            },
+            'gold': {
+                'img': 'images/tiny-icon-gold.png',
+            },
+            'alive': {
+            },
         },
     }
 
