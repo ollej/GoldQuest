@@ -18,12 +18,12 @@
 }
 
 .statItem img {
-  padding: 0 2px 4px 0;
+  padding: 0 1px 4px 0;
   vertical-align: middle;
 }
 
 li.statItem {
-  padding-left: 3px;
+  padding-left: 2px;
 }
 
 li.statItem:first-child {

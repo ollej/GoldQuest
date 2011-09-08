@@ -23,10 +23,14 @@ html, body {
   left: 0;
   width: 100%;
   height: 40px;
-  padding: 3px 2px 0px 3px;
+  padding: 0 2px 0px 3px;
   border-bottom: thin solid black;
   z-index: 1;
   overflow: hidden;
+}
+
+.statsImage {
+  margin-left: -5px;
 }
 
 #heroDiv, #actionList li, #taskbarContainer, body {

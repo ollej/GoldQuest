@@ -263,6 +263,7 @@ class GoldQuest(object):
                 msg = self.get_text('foundtrap')
                 response['data']['hero']['trap_hurt'] = attribs['trap_hurt']
                 response['data']['hero']['hurt'] = self.hero.hurt
+                response['data']['hero']['health'] = self.hero.health
             else:
                 msg = self.get_text('nogold')
         else:
