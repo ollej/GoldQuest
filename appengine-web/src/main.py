@@ -336,6 +336,7 @@ class MainPageHandler(PageHandler):
 
 class ChannelUpdater(object):
     _instance = None
+    _session = None
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -345,6 +346,7 @@ class ChannelUpdater(object):
 
     def __init__(self):
         self._channels = self.get_channels()
+        self._session = Session()
 
     @LogUsageCPU
     def get_channels(self):
@@ -376,7 +378,8 @@ class ChannelUpdater(object):
         """
         channels = self.get_channels()
         for client_id in channels.iterkeys():
-            self.send_update(client_id, message)
+            if client_id != self._session['channel_client_id']:
+                self.send_update(client_id, message)
 
     def connect(self, client_id):
         """

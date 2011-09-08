@@ -75,19 +75,21 @@ class Hero(object):
 
     def fight(self, monster):
         #print("Monster:", monster.health, monster.strength)
-        while monster.health >= 0 and self.hurt <= self.health:
+        hurt_in_fight = 0
+        while monster.health >= 0 and self.hurt < self.health:
             hit = self.roll(self.strength)
             killed = monster.injure(hit)
             #print("Hit:", hit, "Monster Health:", monster.health)
             if not killed:
                 monster_hit = self.roll(monster.strength)
+                hurt_in_fight += monster_hit
                 self.injure(monster_hit)
                 #print("Monster Hits:", monster_hit, "Hero Hurt:", self.hurt)
-        if self.hurt > self.health:
+        if self.hurt >= self.health:
             self.alive = False
         else:
             self.kills = self.kills + 1
-        return self.alive
+        return (self.alive, hurt_in_fight)
 
     def rest(self):
         if self.hurt > 0:

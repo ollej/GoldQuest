@@ -39,7 +39,7 @@ The only thing you need to do is to place the following HTML code somewhere on y
 
     <iframe src="http://gold-quest.appspot.com/game.html" 
             id="goldquestIframe" 
-            width="250" height="380" 
+            width="280" height="420" 
             frameborder="0" scrolling="no"></iframe>
 
 Gold Quest API

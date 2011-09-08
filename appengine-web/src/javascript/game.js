@@ -3,7 +3,9 @@ $(document).ready(function() {
         MAX_LINES = 50,
         templates,
         channel,
-        handledActions = [];
+        handledActions = [],
+        heroStats = {},
+        heroDiv;
 
     function getTemplate(name) {
         var template = $('#' + name + 'Template').html();
@@ -75,12 +77,37 @@ $(document).ready(function() {
         return 'action' + ucfirst(cmd);
     }
 
+    function getActionHtml(data) {
+        var line, cls, info = '', extraInfo = '';
+        cls = getActionClass(data['command']);
+        if (!data['channel_message']) {
+            cls += ' ownAction';
+        }
+        //console.log('data', data);
+
+        // Gather extra info.
+        if (data && data['data'] && data['data']['hurt_in_fight']) {
+            extraInfo = ' Hurt: -' + data['data']['hurt_in_fight']
+        } else if (data && data['data'] && data['data']['rested']) {
+            extraInfo = ' Rested: ' + data['data']['rested']
+        } else if (data && data['data'] && data['data']['loot']) {
+            extraInfo = ' Loot: ' + data['data']['loot']
+        }
+        if (extraInfo) {
+            extraInfo = '<span class="extraInfo">' + extraInfo + '</span>';
+        }
+
+        // Create html
+        line = $.tache(getTemplates().actionline, { 'line': data.message, 'id': data.id, cls: cls, extraInfo: extraInfo });
+        return line;
+    }
+
     function handleAction(data) {
         var line, cls;
         if ($.inArray(data.id, handledActions) >= 0) {
             //if (console && console.log) console.log('Action already handled:', data.id);
             // Highlight line.
-            $('#action_' + data.id).effect("highlight", {}, 500);
+            //$('#action_' + data.id).effect("highlight", {}, 500);
             return;
         }
 
@@ -92,32 +119,42 @@ $(document).ready(function() {
             updateCharsheet(data['data']['hero']);
         }
 
-        // Add action to list.
-        cls = getActionClass(data['command']);
-        line = $.tache(getTemplates().actionline, { 'line': data.message, 'id': data.id, cls: cls });
-        $('#actionList').append(line);
+        // Create line html.
+        line = getActionHtml(data);
 
+        // Add action to list.
+        $('#actionList').append(line);
 
         // Remove old lines.
         clearLines();
     }
 
     function updateCharsheet(hero) {
-        var heroDiv = $('#heroDiv');
-        if (hero.hasOwnProperty('health') && hero.hasOwnProperty('hurt')) {
-            hero['current_health'] = (hero['health'] - hero['hurt']);
-            hero['hurthealth'] = '' + hero['current_health'] + '/' + hero['health'];
+        // Cache reference to hero div.
+        if (!heroDiv) {
+            heroDiv = $('#heroDiv');
         }
+
+        // Update the hero stats.
+        heroStats = $.extend({}, heroStats, hero);
+
+        // Calculate remaining health.
+        if (heroStats.hasOwnProperty('health') && heroStats.hasOwnProperty('hurt')) {
+            heroStats['current_health'] = (heroStats['health'] - heroStats['hurt']);
+            heroStats['hurthealth'] = '' + heroStats['current_health'] + '/' + heroStats['health'];
+        }
+
+        // Update div with new data.
         //if (console && console.log) console.log('heroDiv:' + heroDiv.html() + '|', 'hero', hero);
         if ($.trim(heroDiv.html()) == '') {
-            var stats = $.tache(getTemplates().charsheet, hero);
+            var stats = $.tache(getTemplates().charsheet, heroStats);
             heroDiv.html(stats);
         } else {
-            for (var field in hero) if (hero.hasOwnProperty(field)) {
+            for (var field in heroStats) if (heroStats.hasOwnProperty(field)) {
                 //if (console && console.log) console.log('field', field, 'value', hero[field]);
                 var valueDiv = $('#' + field + 'Value');
                 if (valueDiv) {
-                    valueDiv.html(hero[field]);
+                    valueDiv.html(heroStats[field]);
                 }
             }
         }
@@ -144,6 +181,7 @@ $(document).ready(function() {
         //if (console && console.log) console.log('Received message from channel:', message);
         if (message.data) {
             data = $.parseJSON(message.data);
+            data['channel_message'] = true;
             handleAction(data);
         }
     }
@@ -174,6 +212,20 @@ $(document).ready(function() {
         $('.commandBtn').live('click', function(event) {
             var cmd = $(this).attr('name'),
                 fn = (cmd == 'stats') ? onStats : onAction;
+
+            // Disallow some actions when hero is dead.
+            if (!heroStats['alive'] || heroStats['hurt'] >= heroStats['health']) {
+                if ($.inArray(cmd, ['fight', 'loot', 'rest', 'deeper']) >= 0) {
+                    //if (console && console.log) console.log('Hero is dead, action not allowed');
+                    $('#' + cmd + 'Btn').effect("highlight", { color: 'red' }, 500);
+                    return false;
+                }
+            }
+            if (heroStats['alive'] && heroStats['hurt'] == 0 && cmd == 'rest') {
+                $('#' + cmd + 'Btn').effect("highlight", { color: 'red' }, 500);
+                return false;
+            }
+
             ajaxAction(cmd, fn);
         });
 

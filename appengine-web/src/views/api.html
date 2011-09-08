@@ -78,6 +78,7 @@ will contain the following data:</p>
 <h4>/api/fight</h4> 
 <p>Makes the hero look for a monster and fight it to the death.</p> 
 <ul> 
+    <li>hurt_in_fight - Integer, the amount of hurt the hero got in the fight.</li>
     <li>hero - Object, the new values of the hero
         <ul> 
             <li>health - The maximum health of the hero.</li> 
@@ -125,6 +126,7 @@ will contain the following data:</p>
 <p>If the hero has been hurt, a small amount of health is restored.</p> 
 <ul> 
     <li>rested - Integer, the amount of health restored during rest.</li> 
+    <li>hurt_in_fight - Integer, the amount of hurt the hero got in the sneak attack.</li>
     <li>hero - Object, the new values of the hero
         <ul> 
             <li>health - The maximum health of the hero.</li> 

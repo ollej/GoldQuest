@@ -107,6 +107,14 @@ html, body {
   text-indent: -24px;
 }
 
+#actionList li.ownAction {
+  font-weight: bold;
+}
+
+#actionList .extraInfo {
+    color: red;
+}
+
 #taskbarWrapper {
   position: fixed;
   bottom: 0;

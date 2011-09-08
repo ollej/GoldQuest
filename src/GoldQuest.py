@@ -282,7 +282,7 @@ class GoldQuest(object):
                 #self.logprint("Sneak attack!")
                 monster = self.get_monster(self.level.depth)
                 monster_health = monster.health
-                won = self.hero.fight(monster)
+                (won, hurt_in_fight) = self.hero.fight(monster)
                 if won:
                     msg = self.get_text('rest_attack_won')
                 else:
@@ -295,6 +295,7 @@ class GoldQuest(object):
                     'message': msg,
                     'success': 0,
                     'data': {
+                        'hurt_in_fight': hurt_in_fight,
                         'hero': {
                             'hurt': attribs['hurt'],
                             'health': attribs['health'],
@@ -376,7 +377,7 @@ class GoldQuest(object):
             }
             return response
         monster_health = monster.health
-        won = self.hero.fight(monster)
+        (won, hurt_in_fight) = self.hero.fight(monster)
         attribs = self.hero.get_attributes()
         if won:
             msg = self.get_text('killed')
@@ -389,9 +390,11 @@ class GoldQuest(object):
         response = {
             'message': msg,
             'data': {
+                'hurt_in_fight': hurt_in_fight,
                 'hero': {
                     'health': attribs['health'],
                     'hurt': attribs['hurt'],
+                    'hurt_in_fight': hurt_in_fight,
                     'kills': attribs['kills'],
                     'alive': attribs['alive'],
                 },
