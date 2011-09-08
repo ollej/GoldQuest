@@ -74,7 +74,7 @@ class Hero(object):
 
     def fight(self, monster):
         #print("Monster:", monster.health, monster.strength)
-        while monster.health >= 0 and self.hurt < self.health:
+        while monster.health >= 0 and self.hurt <= self.health:
             hit = self.roll(self.strength)
             killed = monster.injure(hit)
             #print("Hit:", hit, "Monster Health:", monster.health)
