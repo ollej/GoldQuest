@@ -103,16 +103,16 @@ class PageHandler(webapp.RequestHandler):
     Default page handler, supporting html templates, layouts, output formats etc.
     """
 
-    basepath = os.path.dirname(__file__)
+    _basepath = os.path.dirname(__file__)
 
     @LogUsageCPU
     def get_template(self, page, values, layout='default'):
         page = "%s.html" % page
-        path = os.path.join(self.basepath, 'views', page)
+        path = os.path.join(self._basepath, 'views', page)
         logging.debug('template pathname: %s' % path)
         content = template.render(path, values)
         if layout:
-            path = os.path.join(self.basepath, 'views', 'layouts', '%s.html' % layout)
+            path = os.path.join(self._basepath, 'views', 'layouts', '%s.html' % layout)
             content = template.render(path, { 'content': content })
         return content
 
@@ -188,20 +188,29 @@ class GoldQuestHandler(PageHandler):
     _cfg = None
     _game = None
     _channel = None
+    _basepath = os.path.dirname(__file__)
 
     @LogUsageCPU
     def __init__(self):
+        # Read configuration.
         start2 = quota.get_request_cpu_usage()
         self._cfg = ConfigParser.ConfigParser()
-        config_path = os.path.join(self.basepath, 'config.ini')
+        config_path = os.path.join(self._basepath, 'config.ini')
         self._cfg.read(config_path)
         end2 = quota.get_request_cpu_usage()
         logging.debug("GoldQuest config read cost %d megacycles." % (end2 - start2))
+
+        # Initialize game class.
         start3 = quota.get_request_cpu_usage()
-        self._game = GoldQuest.GoldQuest(self._cfg)
+        self._memcache = memcache.Client()
+        self._game = GoldQuest.GoldQuest(self._cfg, self._memcache)
+        self._game.setup()
         end3 = quota.get_request_cpu_usage()
         logging.debug("GoldQuest instance creation cost %d megacycles." % (end3 - start3))
-        self._channel = ChannelUpdater()
+
+        # Setup channel if necessary.
+        if self._game.metadata['broadcast_actions']:
+            self._channel = ChannelUpdater()
 
     def output_html(self, page, template_values=None, layout='default'):
         """
@@ -225,7 +234,7 @@ class GoldQuestHandler(PageHandler):
             response['id'] = uuid.uuid4().hex
             response['command'] = command
             self.track_values(response)
-            if command != 'stats':
+            if command in self._game.metadata['broadcast_actions']:
                 self._channel.send_all_update(response)
             self.show_page(command, response, 'default')
         else:
@@ -420,11 +429,12 @@ class ChannelHandler(webapp.RequestHandler):
 
 @LogUsageCPU
 def main():
-    application = webapp.WSGIApplication([(r'/api/(.*)', GoldQuestHandler),
-                                          (r'/_ah/channel/(connected|disconnected)/', ChannelHandler),
-                                          (r'/(.*)', MainPageHandler),
-                                          ],
-                                         debug=True)
+    application = webapp.WSGIApplication([
+            (r'/api/(.*)', GoldQuestHandler),
+            (r'/_ah/channel/(connected|disconnected)/', ChannelHandler),
+            (r'/(.*)', MainPageHandler),
+        ],
+        debug=True)
     util.run_wsgi_app(application)
 
 

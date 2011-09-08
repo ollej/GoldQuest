@@ -35,7 +35,6 @@ from Monster import Monster
 from Level import Level
 
 from google.appengine.api import quota
-from google.appengine.api import memcache
 
 class GoldQuestException(Exception):
     pass
@@ -43,15 +42,139 @@ class GoldQuestException(Exception):
 class GoldQuestConfigException(GoldQuestException):
     pass
 
-class GoldQuest(object):
+class GamePlugin(object):
+    _datafile = None
+    _gamedata = None
+    metadata = {
+        'name': 'Game Plugin',
+        'gamekey': 'gameplugin',
+        'broadcast_actions': None,
+        'actions': {
+        },
+    }
+
+    def __init__(self, cfg, memcache=None):
+        """
+        Send in a ConfigParser object.
+        If self._datafile is set, the contents of that file in the extras/ dir will be read, parsed as YAML and saved in self._gamedata
+        """
+        self._cfg = cfg
+        try:
+            self._debug = self._cfg.getboolan('LOCAL', 'debug')
+        except AttributeError:
+            self._debug = False
+
+        if memcache:
+            self._memcache = memcache
+
+        path = os.path.abspath(__file__)
+        self._basepath = os.path.dirname(path)
+        if self._datafile:
+            self._datafile = os.path.join(self._basepath, 'extras', self._datafile)
+            logging.info('Datafile: %s', self._datafile)
+            self._gamedata = self.read_texts(self._datafile)
+            logging.info(self._gamedata)
+
+    def setup(self):
+        """
+        Override this method in subclass for any additional setup that is needed.
+        """
+        pass
+
+    def play(self, command, asdict=False):
+        """
+        Override this method in the game sub-class to handle actions.
+
+        command = String, name of the action to handle.
+        asdict = Boolean, if True return a response dict with data, otherwise a string describing the result of the action.
+        """
+        pass
+
+    def roll(self, sides, times=1):
+        """
+        Roll times dice with sides number of sides.
+        Returns the total amount rolled for all dice.
+        """
+        total = 0
+        for i in range(times):
+            total = total + random.randint(1, sides)
+        return total
+
+    def get_text(self, text):
+        """
+        Returns the text from 'texts' section in datafile if it is a string.
+        If the value is an array, randomize between the elements in the array.
+        """
+        texts = self._gamedata['texts'][text]
+        if not texts:
+            return None
+        elif isinstance(texts, basestring):
+            return texts
+        else:
+            return random.choice(texts)
+
+    def firstupper(self, text):
+        """
+        Return text with first letter in upper case.
+        """
+        first = text[0].upper()
+        return first + text[1:]
+
+    def read_texts(self, file):
+        """
+        Reads and parses file and returns it.
+        Saves the data in memcache and uses it if the file hasn't been changed.
+        """
+        # If memcache isn't available, just load the file immediately.
+        if not self._memcache:
+            return self.load_file(self._datafile)
+
+        # Read data from memcache, unless it has changed.
+        texts = self._memcache.get('gamedata', namespace=self.metadata['gamekey'])
+        texts_mtime = self._memcache.get('gamedata_mtime', namespace=self.metadata['gamekey'])
+        mtime = os.stat(file).st_mtime
+        #logging.info('Data file mtime: %s, data_mtime: %s', mtime, texts_mtime)
+        if not texts or not texts_mtime or mtime > texts_mtime:
+            #logging.info('Updating data file.')
+            texts = self.load_file(self._datafile)
+            self._memcache.set('goldquest_data', texts)
+            self._memcache.set('goldquest_data_mtime', mtime)
+        return texts
+
+    def load_file(self, file):
+        """
+        Loads file and parses it as YAML and returns the result.
+        """
+        f = open(self._datafile)
+        texts = yaml.load(f)
+        f.close()
+        return texts
+
+    def return_response(self, response, asdict):
+        if asdict:
+            if not 'success' in response:
+                response['success'] = 1
+            return response
+        else:
+            return response['message']
+
+class GoldQuest(GamePlugin):
     _gamedata = None
     _basepath = None
     _datafile = None
     cfg = None
     hero = None
     level = None
+    _datafile = 'goldquest.dat'
+    metadata = {
+        'name': 'Gold Quest',
+        'gamekey': 'goldquest',
+        'broadcast_actions': ['fight', 'rest', 'loot', 'deeper', 'reroll'],
+        'actions': {
+        },
+    }
 
-    def __init__(self, cfg):
+    def setup(self):
         """
         Setup Sqlite SQL tables and start a db session.
 
@@ -60,31 +183,15 @@ class GoldQuest(object):
         Calls L{setup_tables} to setup table metadata and L{setup_session}
         to instantiate the db session.
         """
-        self._cfg = cfg
-        try:
-            debug = self._cfg.getboolan('LOCAL', 'debug')
-        except AttributeError:
-            debug = False
-
-        path = os.path.abspath(__file__)
-        self._basepath = os.path.dirname(path)
-        self._datafile = '%s/extras/goldquest.dat' % self._basepath
-
-        # Read text data
-        start1 = quota.get_request_cpu_usage()
-        self.read_texts()
-        end1 = quota.get_request_cpu_usage()
-        logging.debug("GoldQuest read texts cost %d megacycles." % (end1 - start1))
-
         # Configure datahandler backend.
         start1 = quota.get_request_cpu_usage()
         datahandler = self._cfg.get('LOCAL', 'datahandler')
         if datahandler == 'sqlite':
             from SqlDataHandler import SqlDataHandler
-            self._dh = SqlDataHandler(debug)
+            self._dh = SqlDataHandler(self._debug)
         elif datahandler == 'datastore':
             from DataStoreDataHandler import DataStoreDataHandler
-            self._dh = DataStoreDataHandler(debug)
+            self._dh = DataStoreDataHandler(self._debug)
         else:
             raise GoldQuestConfigException, "Unknown datahandler: %s" % datahandler
         end1 = quota.get_request_cpu_usage()
@@ -96,29 +203,6 @@ class GoldQuest(object):
             self.level = self.get_level(self.hero.level) #Level(self.hero.level)
         end1 = quota.get_request_cpu_usage()
         logging.debug("GoldQuest setup hero and level cost %d megacycles." % (end1 - start1))
-
-    def read_texts(self):
-        texts = memcache.get('goldquest_data')
-        texts_mtime = memcache.get('goldquest_data_mtime')
-        mtime = os.stat(self._datafile).st_mtime
-        #logging.info('Data file mtime: %s, data_mtime: %s', mtime, texts_mtime)
-        if not texts or not texts_mtime or mtime > texts_mtime:
-            #logging.info('Updating data file.')
-            f = open(self._datafile)
-            texts = yaml.load(f)
-            f.close()
-            memcache.set('goldquest_data', texts)
-            memcache.set('goldquest_data_mtime', mtime)
-        self._gamedata = texts
-
-    def get_text(self, text):
-        texts = self._gamedata['texts'][text]
-        if not texts:
-            return None
-        elif isinstance(texts, basestring):
-            return texts
-        else:
-            return random.choice(texts)
 
     def get_level_texts(self, depth):
         for lvl in self._gamedata['level']:
@@ -137,15 +221,6 @@ class GoldQuest(object):
         else:
             name = None
         return self.level.get_monster(name)
-
-    def return_response(self, response, asdict):
-        if asdict:
-            if not 'success' in response:
-                response['success'] = 1
-            return response
-        else:
-            return response['message']
-
 
     def play(self, command, asdict=False):
         response = ""
@@ -422,14 +497,5 @@ class GoldQuest(object):
         }
         return response
 
-    def roll(self, sides, times=1):
-        total = 0
-        for i in range(times):
-            total = total + random.randint(1, sides)
-        return total
-
-    def firstupper(self, text):
-        first = text[0].upper()
-        return first + text[1:]
 
 
