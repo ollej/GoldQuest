@@ -39,12 +39,13 @@ class Hero(object):
     level = None
     alive = None
 
-    def __init__(self):
+    def __init__(self, texts=None):
         self.hurt = 0
         self.kills = 0
         self.gold = 0
         self.level = 1
         self.alive = True
+        self._texts = texts
 
     def reroll(self, name=None):
         self.health = self.roll(20, 5)
@@ -110,9 +111,15 @@ class Hero(object):
         return total
 
     def random_name(self):
-        name = random.choice(['Conan', 'Canon', 'Hercules', 'Robin', 'Dante', 'Legolas', 'Buffy', 'Xena'])
-        epithet = random.choice(['Barbarian', 'Invincible', 'Mighty', 'Hairy', 'Bastard', 'Slayer'])
-        return '%s the %s' % (name, epithet)
+        #name = random.choice(['Conan', 'Canon', 'Hercules', 'Robin', 'Dante', 'Legolas', 'Buffy', 'Xena'])
+        #epithet = random.choice(['Barbarian', 'Invincible', 'Mighty', 'Hairy', 'Bastard', 'Slayer'])
+        #return '%s the %s' % (name, epithet)
+        name = random.choice(self._texts['name'])
+        epithet = random.choice(self._texts['epithet'])
+        logging.info("Name: %s Epithet: %s", name, epithet)
+        values = { 'name': name }
+        full_name = epithet % values
+        return full_name
 
     def get_attributes(self):
         #logging.info(self.__dict__)

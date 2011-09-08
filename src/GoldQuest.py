@@ -45,6 +45,8 @@ class GoldQuestConfigException(GoldQuestException):
 
 class GoldQuest(object):
     _gamedata = None
+    _basepath = None
+    _datafile = None
     cfg = None
     hero = None
     level = None
@@ -65,7 +67,8 @@ class GoldQuest(object):
             debug = False
 
         path = os.path.abspath(__file__)
-        self.basepath = os.path.dirname(path)
+        self._basepath = os.path.dirname(path)
+        self._datafile = '%s/extras/goldquest.dat' % self._basepath
 
         # Read text data
         start1 = quota.get_request_cpu_usage()
@@ -96,11 +99,16 @@ class GoldQuest(object):
 
     def read_texts(self):
         texts = memcache.get('goldquest_data')
-        if not texts:
-            f = open('%s/extras/goldquest.dat' % self.basepath)
+        texts_mtime = memcache.get('goldquest_data_mtime')
+        mtime = os.stat(self._datafile).st_mtime
+        #logging.info('Data file mtime: %s, data_mtime: %s', mtime, texts_mtime)
+        if not texts or not texts_mtime or mtime > texts_mtime:
+            #logging.info('Updating data file.')
+            f = open(self._datafile)
             texts = yaml.load(f)
             f.close()
             memcache.set('goldquest_data', texts)
+            memcache.set('goldquest_data_mtime', mtime)
         self._gamedata = texts
 
     def get_text(self, text):
@@ -203,7 +211,9 @@ class GoldQuest(object):
             # Clear all old level data.
             self._dh.clear_levels()
             # Reroll new hero.
-            self.hero = Hero()
+            #logging.info('Rerolling hero.')
+            #logging.info(self._gamedata['hero'])
+            self.hero = Hero(self._gamedata['hero'])
             self.hero.reroll()
             self.level = self.get_level(self.hero.level)
             attribs = self.hero.get_attributes()
