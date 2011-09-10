@@ -258,10 +258,10 @@ class GoldQuest(object):
                 attribs['gold'] = self.hero.gold
                 response['data']['hero']['gold'] = self.hero.gold
             elif loot < 0:
-                attribs['trap_hurt'] = abs(loot)
-                self.hero.injure(attribs['trap_hurt'])
+                attribs['hurt_by_trap'] = abs(loot)
+                self.hero.injure(attribs['hurt_by_trap'])
                 msg = self.get_text('foundtrap')
-                response['data']['hero']['trap_hurt'] = attribs['trap_hurt']
+                response['data']['hurt_by_trap'] = attribs['hurt_by_trap']
                 response['data']['hero']['hurt'] = self.hero.hurt
                 response['data']['hero']['health'] = self.hero.health
             else:
@@ -296,12 +296,12 @@ class GoldQuest(object):
                     'success': 0,
                     'data': {
                         'hurt_in_fight': hurt_in_fight,
+                        'rested': 0,
                         'hero': {
                             'hurt': attribs['hurt'],
                             'health': attribs['health'],
                             'kills': attribs['kills'],
                             'alive': attribs['alive'],
-                            'rested': 0,
                         },
                         'monster': {
                             'name': monster.name,

@@ -85,7 +85,7 @@ $(document).ready(function() {
     }
 
     function getActionHtml(data) {
-        var line, cls, info = '', extraInfo = '';
+        var line, cls, info = '', extraInfo = '', extraCls = '';
         cls = getActionClass(data['command']);
         if (!data['channel_message']) {
             cls += ' ownAction';
@@ -94,16 +94,23 @@ $(document).ready(function() {
 
         // Gather extra info.
         if (data && data['data'] && data['data']['hurt_in_fight']) {
-            extraInfo = ' Hurt: -' + data['data']['hurt_in_fight']
+            extraInfo = 'Hurt: -' + data['data']['hurt_in_fight'];
+            extraCls = 'hurtInfo';
+        } else if (data && data['data'] && data['data']['hurt_by_trap']) {
+            extraInfo = 'Hurt: -' + data['data']['hurt_by_trap'];
+            extraCls = 'hurtInfo';
         } else if (data && data['data'] && data['data']['rested']) {
-            extraInfo = ' Rest: +' + data['data']['rested']
+            extraInfo = 'Rest: +' + data['data']['rested'];
+            extraCls = 'restInfo';
         } else if (data && data['data'] && data['data']['loot']) {
-            extraInfo = ' Loot: ' + data['data']['loot']
+            extraInfo = 'Loot: ' + data['data']['loot']
+            extraCls = 'lootInfo';
         } else if (data && data['data'] && data['data']['hero'] && data['data']['hero']['level']) {
-            extraInfo = ' Level: ' + data['data']['hero']['level']
+            extraInfo = 'Level: ' + data['data']['hero']['level']
+            extraCls = 'levelInfo';
         }
         if (extraInfo) {
-            extraInfo = '<span class="extraInfo">' + extraInfo + '</span>';
+            extraInfo = '<span class="extraInfo ' + extraCls + '"> ' + extraInfo + '</span>';
         }
 
         // Create html

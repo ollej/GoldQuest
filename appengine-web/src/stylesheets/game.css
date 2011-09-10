@@ -107,19 +107,19 @@ html, body {
   font-weight: bold;
 }
 
-#actionList .actionFight .extraInfo {
+#actionList .extraInfo.hurtInfo {
   color: #C30017;
 }
 
-#actionList .actionRest .extraInfo {
+#actionList .extraInfo.restInfo {
   color: #004C7B;
 }
 
-#actionList .actionLoot .extraInfo {
+#actionList .extraInfo.lootInfo {
   color: #E9B700;
 }
 
-#actionList .actionDeeper .extraInfo {
+#actionList .extraInfo.levelInfo {
   color: #351E00;
 }
 
