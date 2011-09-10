@@ -39,7 +39,7 @@ from decorators import *
 import broadcast
 from datastorehelpers import *
 import goldenweb
-from GoldQuest.DataStoreDataHandler import *
+from GoldFrame.DataStoreDataHandler import *
 
 # TODO: Don't setup channels if game doesn't have broadcast_actions
 class WebHandler(goldenweb.PageHandler):

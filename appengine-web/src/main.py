@@ -49,11 +49,9 @@ import broadcast
 from datastorehelpers import *
 from goldenweb import *
 from web import *
-from GoldQuest import GoldQuest
-from GoldQuest.DataStoreDataHandler import *
 
-# TODO: Move into own file.
 class GameHandler(PageHandler):
+    default_game = 'goldquest'
     _cfg = None
     _game = None
     _channel = None
@@ -61,14 +59,30 @@ class GameHandler(PageHandler):
 
     @LogUsageCPU
     def __init__(self):
+        pass
+
+    def setup_game(self, game=None):
         # Read configuration.
+        # TODO: Games probably need their own configs.
         self._cfg = ConfigParser.ConfigParser()
         config_path = os.path.join(self._basepath, 'config.ini')
         self._cfg.read(config_path)
 
-        # Initialize game class.
+        # Memcache is needed for some games.
         self._memcache = memcache.Client()
-        self._game = GoldQuest.GoldQuest(self._cfg, self._memcache)
+
+        # Initialize game class.
+        # TODO: Make this dynamic.
+        if not game or game == 'goldquest':
+            from GoldFrame import GoldQuest
+            self._game = GoldQuest.GoldQuest(self._cfg, self._memcache)
+        elif game == 'assassinsgreed':
+            from GoldFrame import AssassinsGreed
+            self._game = AssassinsGreed.AssassinsGreed(self._cfg, self._memcache)
+        else:
+            logging.error('Game not available: %s', game)
+
+        # Call game setup code.
         self._game.setup()
 
         # Setup channel if necessary.
@@ -83,19 +97,46 @@ class GameHandler(PageHandler):
             'command': page,
             'content': dumpdict.dumpdict(template_values, br='<br/>', html=1),
         }
-        return super(GoldQuestHandler, self).output_html('api_response', values, layout)
+        return super(GameHandler, self).output_html('api_response', values, layout)
+
+    def parse_arguments(self, *args):
+        game = self.default_game
+        command = args[0]
+        if len(args) == 2:
+            game = args[0]
+            command = args[1]
+        return (game, command)
 
     @LogUsageCPU
-    def get(self, command):
+    def get(self, *args):
+        # Read arguments
+        (game, command) = self.parse_arguments(*args)
+
+        logging.info('game: %s command: %s', game, command)
+
+        # Setup the game.
+        self.setup_game(game)
+
+        # Call the action handler in the game.
         response = self._game.play(command, True)
+
+        # Handle the game response.
         if response and response['message']:
             logging.debug(response)
-            #self.response.out.write(response)
+            # Add some default values to all responses.
             response['id'] = uuid.uuid4().hex
             response['command'] = command
-            self.track_values(response)
+
+            # Gold Quest needs some extra tracking for the moment.
+            # TODO: Define tracking in game metadata.
+            if game == 'goldquest':
+                self.track_values(response)
+
+            # Broadcast response to all players.
             if command in self._game.metadata['broadcast_actions']:
                 self._channel.send_all_update(response)
+
+            # Show response.
             self.show_page(command, response, 'default')
         else:
             self.response.set_status(404)
@@ -130,7 +171,8 @@ class GameHandler(PageHandler):
 @LogUsageCPU
 def main():
     application = webapp.WSGIApplication([
-            (r'/api/(.*)', GameHandler),
+        (r'/api/(.*?)/(.*)', GameHandler),
+        (r'/api/(.*?)', GameHandler),
         ],
         debug=True)
     util.run_wsgi_app(application)

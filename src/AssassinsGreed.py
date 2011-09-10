@@ -31,56 +31,57 @@ import os
 import logging
 
 import GoldFrame
+
 from decorators import *
 
 from Hero import Hero
 from Monster import Monster
 from Level import Level
 
-class GoldQuest(GoldFrame.GamePlugin):
+class AssassinsGreed(GoldFrame.GamePlugin):
     _gamedata = None
     _basepath = None
     _datafile = None
     cfg = None
     hero = None
     level = None
-    _datafile = 'goldquest.dat'
+    _datafile = 'assassinsgreed.dat'
     metadata = {
-        'name': 'Gold Quest',
-        'gamekey': 'goldquest',
-        'broadcast_actions': ['fight', 'rest', 'loot', 'deeper', 'reroll'],
+        'name': "Assassin's Greed",
+        'gamekey': 'assassinsgreed',
+        'broadcast_actions': ['assassinate', 'heal', 'collect', 'climb', 'reroll'],
         'actions': {
-            'fight': {
-                'name': 'Fight',
-                'description': 'Find a monster and fight it.',
+            'assassinate': {
+                'name': 'Assassinate',
+                'description': 'Find a villain to assassinate.',
                 'img': 'images/icon-fight.png',
                 'tinyimg': 'images/tiny-icon-fight.png',
                 'color': '#C30017',
             },
-            'rest': {
-                'name': 'Rest',
-                'description': 'Rest to regain some health.',
+            'heal': {
+                'name': 'Heal',
+                'description': 'Heal to regain some health.',
                 'img': 'images/icon-rest.png',
                 'tinyimg': 'images/tiny-icon-health.png',
                 'color': '#004C7B',
             },
-            'loot': {
-                'name': 'Loot',
-                'description': 'Search for gold.',
+            'collect': {
+                'name': 'Collect Feathers',
+                'description': 'Search for feathers.',
                 'img': 'images/icon-loot.png',
                 'tinyimg': 'images/tiny-icon-gold.png',
                 'color': '#E9B700',
             },
-            'deeper': {
-                'name': 'Deeper',
-                'description': 'Descend deeper into the dungeon.',
+            'climb': {
+                'name': 'Climb',
+                'description': 'Climb a tower in the city.',
                 'img': 'images/icon-deeper.png',
                 'tinyimg': 'images/tiny-icon-level.png',
                 'color': '#351E00',
             },
             'reroll': {
                 'name': 'Reroll',
-                'description': 'Reroll a new hero if the current is dead..',
+                'description': 'Reroll a new hero if the current is dead.',
                 'img': 'images/icon-reroll.png',
                 'tinyimg': 'images/tiny-icon-reroll.png',
             },
@@ -114,20 +115,20 @@ class GoldQuest(GoldFrame.GamePlugin):
                 'type': 'integer',
                 'img': 'images/tiny-icon-hurt.png',
             },
-            'level': {
-                'name': 'Level',
+            'towers': {
+                'name': 'Towers',
                 'description': '',
                 'type': 'integer',
                 'img': 'images/tiny-icon-level.png',
             },
-            'kills': {
-                'name': 'Kills',
+            'assassinations': {
+                'name': 'Assassinations',
                 'description': '',
                 'type': 'integer',
                 'img': 'images/tiny-icon-kills.png',
             },
-            'gold': {
-                'name': 'Gold',
+            'feathers': {
+                'name': 'Feathers',
                 'description': '',
                 'type': 'integer',
                 'img': 'images/tiny-icon-gold.png',
@@ -206,11 +207,11 @@ class GoldQuest(GoldFrame.GamePlugin):
             return self.return_response(response, asdict)
         if command in ['rest', 'vila']:
             response = self.rest()
-        elif command in ['fight', 'kill', 'slay', u'slåss']:
+        elif command in ['assassinate', 'kill', 'slay', u'slåss']:
             response = self.fight()
         elif command in ['deeper', 'down', 'descend', 'vidare']:
             response = self.go_deeper(rest)
-        elif command in ['loot', 'search', u'sök', 'finna']:
+        elif command in ['collect', 'search', u'sök', 'finna']:
             response = self.search_treasure()
         elif command in ['charsheet', 'stats', u'formulär']:
             response = self.show_charsheet()

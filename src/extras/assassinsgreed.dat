@@ -1,0 +1,90 @@
+hero:
+  name:
+    - Altair
+    - Ezio
+    - Adele
+    - Kristen
+    - Desmond
+    - Lucy
+    - Rebecca
+    - Shaun
+    - Caterina 
+    - Leonardo
+  epithet:
+    - "%(name)s Auditore"
+    - "%(name)s da Firenze"
+    - "%(name)s Sforza"
+    - "%(name)s da Vinci"
+
+monster:
+  - name: papal guard
+    lowlevel: 1
+    highlevel: 0
+
+boss:
+  - Cesare Borgia
+  - Rodrigo Borgia
+  - The Pope
+
+level:
+  - level: 1
+    text:
+    boss:
+
+items:
+  - name: Sword
+    strength: 0
+    health: 0
+
+texts:
+  charsheet: "Stats: %(name)s%(status)s - Strength: %(strength)d Health: %(health)d Hurt: %(hurt)d Assassinations: %(assassinations)d Feathers: %(feathers)d Towers: %(towers)d"
+  nochampion: Your order has no assassin! Use reroll to train a new assassin.
+  noreroll: "You can only reroll a new character if the current assassin is dead."
+  newhero:
+    - "There's a new assassin in town: %(name)s"
+    - "%(name)s comes forth to fight for the order."
+  foundloot:
+    - "%(name)s collects %(feathers)s feathers."
+    - "%(name)s finds %(feathers)s feathers."
+  foundtrap:
+    - A trap hurts %(name)s for %(trap_hurt)d points.
+    - "%(name)s drops the lid of a chest on his fingers."
+  nofeathers: "%(name)s can't find any feathers"
+  rests:
+    - "%(name)s rests and heals %(rested)s hurt."
+    - After a short rest, %(name)s heals %(rested)s points.
+  healed:
+    - "%(name)s is fully healed."
+    - After some rest, %(name)s is healed.
+  alreadyhealed:
+    - "%(name)s is already fully rested."
+  deeper:
+    - "%(name)s climbs another tower."
+    - "%(name)s has now climbed %(towers)d."
+  notargets:
+    - The hero searches high and low, but can't find any more targets.
+  killed:
+    - "%(monster)s is assasinated."
+    - "%(monster)s bites the dust."
+    - "%(monster)s is slayed by %(name)s."
+    - "%(name)s %(slayed)s %(monster)s."
+  slayed:
+    - narrowly defeats
+    - easily beats
+    - slays
+    - kills
+    - wreaks havoc on
+    - pulverizes
+    - flattens
+    - slaughters
+  died:
+    - Your hero has died.
+    - The entire village mourns the death of %(name)s.
+    - "%(name)s dies a hero's death."
+  rest_attack_won:
+    - "%(name)s kills %(monster_name)s that attacks the hero while resting."
+    - "%(name)s tries to rest but has to fight and kill %(monster_name)s that sneaks up on the hero."
+  rest_attack_lost:
+    - Poor %(name)s was attacked while resting and didn't survive.
+    - "%(monster_name)s sneaks up on %(name)s while resting and kills the hero."
+    - "%(name)s is killed while resting by %(monster_name)s."
