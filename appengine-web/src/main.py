@@ -378,7 +378,7 @@ class ChannelUpdater(object):
         """
         channels = self.get_channels()
         for client_id in channels.iterkeys():
-            if client_id != self._session['channel_client_id']:
+            if hasattr(self._session, 'channel_client_id') and client_id != self._session['channel_client_id']:
                 self.send_update(client_id, message)
 
     def connect(self, client_id):
