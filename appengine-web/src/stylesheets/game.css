@@ -6,8 +6,8 @@
 html, body {
   height: 100%;
   font-family: Arial,"Helvetica Neue",sans-serif;
-  font-size: 15px;
-  line-height: 19px;
+  font-size: 14px;
+  line-height: 18px;
   word-wrap: break-word;
   color: #444;
 }
@@ -68,7 +68,9 @@ html, body {
   border-top: 1px solid #D1D1D1;
   text-shadow: 0 1px 1px #fff;
   padding: 3px 5px 5px 5px;
-  font-family: Arial,"Helvetica Neue",sans-serif; font-size: 15px; line-height: 19px; word-wrap: break-word; color: #444;
+  font-family: Arial,"Helvetica Neue",sans-serif; font-size: 14px; line-height: 18px; word-wrap: break-word; color: #444;
+  padding-left: 35px;
+  text-indent: -24px;
 }
 
 #actionList li:nth-child(odd) {
@@ -78,33 +80,23 @@ html, body {
 }
 
 #actionList li.actionFight {
-  list-style: none inside url(../images/tiny-icon-strength.png);
-  padding-left: 35px;
-  text-indent: -24px;
+  list-style: none inside url(../images/tiny-icon-fight.png);
 }
 
 #actionList li.actionLoot {
   list-style: none inside url(../images/tiny-icon-gold.png);
-  padding-left: 35px;
-  text-indent: -24px;
 }
 
 #actionList li.actionDeeper {
   list-style: none inside url(../images/tiny-icon-level.png);
-  padding-left: 35px;
-  text-indent: -24px;
 }
 
 #actionList li.actionRest {
   list-style: none inside url(../images/tiny-icon-health.png);
-  padding-left: 35px;
-  text-indent: -24px;
 }
 
 #actionList li.actionReroll {
   list-style: none inside url(../images/tiny-icon-reroll.png);
-  padding-left: 35px;
-  text-indent: -24px;
 }
 
 #actionList li.ownAction {
@@ -112,7 +104,23 @@ html, body {
 }
 
 #actionList .extraInfo {
-    color: red;
+  font-weight: bold;
+}
+
+#actionList .actionFight .extraInfo {
+  color: #C30017;
+}
+
+#actionList .actionRest .extraInfo {
+  color: #004C7B;
+}
+
+#actionList .actionLoot .extraInfo {
+  color: #E9B700;
+}
+
+#actionList .actionDeeper .extraInfo {
+  color: #351E00;
 }
 
 #taskbarWrapper {

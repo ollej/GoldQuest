@@ -7,6 +7,13 @@ $(document).ready(function() {
         heroStats = {},
         heroDiv;
 
+    // Log if console.log exists and we are running on localhost
+    function log() {
+        if (console && console.log && document.domain == 'localhost') {
+            console.log.apply(console, arguments)
+        }
+    }
+
     function getTemplate(name) {
         var template = $('#' + name + 'Template').html();
         return template;
@@ -18,25 +25,25 @@ $(document).ready(function() {
                 'actionline': getTemplate('actionline'),
                 'charsheet': getTemplate('charsheet')
             };
-            //if (console && console.log) console.log('Read templates:', templates);
+            //log('Read templates:', templates);
         }
         return templates;
     }
 
     function onAction(data, textStatus, jqXhr) {
-        //if (console && console.log) console.log('Success!', data, textStatus, jqXhr);
+        //log('Success!', data, textStatus, jqXhr);
         handleAction(data);
     }
 
     function onError(jqXHR, textStatus, errorThrown) {
-        if (console && console.log) console.log('Error!', jqXHR, textStatus, errorThrown);
+        log('Error!', jqXHR, textStatus, errorThrown);
     }
 
     function onStats(data, textStatus, jqXhr) {
         var hero;
         if (!data['data'] || !data['data']['hero']) return;
         hero = data['data']['hero']
-        //if (console && console.log) console.log('Got stats!', data, textStatus, jqXhr);
+        //log('Got stats!', data, textStatus, jqXhr);
         updateCharsheet(hero);
     }
 
@@ -63,7 +70,7 @@ $(document).ready(function() {
         while (handledActions.length > MAX_LINES) {
             id = handledActions.shift();
             el = $('#action_' + id);
-            //if (console && console.log) console.log('Removing action:', id, el);
+            //log('Removing action:', id, el);
             el.remove();
         }
     }
@@ -83,15 +90,17 @@ $(document).ready(function() {
         if (!data['channel_message']) {
             cls += ' ownAction';
         }
-        //console.log('data', data);
+        log('data', data);
 
         // Gather extra info.
         if (data && data['data'] && data['data']['hurt_in_fight']) {
             extraInfo = ' Hurt: -' + data['data']['hurt_in_fight']
         } else if (data && data['data'] && data['data']['rested']) {
-            extraInfo = ' Rested: ' + data['data']['rested']
+            extraInfo = ' Rest: +' + data['data']['rested']
         } else if (data && data['data'] && data['data']['loot']) {
             extraInfo = ' Loot: ' + data['data']['loot']
+        } else if (data && data['data'] && data['data']['hero'] && data['data']['hero']['level']) {
+            extraInfo = ' Level: ' + data['data']['hero']['level']
         }
         if (extraInfo) {
             extraInfo = '<span class="extraInfo">' + extraInfo + '</span>';
@@ -105,7 +114,7 @@ $(document).ready(function() {
     function handleAction(data) {
         var line, cls;
         if ($.inArray(data.id, handledActions) >= 0) {
-            //if (console && console.log) console.log('Action already handled:', data.id);
+            //log('Action already handled:', data.id);
             // Highlight line.
             //$('#action_' + data.id).effect("highlight", {}, 500);
             return;
@@ -145,13 +154,13 @@ $(document).ready(function() {
         }
 
         // Update div with new data.
-        //if (console && console.log) console.log('heroDiv:' + heroDiv.html() + '|', 'hero', hero);
+        //log('heroDiv:' + heroDiv.html() + '|', 'hero', hero);
         if ($.trim(heroDiv.html()) == '') {
             var stats = $.tache(getTemplates().charsheet, heroStats);
             heroDiv.html(stats);
         } else {
             for (var field in heroStats) if (heroStats.hasOwnProperty(field)) {
-                //if (console && console.log) console.log('field', field, 'value', hero[field]);
+                //log('field', field, 'value', hero[field]);
                 var valueDiv = $('#' + field + 'Value');
                 if (valueDiv) {
                     valueDiv.html(heroStats[field]);
@@ -162,23 +171,23 @@ $(document).ready(function() {
 
     function onCreateChannel(data, textStatus, jqXhr) {
         var token;
-        if (console && console.log) console.log('Channel created:', data, textStatus, jqXhr);
+        log('Channel created:', data, textStatus, jqXhr);
         try {
             channel_token = data['channel_token'];
             channel_client_id = data['channel_client_id'];
             channel = setup_channel(channel_token);
         } catch (e) {
-            if (console && console.log) console.log('Failed setting up channel.', e);
+            log('Failed setting up channel.', e);
         }
     }
 
     function onChannelOpened() {
-        //if (console && console.log) console.log('Channel was opened');
+        //log('Channel was opened');
     }
 
     function onChannelMessage(message) {
         var data;
-        //if (console && console.log) console.log('Received message from channel:', message);
+        //log('Received message from channel:', message);
         if (message.data) {
             data = $.parseJSON(message.data);
             data['channel_message'] = true;
@@ -187,11 +196,11 @@ $(document).ready(function() {
     }
 
     function onChannelError(error) {
-        if (console && console.log) console.log('Received an error from the channel:', error);
+        log('Received an error from the channel:', error);
     }
 
     function onChannelClose() {
-        if (console && console.log) console.log('Channel was closed.');
+        log('Channel was closed.');
         // TODO: Request a new client_id and channel.
         ajaxAction('createchannel', onCreateChannel, '/', { client_id: channel_client_id });
     }
@@ -216,7 +225,7 @@ $(document).ready(function() {
             // Disallow some actions when hero is dead.
             if (!heroStats['alive'] || heroStats['hurt'] >= heroStats['health']) {
                 if ($.inArray(cmd, ['fight', 'loot', 'rest', 'deeper']) >= 0) {
-                    //if (console && console.log) console.log('Hero is dead, action not allowed');
+                    //log('Hero is dead, action not allowed');
                     $('#' + cmd + 'Btn').effect("highlight", { color: 'red' }, 500);
                     return false;
                 }
