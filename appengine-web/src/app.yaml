@@ -24,5 +24,7 @@ handlers:
   static_dir: javascript
 - url: /images
   static_dir: images
-- url: /.*
+- url: /api/.*
   script: main.py
+- url: /.*
+  script: web.py
