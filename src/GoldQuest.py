@@ -50,49 +50,9 @@ class GamePlugin(object):
         'gamekey': 'gameplugin',
         'broadcast_actions': None,
         'actions': {
-            'fight': {
-                'img': 'images/icon-fight.png',
-            },
-            'rest': {
-                'img': 'images/icon-rest.png',
-            },
-            'loot': {
-                'img': 'images/icon-loot.png',
-            },
-            'deeper': {
-                'img': 'images/icon-deeper.png',
-            },
-            'reroll': {
-                'img': 'images/icon-reroll.png',
-            },
-            'stats': {
-            },
         },
-        'stats_img': 'images/icon-stats.png',
         'stats': {
-            'name': {
-            },
-            'strength': {
-                'img': 'images/tiny-icon-strength.png',
-            },
-            'health': {
-                'img': 'images/tiny-icon-health.png',
-            },
-            'hurt': {
-                'img': 'images/tiny-icon-hurt.png',
-            },
-            'level': {
-                'img': 'images/tiny-icon-level.png',
-            },
-            'kills': {
-                'img': 'images/tiny-icon-kills.png',
-            },
-            'gold': {
-                'img': 'images/tiny-icon-gold.png',
-            },
-            'alive': {
-            },
-        },
+        }
     }
 
     def __init__(self, cfg, memcache=None):
@@ -113,9 +73,9 @@ class GamePlugin(object):
         self._basepath = os.path.dirname(path)
         if self._datafile:
             self._datafile = os.path.join(self._basepath, 'extras', self._datafile)
-            logging.info('Datafile: %s', self._datafile)
+            #logging.info('Datafile: %s', self._datafile)
             self._gamedata = self.read_texts(self._datafile)
-            logging.info(self._gamedata)
+            #logging.info(self._gamedata)
 
     def setup(self):
         """
@@ -213,6 +173,93 @@ class GoldQuest(GamePlugin):
         'gamekey': 'goldquest',
         'broadcast_actions': ['fight', 'rest', 'loot', 'deeper', 'reroll'],
         'actions': {
+            'fight': {
+                'name': 'Fight',
+                'description': 'Find a monster and fight it.',
+                'img': 'images/icon-fight.png',
+                'tinyimg': 'images/tiny-icon-fight.png',
+                'color': '#C30017',
+            },
+            'rest': {
+                'name': 'Rest',
+                'description': 'Rest to regain some health.',
+                'img': 'images/icon-rest.png',
+                'tinyimg': 'images/tiny-icon-health.png',
+                'color': '#004C7B',
+            },
+            'loot': {
+                'name': 'Loot',
+                'description': 'Search for gold.',
+                'img': 'images/icon-loot.png',
+                'tinyimg': 'images/tiny-icon-gold.png',
+                'color': '#E9B700',
+            },
+            'deeper': {
+                'name': 'Deeper',
+                'description': 'Descend deeper into the dungeon.',
+                'img': 'images/icon-deeper.png',
+                'tinyimg': 'images/tiny-icon-level.png',
+                'color': '#351E00',
+            },
+            'reroll': {
+                'name': 'Reroll',
+                'description': 'Reroll a new hero if the current is dead..',
+                'img': 'images/icon-reroll.png',
+                'tinyimg': 'images/tiny-icon-reroll.png',
+            },
+            'stats': {
+                'name': 'Stats',
+                'description': 'Update character sheet.',
+            },
+        },
+        'stats_img': 'images/icon-stats.png',
+        'stats': {
+            'name': {
+                'name': '',
+                'description': '',
+                'type': 'string',
+            },
+            'strength': {
+                'name': '',
+                'description': '',
+                'type': 'integer',
+                'img': 'images/tiny-icon-strength.png',
+            },
+            'health': {
+                'name': '',
+                'description': '',
+                'type': 'integer',
+                'img': 'images/tiny-icon-health.png',
+            },
+            'hurt': {
+                'name': '',
+                'description': '',
+                'type': 'integer',
+                'img': 'images/tiny-icon-hurt.png',
+            },
+            'level': {
+                'name': '',
+                'description': '',
+                'type': 'integer',
+                'img': 'images/tiny-icon-level.png',
+            },
+            'kills': {
+                'name': '',
+                'description': '',
+                'type': 'integer',
+                'img': 'images/tiny-icon-kills.png',
+            },
+            'gold': {
+                'name': '',
+                'description': '',
+                'type': 'integer',
+                'img': 'images/tiny-icon-gold.png',
+            },
+            'alive': {
+                'name': '',
+                'type': 'boolean',
+                'description': '',
+            },
         },
     }
 
