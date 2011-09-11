@@ -139,9 +139,16 @@ html, body {
 .taskDiv button {
   background: none;
   border: none;
-}
-
-.taskDiv button img {
   margin: 2px 0px 3px 0px;
 }
 
+.taskHover {
+  display: block;
+  width: 32px;
+  height: 32px;
+  background: none;
+}
+
+.taskHover:hover {
+  background: url(/images/icon-hover.png) no-repeat center center;
+}

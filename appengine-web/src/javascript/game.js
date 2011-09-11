@@ -88,6 +88,7 @@ $(document).ready(function() {
         //console.log('data', data);
 
         // Gather extra info.
+        // FIXME: Need to be dynamic per game.
         if (data && data['data'] && data['data']['hurt_in_fight']) {
             extraInfo = ' Hurt: -' + data['data']['hurt_in_fight']
         } else if (data && data['data'] && data['data']['rested']) {
@@ -199,6 +200,7 @@ $(document).ready(function() {
     }
 
     function setup_channel(token) {
+        if (!token) return false;
         var channel = new goog.appengine.Channel(token);
         socket = channel.open({
             onopen: onChannelOpened,
@@ -216,6 +218,7 @@ $(document).ready(function() {
                 fn = (cmd == 'stats') ? onStats : onAction;
 
             // Disallow some actions when hero is dead.
+            // FIXME: Need to get list of actions from game.
             if (!heroStats['alive'] || heroStats['hurt'] >= heroStats['health']) {
                 if ($.inArray(cmd, ['fight', 'loot', 'rest', 'deeper']) >= 0) {
                     //if (console && console.log) console.log('Hero is dead, action not allowed');
@@ -235,22 +238,6 @@ $(document).ready(function() {
         $('#heroDiv').live('click', function(event) {
             ajaxAction('stats', onStats);
         });
-
-        // Add highlight when hovering over task buttons.
-        $('.taskImg').hover(
-            function(ev) {
-                var el = $(this);
-                var img = el.attr('src');
-                el.attr('src', 'images/icon-hover.png');
-                el.css('background', 'url(' + img + ')');
-            },
-            function(ev) {
-                var el = $(this);
-                var img = 'images/icon-' + el.attr('alt').toLowerCase() + '.png';
-                el.attr('src', img);
-                el.css('background', '');
-            }
-        );
 
         // Load stats.
         ajaxAction('stats', onStats);
