@@ -840,16 +840,19 @@ texts:
     - "%(loot)d gold nuggets are scattered on the ground, %(name)s picks them up."
   foundtrap:
     - It's a trap!
-    - A trap hurts %(name)s for %(trap_hurt)d points.
+    - A trap hurts %(name)s for %(hurt_by_trap)d points.
     - "%(name)s drops the lid of a chest on his fingers."
   nogold: "%(name)s can't find any gold."
   noloot:
     - There are no corpses to loot.
     - You have to kill more monsters on this level to loot.
   rests:
+    - "%(name)s lies down to rest and is healed %(rested)s points."
     - "%(name)s rests and heals %(rested)s hurt."
     - After a short rest, %(name)s heals %(rested)s points.
   healed:
+    - "%(name)s has regained all his health."
+    - "%(name)s has restored to full health."
     - "%(name)s is fully healed."
     - After some rest, %(name)s is healed.
   alreadyhealed:
@@ -861,6 +864,8 @@ texts:
   nomonsters:
     - The hero searches high and low, but can't find any more monsters on this level.
     - Apparently this level has been cleared of all monsters.
+    - There are no more monsters on this level.
+    - All monsters on this level has been killed.
   killed:
     - "%(monster)s is slaughtered."
     - "%(monster)s bites the dust."
@@ -875,6 +880,8 @@ texts:
     - pulverizes
     - flattens
     - slaughters
+    - beats
+    - mashes
   died:
     - Your hero has died.
     - The entire village mourns the death of %(name)s.

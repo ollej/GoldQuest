@@ -29,26 +29,33 @@ from google.appengine.ext import db
 
 import logging
 
-class DataStoreDataHandler(object):
-    def __init__(self, cfg):
-        self._cfg = cfg
+from DataStoreDataHandler import DataStoreDataHandler
+from Assassin import Assassin
 
-    def create_object(self, obj, ds, Class):
-        if not ds:
-            ds = Class()
-        obj._ds = ds
-        for attr in ds.properties():
-            if attr[0] != '_':
-                value = getattr(ds, attr)
-                setattr(obj, attr, value)
-        return obj
+class DSAssassin(db.Model):
+    name = db.StringProperty()
+    health = db.IntegerProperty()
+    strength = db.IntegerProperty()
+    hurt = db.IntegerProperty()
+    assassinations = db.IntegerProperty()
+    feathers = db.IntegerProperty()
+    towers = db.IntegerProperty()
+    alive = db.BooleanProperty()
 
-    def prepare_object(self, obj, Class):
-        if not hasattr(obj, '_ds') or not obj._ds:
-            obj._ds = Class()
-        for attr in obj._ds.properties():
-            value = getattr(obj, attr)
-            if attr[0] != '_':
-                setattr(obj._ds, attr, value)
-        return obj
+    def get_current_health(self):
+        return (self.health - self.hurt)
+
+    current_health = property(get_current_health)
+
+class AGDSHandler(DataStoreDataHandler):
+    def save_data(self, assassin):
+        assassin = self.prepare_object(assassin, DSAssassin)
+        assassin._ds.put()
+
+    def get_alive_assassin(self):
+        query = DSAssassin.all()
+        query.filter('alive =', True)
+        assassinds = query.get()
+        if assassinds:
+            return self.create_object(Assassin(), assassinds, DSAssassin)
 

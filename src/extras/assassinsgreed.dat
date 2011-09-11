@@ -1,0 +1,152 @@
+assassin:
+  name:
+    - Altair
+    - Ezio
+    - Adele
+    - Kristen
+    - Desmond
+    - Lucy
+    - Rebecca
+    - Shaun
+    - Caterina
+    - Leonardo
+    - Rauf
+    - Mario
+    - Claudia
+    - Rosa
+    - Paola
+    - Hassan
+    - Giovanni
+    - Bartolomeo
+    - Fabio
+    - Domenico
+  epithet:
+    - "%(name)s Auditore"
+    - "%(name)s da Firenze"
+    - "%(name)s Sforza"
+    - "%(name)s da Vinci"
+    - "%(name)s d'Alviano"
+    - "%(name)s Orsini"
+
+target:
+  - name: a papal guard
+    lowlevel: 1
+    highlevel: 0
+  - name: a knights templar
+    lowlevel: 1
+    highlevel: 0
+  - name: an archer
+    lowlevel: 1
+    highlevel: 0
+  - name: a Borgia messenger
+    lowlevel: 1
+    highlevel: 0
+  - name: a guard
+    lowlevel: 1
+    highlevel: 0
+  - name: a guard sergeant
+    lowlevel: 1
+    highlevel: 0
+  - name: a guard captain
+    lowlevel: 1
+    highlevel: 0
+  - name: a thug
+    lowlevel: 1
+    highlevel: 0
+  - name: a militia guard
+    lowlevel: 1
+    highlevel: 0
+  - name: an elite guard
+    lowlevel: 1
+    highlevel: 0
+  - name: a brute
+    lowlevel: 1
+    highlevel: 0
+  - name: a crossbowman
+    lowlevel: 1
+    highlevel: 0
+  - name: an arquebusier
+    lowlevel: 1
+    highlevel: 0
+  - name: a Cento Occhi bandit
+    lowlevel: 1
+    highlevel: 0
+  - name: a French soldier
+    lowlevel: 1
+    highlevel: 0
+
+boss:
+  - Cesare Borgia
+  - Rodrigo Borgia
+  - The Pope
+  - Master of the Tower
+  - Lord Basilisk
+  - Pirate Captain
+  - Dark Oracle
+  - Green-cloaked man of Acre
+  - Caligula
+  - Master of the Sacred Palace
+
+level:
+  - level: 1
+    text:
+    boss:
+
+items:
+  - name: Sword
+    strength: 0
+    health: 0
+
+texts:
+  charsheet: "Stats: %(name)s%(status)s - Strength: %(strength)d Health: %(health)d Hurt: %(hurt)d Assassinations: %(assassinations)d Feathers: %(feathers)d Towers: %(towers)d"
+  nochampion: The Order has no assassin! Use reroll to train a new assassin.
+  noreroll: "You can only reroll a new character if the current assassin is dead."
+  newassassin:
+    - "A new assassin named %(name)s has joined the Order."
+    - "%(name)s comes forth to fight for the Order."
+  foundfeathers:
+    - "%(name)s collects a feather."
+    - "%(name)s finds a feather."
+  nofeathers:
+    - "%(name)s couldn't find any feathers."
+  heals:
+    - "%(name)s drinks a health potion and heals %(healed)s hurt."
+    - "%(name)s heals %(healed)s points."
+  healed:
+    - "%(name)s is fully healed."
+    - After drinking a health potion, %(name)s is healed.
+  alreadyhealed:
+    - "%(name)s is already fully healed."
+    - "%(name)s is already at full health."
+  climbs:
+    - "%(name)s climbs another tower."
+    - "%(name)s has now climbed %(towers)d towers."
+  notargets:
+    - The hero searches high and low, but can't find any more targets.
+  killed:
+    - "%(target)s is assasinated."
+    - "%(target)s bites the dust."
+    - "%(target)s is killed with the hidden blade."
+    - "%(target)s is killed with a poisoned blade."
+    - "%(target)s is killed with throwing knifes."
+    - "%(target)s is killed with a crossbow."
+    - "%(target)s is killed with the hidden gun."
+    - "%(target)s is killed with a short blade."
+    - "%(target)s is slayed by %(name)s."
+    - "%(name)s %(slayed)s %(target)s."
+  slayed:
+    - assassinates
+    - air assassinates
+    - kills
+    - slaughters
+  died:
+    - Your assassin has died.
+    - The entire Order mourns the death of %(name)s.
+    - "%(name)s dies a hero's death."
+  sneak_attack_won:
+    - "%(name)s kills %(target_name)s that attacks the hero."
+    - "%(name)s has to fight and kill %(target_name)s that sneaks up on the assassin."
+  sneak_attack_lost:
+    - Poor %(name)s was attacked and didn't survive.
+    - "%(target_name)s sneaks up on %(name)s and kills the assassin."
+    - "%(name)s is killed by %(target_name)s."

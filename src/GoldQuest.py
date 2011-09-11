@@ -30,95 +30,172 @@ import yaml
 import os
 import logging
 
+import GoldFrame
+from decorators import *
+
 from Hero import Hero
 from Monster import Monster
 from Level import Level
 
-from google.appengine.api import quota
-from google.appengine.api import memcache
-
-class GoldQuestException(Exception):
-    pass
-
-class GoldQuestConfigException(GoldQuestException):
-    pass
-
-class GoldQuest(object):
-    _gamedata = None
-    _basepath = None
-    _datafile = None
-    cfg = None
+class GoldQuest(GoldFrame.GamePlugin):
+    _cfg = None
     hero = None
     level = None
+    _datafile = 'goldquest.dat'
+    metadata = {
+        'name': 'Gold Quest',
+        'gamekey': 'goldquest',
+        'broadcast_actions': ['fight', 'rest', 'loot', 'deeper', 'reroll'],
+        'actions': [
+            {
+                'key': 'fight',
+                'name': 'Fight',
+                'description': 'Find a monster and fight it.',
+                'img': 'images/icon-fight.png',
+                'tinyimg': 'images/tiny-icon-fight.png',
+                'color': '#C30017',
+            },
+            {
+                'key': 'rest',
+                'name': 'Rest',
+                'description': 'Rest to regain some health.',
+                'img': 'images/icon-rest.png',
+                'tinyimg': 'images/tiny-icon-health.png',
+                'color': '#004C7B',
+            },
+            {
+                'key': 'loot',
+                'name': 'Loot',
+                'description': 'Search for gold.',
+                'img': 'images/icon-loot.png',
+                'tinyimg': 'images/tiny-icon-gold.png',
+                'color': '#E9B700',
+            },
+            {
+                'key': 'deeper',
+                'name': 'Deeper',
+                'description': 'Descend deeper into the dungeon.',
+                'img': 'images/icon-deeper.png',
+                'tinyimg': 'images/tiny-icon-level.png',
+                'color': '#351E00',
+            },
+            {
+                'key': 'reroll',
+                'name': 'Reroll',
+                'description': 'Reroll a new hero if the current is dead..',
+                'img': 'images/icon-reroll.png',
+                'tinyimg': 'images/tiny-icon-reroll.png',
+            },
+            {
+                'key': 'stats',
+                'name': 'Stats',
+                'description': 'Update character sheet.',
+            },
+        ],
+        'stats_img': 'images/icon-stats.png',
+        'stats': [
+            {
+                'key': 'name',
+                'name': 'Name',
+                'description': '',
+                'type': 'string',
+            },
+            {
+                'key': 'strength',
+                'name': 'Strength',
+                'description': '',
+                'type': 'integer',
+                'img': 'images/tiny-icon-strength.png',
+            },
+            {
+                'key': 'health',
+                'name': 'Health',
+                'description': '',
+                'type': 'integer',
+                'img': 'images/tiny-icon-health.png',
+            },
+            {
+                'key': 'hurt',
+                'name': 'Hurt',
+                'description': '',
+                'type': 'integer',
+                'img': 'images/tiny-icon-hurt.png',
+            },
+            {
+                'key': 'level',
+                'name': 'Level',
+                'description': '',
+                'type': 'integer',
+                'img': 'images/tiny-icon-level.png',
+            },
+            {
+                'key': 'kills',
+                'name': 'Kills',
+                'description': '',
+                'type': 'integer',
+                'img': 'images/tiny-icon-kills.png',
+            },
+            {
+                'key': 'gold',
+                'name': 'Gold',
+                'description': '',
+                'type': 'integer',
+                'img': 'images/tiny-icon-gold.png',
+            },
+            {
+                'key': 'alive',
+                'name': 'Alive',
+                'type': 'boolean',
+                'description': '',
+            },
+        ],
+    }
 
-    def __init__(self, cfg):
-        """
-        Setup Sqlite SQL tables and start a db session.
-
-        The database will be saved in C{extras/goldquest.db}
-
-        Calls L{setup_tables} to setup table metadata and L{setup_session}
-        to instantiate the db session.
-        """
-        self._cfg = cfg
-        try:
-            debug = self._cfg.getboolan('LOCAL', 'debug')
-        except AttributeError:
-            debug = False
-
-        path = os.path.abspath(__file__)
-        self._basepath = os.path.dirname(path)
-        self._datafile = '%s/extras/goldquest.dat' % self._basepath
-
-        # Read text data
-        start1 = quota.get_request_cpu_usage()
-        self.read_texts()
-        end1 = quota.get_request_cpu_usage()
-        logging.debug("GoldQuest read texts cost %d megacycles." % (end1 - start1))
-
+    def setup(self):
         # Configure datahandler backend.
-        start1 = quota.get_request_cpu_usage()
+        self.setup_database()
+
+        # Read saved hero.
+        self.get_hero()
+
+    def template_charsheet(self):
+        #path = os.path.join(os.path.dirname(__file__), 'extras', 'goldquest_template_charsheet.html')
+        #return file(path,'r').read()
+        return """
+        <img src="images/icon-stats.png" class="statsImage" style="float: left" width="32" height="32" alt="Stats" title="Stats" />
+        <h1 id="nameValue" class="nameValue">[[ name ]]</h1>
+        <ul class="charsheetList">
+          <li class="statItem" id="strengthStatDiv"><img src="images/tiny-icon-strength.png" width="16" height="16" alt="Strength" title="Strength" /><span class="statValue" id="strengthValue">[[ strength ]]</span></li>
+          <li class="statItem" id="healthStatDiv"><img src="images/tiny-icon-health.png" width="16" height="16" alt="Health" title="Health" /><span class="statValue" id="hurthealthValue">[[ current_health ]]/[[ health ]]</span></li>
+          <li class="statItem" id="levelStatDiv"><img src="images/tiny-icon-level.png" width="16" height="16" alt="Level" title="Level" /><span class="statValue" id="levelValue">[[ level ]]</span></li>
+          <li class="statItem" id="killsStatDiv"><img src="images/tiny-icon-kills.png" width="16" height="16" alt="Kills" title="Kills" /><span class="statValue" id="killsValue">[[ kills ]]</span></li>
+          <li class="statItem" id="goldStatDiv"><img src="images/tiny-icon-gold.png" width="16" height="16" alt="Gold" title="Gold" /><span class="statValue" id="goldValue">[[ gold ]]</span></li>
+        </ul>
+        """
+
+    def template_actionline(self):
+        return "<li class='actionLine [[ cls ]]' id='action_[[ id ]]'>[[ line ]][[ extraInfo ]]</li>"
+
+    @LogUsageCPU
+    def setup_database(self):
+        """
+        Sets up either a sqlite database or a GAE DataStore depending on configuration.
+        """
         datahandler = self._cfg.get('LOCAL', 'datahandler')
         if datahandler == 'sqlite':
             from SqlDataHandler import SqlDataHandler
-            self._dh = SqlDataHandler(debug)
+            self._dh = SqlDataHandler(self._debug)
         elif datahandler == 'datastore':
-            from DataStoreDataHandler import DataStoreDataHandler
-            self._dh = DataStoreDataHandler(debug)
+            from GQDSHandler import GQDSHandler
+            self._dh = GQDSHandler(self._debug)
         else:
-            raise GoldQuestConfigException, "Unknown datahandler: %s" % datahandler
-        end1 = quota.get_request_cpu_usage()
-        logging.debug("GoldQuest datastore setup cost %d megacycles." % (end1 - start1))
+            raise GoldFrameConfigException, "Unknown datahandler: %s" % datahandler
 
-        start1 = quota.get_request_cpu_usage()
+    @LogUsageCPU
+    def get_hero(self):
         self.hero = self._dh.get_alive_hero()
         if self.hero and not self.level:
             self.level = self.get_level(self.hero.level) #Level(self.hero.level)
-        end1 = quota.get_request_cpu_usage()
-        logging.debug("GoldQuest setup hero and level cost %d megacycles." % (end1 - start1))
-
-    def read_texts(self):
-        texts = memcache.get('goldquest_data')
-        texts_mtime = memcache.get('goldquest_data_mtime')
-        mtime = os.stat(self._datafile).st_mtime
-        #logging.info('Data file mtime: %s, data_mtime: %s', mtime, texts_mtime)
-        if not texts or not texts_mtime or mtime > texts_mtime:
-            #logging.info('Updating data file.')
-            f = open(self._datafile)
-            texts = yaml.load(f)
-            f.close()
-            memcache.set('goldquest_data', texts)
-            memcache.set('goldquest_data_mtime', mtime)
-        self._gamedata = texts
-
-    def get_text(self, text):
-        texts = self._gamedata['texts'][text]
-        if not texts:
-            return None
-        elif isinstance(texts, basestring):
-            return texts
-        else:
-            return random.choice(texts)
 
     def get_level_texts(self, depth):
         for lvl in self._gamedata['level']:
@@ -137,15 +214,6 @@ class GoldQuest(object):
         else:
             name = None
         return self.level.get_monster(name)
-
-    def return_response(self, response, asdict):
-        if asdict:
-            if not 'success' in response:
-                response['success'] = 1
-            return response
-        else:
-            return response['message']
-
 
     def play(self, command, asdict=False):
         response = ""
@@ -422,14 +490,5 @@ class GoldQuest(object):
         }
         return response
 
-    def roll(self, sides, times=1):
-        total = 0
-        for i in range(times):
-            total = total + random.randint(1, sides)
-        return total
-
-    def firstupper(self, text):
-        first = text[0].upper()
-        return first + text[1:]
 
 

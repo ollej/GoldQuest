@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """
@@ -25,30 +25,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-from google.appengine.ext import db
+from google.appengine.api import quota
 
 import logging
 
-class DataStoreDataHandler(object):
-    def __init__(self, cfg):
-        self._cfg = cfg
-
-    def create_object(self, obj, ds, Class):
-        if not ds:
-            ds = Class()
-        obj._ds = ds
-        for attr in ds.properties():
-            if attr[0] != '_':
-                value = getattr(ds, attr)
-                setattr(obj, attr, value)
-        return obj
-
-    def prepare_object(self, obj, Class):
-        if not hasattr(obj, '_ds') or not obj._ds:
-            obj._ds = Class()
-        for attr in obj._ds.properties():
-            value = getattr(obj, attr)
-            if attr[0] != '_':
-                setattr(obj._ds, attr, value)
-        return obj
-
+def LogUsageCPU(func):
+    def repl_func(*args):
+        start = quota.get_request_cpu_usage()
+        ret = func(*args)
+        end = quota.get_request_cpu_usage()
+        logging.debug("%s method cost %d megacycles." % (func.__name__, end - start))
+        return ret
+    return repl_func

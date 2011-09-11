@@ -50,7 +50,9 @@ $(document).ready(function() {
     function ajaxAction(cmd, successFn, url, data) {
         data = data || {};
         if (!data['format']) data['format'] = 'json';
-        url = url || gameUrl;
+        if (!url) {
+            url = gameKey ? gameUrl + gameKey + '/' : gameUrl;
+        }
         $.ajax({
             url: url + cmd,
             data: data,
@@ -93,6 +95,7 @@ $(document).ready(function() {
         log('data', data);
 
         // Gather extra info.
+        // FIXME: Need to be dynamic per game.
         if (data && data['data'] && data['data']['hurt_in_fight']) {
             extraInfo = 'Hurt: -' + data['data']['hurt_in_fight'];
             extraCls = 'hurtInfo';
@@ -213,6 +216,7 @@ $(document).ready(function() {
     }
 
     function setup_channel(token) {
+        if (!token) return false;
         var channel = new goog.appengine.Channel(token);
         socket = channel.open({
             onopen: onChannelOpened,
@@ -230,6 +234,7 @@ $(document).ready(function() {
                 fn = (cmd == 'stats') ? onStats : onAction;
 
             // Disallow some actions when hero is dead.
+            // FIXME: Need to get list of actions from game.
             if (!heroStats['alive'] || heroStats['hurt'] >= heroStats['health']) {
                 if ($.inArray(cmd, ['fight', 'loot', 'rest', 'deeper']) >= 0) {
                     //log('Hero is dead, action not allowed');
@@ -249,22 +254,6 @@ $(document).ready(function() {
         $('#heroDiv').live('click', function(event) {
             ajaxAction('stats', onStats);
         });
-
-        // Add highlight when hovering over task buttons.
-        $('.taskImg').hover(
-            function(ev) {
-                var el = $(this);
-                var img = el.attr('src');
-                el.attr('src', 'images/icon-hover.png');
-                el.css('background', 'url(' + img + ')');
-            },
-            function(ev) {
-                var el = $(this);
-                var img = 'images/icon-' + el.attr('alt').toLowerCase() + '.png';
-                el.attr('src', img);
-                el.css('background', '');
-            }
-        );
 
         // Load stats.
         ajaxAction('stats', onStats);

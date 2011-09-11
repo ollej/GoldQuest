@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """
@@ -26,29 +26,39 @@ THE SOFTWARE.
 """
 
 from google.appengine.ext import db
+from decorators import *
 
-import logging
+class KeyValueInt(db.Model):
+    """Shards for the counter"""
+    name = db.StringProperty(required=True, default='')
+    value = db.IntegerProperty(required=True, default=0)
 
-class DataStoreDataHandler(object):
-    def __init__(self, cfg):
-        self._cfg = cfg
+@LogUsageCPU
+def get_value(name):
+    """Retrieve the value for a given key."""
+    k = db.Key.from_path('KeyValueInt', name)
+    val = db.get(k)
+    #val = KeyValueInt.all().filter('name =', name).get()
+    if not val:
+        val = KeyValueInt(key_name=name, name=name, value=0)
+    return val
 
-    def create_object(self, obj, ds, Class):
-        if not ds:
-            ds = Class()
-        obj._ds = ds
-        for attr in ds.properties():
-            if attr[0] != '_':
-                value = getattr(ds, attr)
-                setattr(obj, attr, value)
-        return obj
+@LogUsageCPU
+def set_value(name, value):
+    """Update the value for a given name."""
+    k = db.Key.from_path('KeyValueInt', name)
+    val = db.get(k)
+    if not val:
+        val = KeyValueInt(key_name=name, name=name, value=value)
+    else:
+        val.value = value
+    val.put()
 
-    def prepare_object(self, obj, Class):
-        if not hasattr(obj, '_ds') or not obj._ds:
-            obj._ds = Class()
-        for attr in obj._ds.properties():
-            value = getattr(obj, attr)
-            if attr[0] != '_':
-                setattr(obj._ds, attr, value)
-        return obj
-
+@LogUsageCPU
+def inc_value(name, inc=1):
+    """Increment the value for a given sharded counter."""
+    def txn(name, inc):
+        val = get_value(name)
+        val.value += inc
+        val.put()
+    db.run_in_transaction(txn, name, inc)
