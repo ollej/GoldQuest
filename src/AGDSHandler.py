@@ -41,6 +41,7 @@ class DSAssassin(db.Model):
     feathers = db.IntegerProperty()
     towers = db.IntegerProperty()
     alive = db.BooleanProperty()
+    userid = db.StringProperty()
 
     def get_current_health(self):
         return (self.health - self.hurt)
@@ -52,9 +53,12 @@ class AGDSHandler(DataStoreDataHandler):
         assassin = self.prepare_object(assassin, DSAssassin)
         assassin._ds.put()
 
-    def get_alive_assassin(self):
+    def get_alive_assassin(self, userid):
         query = DSAssassin.all()
         query.filter('alive =', True)
+        if not userid:
+            userid = '__global'
+        query.filter('userid =', userid)
         assassinds = query.get()
         if assassinds:
             return self.create_object(Assassin(), assassinds, DSAssassin)

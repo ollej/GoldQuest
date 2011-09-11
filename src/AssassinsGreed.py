@@ -47,6 +47,7 @@ class AssassinsGreed(GoldFrame.GamePlugin):
     metadata = {
         'name': "Assassin's Greed",
         'gamekey': 'assassinsgreed',
+        'personal_hero': True,
         'broadcast_actions': ['assassinate', 'heal', 'collect', 'climb', 'reroll'],
         'actions': [
             {
@@ -174,7 +175,7 @@ class AssassinsGreed(GoldFrame.GamePlugin):
         self.setup_database()
 
         # Read saved assassin.
-        self.get_assassin()
+        self.get_assassin(self._userid)
 
     @LogUsageCPU
     def setup_database(self):
@@ -192,8 +193,8 @@ class AssassinsGreed(GoldFrame.GamePlugin):
             raise GoldFrameConfigException, "Unknown datahandler: %s" % datahandler
 
     @LogUsageCPU
-    def get_assassin(self):
-        self.assassin = self._dh.get_alive_assassin()
+    def get_assassin(self, userid=None):
+        self.assassin = self._dh.get_alive_assassin(userid)
 
     def get_target(self, lvl=None):
         if not lvl:
@@ -250,7 +251,7 @@ class AssassinsGreed(GoldFrame.GamePlugin):
             return response
         else:
             # Reroll new assassin.
-            self.assassin = Assassin(self._gamedata['assassin'])
+            self.assassin = Assassin(self._gamedata['assassin'], userid=self._userid)
             self.assassin.reroll()
             attribs = self.assassin.get_attributes()
             msg = self.get_text('newassassin')

@@ -42,6 +42,8 @@ from google.appengine.ext import db
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 from google.appengine.api import memcache
+from google.appengine.api import users
+from appengine_utilities.sessions import Session
 
 from decorators import *
 import broadcast
@@ -57,11 +59,13 @@ class GameHandler(PageHandler):
 
     @LogUsageCPU
     def __init__(self):
-        pass
+        self._session = Session()
 
     def setup_game(self, game=None):
         # Initialize game class.
-        self._game = GoldFrame.create_game(game, memcache.Client())
+        userid = self.get_userid()
+        logging.info('game: %s user: %s', game, userid)
+        self._game = GoldFrame.create_game(game, memcache=memcache.Client(), userid=userid)
 
         # Call game setup code.
         self._game.setup()
@@ -87,6 +91,24 @@ class GameHandler(PageHandler):
             game = args[0]
             command = args[1]
         return (game, command)
+
+    def get_userid(self):
+        """
+        TODO: If userid in session has a hero, but not the logged in user, connect
+        the hero with the user instead and remove the session cookie.
+        """
+        user = users.get_current_user()
+        userid = None
+        if user:
+            userid = user.user_id()
+        else:
+            try:
+                userid = self._session['userid']
+            except KeyError:
+                userid = uuid.uuid4().hex
+                self._session['userid'] = userid
+
+        return userid
 
     @LogUsageCPU
     def get(self, *args):

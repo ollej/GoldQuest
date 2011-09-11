@@ -45,6 +45,7 @@ class GoldQuest(GoldFrame.GamePlugin):
     metadata = {
         'name': 'Gold Quest',
         'gamekey': 'goldquest',
+        'personal_hero': False,
         'broadcast_actions': ['fight', 'rest', 'loot', 'deeper', 'reroll'],
         'actions': [
             {

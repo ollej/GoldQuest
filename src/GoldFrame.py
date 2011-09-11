@@ -42,9 +42,11 @@ class GamePlugin(object):
     _datafile = None
     _gamedata = None
     _basepath = None
+    _userid = None
     metadata = {
         'name': 'Game Plugin',
         'gamekey': 'gameplugin',
+        'personal_hero': True,
         'broadcast_actions': None,
         'actions': {
         },
@@ -52,7 +54,7 @@ class GamePlugin(object):
         }
     }
 
-    def __init__(self, cfg, memcache=None):
+    def __init__(self, cfg, memcache=None, userid=None):
         """
         Send in a ConfigParser object.
         If self._datafile is set, the contents of that file in the extras/ dir will be read, parsed as YAML and saved in self._gamedata
@@ -65,6 +67,9 @@ class GamePlugin(object):
 
         if memcache:
             self._memcache = memcache
+
+        if userid:
+            self._userid = userid
 
         path = os.path.abspath(__file__)
         self._basepath = os.path.dirname(path)
@@ -185,7 +190,7 @@ class GamePlugin(object):
             return response['message']
 
 # TODO: Make this dynamic.
-def create_game(game, memcache=None):
+def create_game(game, memcache=None, userid=None):
     # Read configuration.
     # TODO: Games probably need their own configs.
     cfg = ConfigParser.ConfigParser()
@@ -195,10 +200,10 @@ def create_game(game, memcache=None):
 
     if not game or game == 'goldquest':
         import GoldQuest
-        return GoldQuest.GoldQuest(cfg, memcache)
+        return GoldQuest.GoldQuest(cfg, memcache, userid)
     elif game == 'assassinsgreed':
         import AssassinsGreed
-        return AssassinsGreed.AssassinsGreed(cfg, memcache)
+        return AssassinsGreed.AssassinsGreed(cfg, memcache, userid)
     else:
         logging.error('Game not available: %s', game)
         raise GoldFrameException("Game not available: %s" % game)

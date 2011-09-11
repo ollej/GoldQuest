@@ -73,7 +73,11 @@ class PageHandler(webapp.RequestHandler):
         accept = self.request.headers['Accept']
         logging.debug('Accept content-type: %s' % accept)
         #(mime, parms, qval, accept_parms) = httpheader.parse_accept_header(accept)
-        acceptparams = httpheader.parse_accept_header(accept)
+        acceptparams = None
+        try:
+            acceptparams = httpheader.parse_accept_header(accept)
+        except ParseError, e:
+            logging.error('Error parsing HTTP Accept header: %s', e)
         logging.debug(acceptparams)
         #logging.debug('mime: %s, parms: %s, qval: %s, accept_parms: %s' % (mime, parms, qval, accept_parms))
         format = self.request.get("format")

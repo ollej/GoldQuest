@@ -38,13 +38,15 @@ class Assassin(object):
     feathers = None
     towers = None
     alive = None
+    userid = None
 
-    def __init__(self, texts=None):
+    def __init__(self, texts=None, userid=None):
         self.hurt = 0
         self.assassinations = 0
         self.feathers = 0
         self.towers = 1
         self.alive = True
+        self.userid = userid
         self._texts = texts
 
     def reroll(self, name=None):
