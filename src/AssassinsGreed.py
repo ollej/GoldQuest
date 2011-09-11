@@ -34,119 +34,131 @@ import GoldFrame
 
 from decorators import *
 
-from Hero import Hero
-from Monster import Monster
-from Level import Level
+from Assassin import Assassin
+from Target import Target
 
 class AssassinsGreed(GoldFrame.GamePlugin):
     _gamedata = None
     _basepath = None
     _datafile = None
     cfg = None
-    hero = None
-    level = None
+    assassin = None
     _datafile = 'assassinsgreed.dat'
     metadata = {
         'name': "Assassin's Greed",
         'gamekey': 'assassinsgreed',
         'broadcast_actions': ['assassinate', 'heal', 'collect', 'climb', 'reroll'],
-        'actions': {
-            'assassinate': {
+        'actions': [
+            {
+                'key': 'assassinate',
                 'name': 'Assassinate',
                 'description': 'Find a villain to assassinate.',
                 'img': 'images/icon-fight.png',
                 'tinyimg': 'images/tiny-icon-fight.png',
                 'color': '#C30017',
             },
-            'heal': {
+            {
+                'key': 'heal',
                 'name': 'Heal',
                 'description': 'Heal to regain some health.',
                 'img': 'images/icon-rest.png',
                 'tinyimg': 'images/tiny-icon-health.png',
                 'color': '#004C7B',
             },
-            'collect': {
+            {
+                'key': 'collect',
                 'name': 'Collect Feathers',
                 'description': 'Search for feathers.',
                 'img': 'images/icon-loot.png',
                 'tinyimg': 'images/tiny-icon-gold.png',
                 'color': '#E9B700',
             },
-            'climb': {
+            {
+                'key': 'climb',
                 'name': 'Climb',
                 'description': 'Climb a tower in the city.',
                 'img': 'images/icon-deeper.png',
                 'tinyimg': 'images/tiny-icon-level.png',
                 'color': '#351E00',
             },
-            'reroll': {
+            {
+                'key': 'reroll',
                 'name': 'Reroll',
-                'description': 'Reroll a new hero if the current is dead.',
+                'description': 'Reroll a new assassin if the current is dead.',
                 'img': 'images/icon-reroll.png',
                 'tinyimg': 'images/tiny-icon-reroll.png',
             },
-            'stats': {
+            {
+                'key': 'stats',
                 'name': 'Stats',
                 'description': 'Update character sheet.',
             },
-        },
+        ],
         'stats_img': 'images/icon-stats.png',
-        'stats': {
-            'name': {
+        'stats': [
+            {
+                'key': 'name',
                 'name': 'Name',
                 'description': '',
                 'type': 'string',
             },
-            'strength': {
+            {
+                'key': 'strength',
                 'name': 'Strength',
                 'description': '',
                 'type': 'integer',
                 'img': 'images/tiny-icon-strength.png',
             },
-            'health': {
+            {
+                'key': 'health',
                 'name': 'Health',
                 'description': '',
                 'type': 'integer',
                 'img': 'images/tiny-icon-health.png',
             },
-            'hurt': {
+            {
+                'key': 'hurt',
                 'name': 'Hurt',
                 'description': '',
                 'type': 'integer',
                 'img': 'images/tiny-icon-hurt.png',
             },
-            'towers': {
+            {
+                'key': 'towers',
                 'name': 'Towers',
                 'description': '',
                 'type': 'integer',
                 'img': 'images/tiny-icon-level.png',
             },
-            'assassinations': {
+            {
+                'key': 'assassinations',
                 'name': 'Assassinations',
                 'description': '',
                 'type': 'integer',
                 'img': 'images/tiny-icon-kills.png',
             },
-            'feathers': {
+            {
+                'key': 'feathers',
                 'name': 'Feathers',
                 'description': '',
                 'type': 'integer',
                 'img': 'images/tiny-icon-gold.png',
             },
-            'alive': {
+            {
+                'key': 'alive',
                 'name': 'Alive',
                 'type': 'boolean',
                 'description': '',
             },
-        },
+        ],
     }
 
     def setup(self):
         # Configure datahandler backend.
         self.setup_database()
 
-        # Read saved hero.
-        self.get_hero()
+        # Read saved assassin.
+        self.get_assassin()
 
     @LogUsageCPU
     def setup_database(self):
@@ -155,228 +167,134 @@ class AssassinsGreed(GoldFrame.GamePlugin):
         """
         datahandler = self._cfg.get('LOCAL', 'datahandler')
         if datahandler == 'sqlite':
-            from SqlDataHandler import SqlDataHandler
-            self._dh = SqlDataHandler(self._debug)
+            from AGSQLHandler import AGSQLHandler
+            self._dh = AGSQLHandler(self._debug)
         elif datahandler == 'datastore':
-            from DataStoreDataHandler import DataStoreDataHandler
-            self._dh = DataStoreDataHandler(self._debug)
+            from AGDSHandler import AGDSHandler
+            self._dh = AGDSHandler(self._debug)
         else:
             raise GoldFrameConfigException, "Unknown datahandler: %s" % datahandler
 
     @LogUsageCPU
-    def get_hero(self):
-        self.hero = self._dh.get_alive_hero()
-        if self.hero and not self.level:
-            self.level = self.get_level(self.hero.level) #Level(self.hero.level)
+    def get_assassin(self):
+        self.assassin = self._dh.get_alive_assassin()
 
-    def get_level_texts(self, depth):
-        for lvl in self._gamedata['level']:
-            if lvl['level'] == depth:
-                return lvl
-
-    def get_monster(self, lvl=None):
+    def get_target(self, lvl=None):
         if not lvl:
-            lvl = self.level.depth or 1
-        monsters = []
-        for monster in self._gamedata['monster']:
-            if lvl >= monster['lowlevel'] and monster['highlevel'] == 0 or lvl <= monster['highlevel']:
-                monsters.append(monster['name'])
-        if monsters:
-            name = random.choice(monsters)
+            lvl = self.assassin.towers or 1
+        targets = []
+        for target in self._gamedata['target']:
+            if lvl >= target['lowlevel'] and (target['highlevel'] == 0 or lvl <= target['highlevel']):
+                targets.append(target['name'])
+        if targets:
+            name = random.choice(targets)
         else:
             name = None
-        return self.level.get_monster(name)
+        # TODO: Bosses need to be supported.
+        target = Target(self.assassin.towers, name)
+        return target
 
     def play(self, command, asdict=False):
-        response = ""
-        command = command.strip().lower()
-        try:
-            (command, rest) = command.split(' ')
-        except ValueError:
-            rest = ""
-        rest = rest.strip()
+        # Handle action command.
+        response = None
         if command in ['reroll']:
-            response = self.reroll()
-            return self.return_response(response, asdict)
-        if not self.hero or not self.hero.alive:
+            response = self.action_reroll()
+        elif not self.assassin or not self.assassin.alive:
             msg = self.get_text('nochampion')
             response = {
                 'message': msg,
                 'success': 0,
             }
-            return self.return_response(response, asdict)
-        if command in ['rest', 'vila']:
-            response = self.rest()
-        elif command in ['assassinate', 'kill', 'slay', u'slåss']:
-            response = self.fight()
-        elif command in ['deeper', 'down', 'descend', 'vidare']:
-            response = self.go_deeper(rest)
-        elif command in ['collect', 'search', u'sök', 'finna']:
-            response = self.search_treasure()
-        elif command in ['charsheet', 'stats', u'formulär']:
-            response = self.show_charsheet()
         else:
-            return None
+            try:
+                func = getattr(self, 'action_%s' % command)
+            except AttributeError:
+                return None
+            else:
+                response = func()
+
         self.save_data()
+
         return self.return_response(response, asdict)
 
     def save_data(self):
-        self._dh.save_data(self.hero, self.level)
+        if self.assassin:
+            self._dh.save_data(self.assassin)
 
-    def get_alive_hero(self):
-        hero = self._dh.get_alive_hero()
-        return hero
+    def get_alive_assassin(self):
+        assassin = self._dh.get_alive_assassin()
+        return assassin
 
-    def get_level(self, lvl):
-        level = self._dh.get_level(lvl)
-        if not level:
-            level = Level(lvl)
-        texts = self.get_level_texts(lvl)
-        if texts:
-            for k, v in texts.items():
-                if v:
-                    setattr(level, '_%s' % k , v)
-        if not level._boss:
-            level._boss = random.choice(self._gamedata['boss'])
-        return level
-
-    def reroll(self):
-        if self.hero and self.hero.alive:
+    def action_reroll(self):
+        if self.assassin and self.assassin.alive:
             response = {
-                'message': self.get_text('noreroll') % self.hero.get_attributes(),
+                'message': self.get_text('noreroll') % self.assassin.get_attributes(),
                 'success': 0,
             }
             return response
         else:
-            # Clear all old level data.
-            self._dh.clear_levels()
-            # Reroll new hero.
-            #logging.info('Rerolling hero.')
-            #logging.info(self._gamedata['hero'])
-            self.hero = Hero(self._gamedata['hero'])
-            self.hero.reroll()
-            self.level = self.get_level(self.hero.level)
-            attribs = self.hero.get_attributes()
-            self.save_data()
-            msg = self.get_text('newhero')
+            # Reroll new assassin.
+            self.assassin = Assassin(self._gamedata['assassin'])
+            self.assassin.reroll()
+            attribs = self.assassin.get_attributes()
+            msg = self.get_text('newassassin')
             try:
                 msg = msg % attribs
             except KeyError, e:
-                #print "Key not found in hero attribs:", e, attribs
                 logging.error("Couldn't find a given text replacement: %s" % str(e))
-            if self.level._text:
-                msg = "%s %s" % (msg, self.level._text)
             response = {
                 'message': msg,
                 'data': {
-                    'hero': attribs,
+                    'assassin': attribs,
                 }
             }
             return response
 
-    def search_treasure(self):
-        #loot = self.hero.search_treasure()
-        loot = 0
+    def action_collect(self):
         msg = ''
         response = {
             'message': msg,
             'data': {
-                'loot': loot,
-                'hero': {
+                'feathers': feathers,
+                'assassin': {
                 }
             }
         }
-        attribs = self.hero.get_attributes()
-        if self.level.can_loot():
-            loot = self.level.get_loot()
-            if loot > 0:
-                msg = self.get_text('foundloot')
-                # Should be a method on Hero
-                self.hero.gold = self.hero.gold + loot
-                response['data']['loot'] = loot
-                attribs['loot'] = loot
-                attribs['gold'] = self.hero.gold
-                response['data']['hero']['gold'] = self.hero.gold
-            elif loot < 0:
-                attribs['trap_hurt'] = abs(loot)
-                self.hero.injure(attribs['trap_hurt'])
-                msg = self.get_text('foundtrap')
-                response['data']['hero']['trap_hurt'] = attribs['trap_hurt']
-                response['data']['hero']['hurt'] = self.hero.hurt
-                response['data']['hero']['health'] = self.hero.health
-            else:
-                msg = self.get_text('nogold')
+        attribs = self.assassin.get_attributes()
+        luck = self.roll(10)
+        if luck > 4:
+            msg = self.get_text('foundfeathers')
+            # Should be a method on assassin
+            self.assassin.collect()
+            self.assassin.feathers = self.assassin.feathers + 1
+            response['data']['feathers'] = 1
+            attribs['feathers'] = self.assassin.feathers
+            response['data']['assassin']['feathers'] = self.assassin.feathers
+        elif luck > 1:
+            msg = self.get_text('nofeathers')
         else:
-            msg = self.get_text('noloot')
-            response['success'] = 0
+            return self.sneak_attack()
         msg = msg % attribs
         response['message'] = msg
         return response
 
-    def sneak_attack(self):
-        if self.level.has_monsters():
-            #self.logprint("Monsters are available to sneak attack.")
-            unlucky = self.roll(100)
-            #self.logprint("unlucky:", unlucky)
-            if unlucky < 20:
-                #self.logprint("Sneak attack!")
-                monster = self.get_monster(self.level.depth)
-                monster_health = monster.health
-                (won, hurt_in_fight) = self.hero.fight(monster)
-                if won:
-                    msg = self.get_text('rest_attack_won')
-                else:
-                    msg = self.get_text('rest_attack_lost')
-                attribs = self.hero.get_attributes()
-                attribs['monster_name'] = monster.name
-                msg = msg % attribs
-                # FIXME: the hero.fight() method should return needed info.
-                response = {
-                    'message': msg,
-                    'success': 0,
-                    'data': {
-                        'hurt_in_fight': hurt_in_fight,
-                        'hero': {
-                            'hurt': attribs['hurt'],
-                            'health': attribs['health'],
-                            'kills': attribs['kills'],
-                            'alive': attribs['alive'],
-                            'rested': 0,
-                        },
-                        'monster': {
-                            'name': monster.name,
-                            'strength': monster.strength,
-                            'health': monster_health,
-                            'hurt': monster_health - monster.health,
-                            'boss': monster.boss,
-                            'count': 1,
-                        },
-                    }
-                }
-                return response
-
-    def rest(self):
-        # If there are monsters alive on the level, there is a
-        # risk of a sneak attack while resting.
-        response = self.sneak_attack()
-        if response:
-            return response
-        rested = self.hero.rest()
-        if rested:
-            if self.hero.hurt:
-                restmsg = self.get_text('rests')
+    def action_heal(self):
+        healed = self.assassin.heal()
+        if healed:
+            if self.assassin.hurt:
+                restmsg = self.get_text('heals')
             else:
                 restmsg = self.get_text('healed')
         else:
             restmsg = self.get_text('alreadyhealed')
-        attribs = self.hero.get_attributes()
-        attribs['rested'] = rested
+        attribs = self.assassin.get_attributes()
+        attribs['healed'] = healed
         msg = restmsg % attribs
         response = {
             'message': msg,
             'data': {
-                'rested': attribs['rested'],
-                'hero': {
+                'healed': attribs['healed'],
+                'assassin': {
                     'health': attribs['health'],
                     'hurt': attribs['hurt'],
                     'alive': attribs['alive'],
@@ -385,82 +303,110 @@ class AssassinsGreed(GoldFrame.GamePlugin):
         }
         return response
 
-    def go_deeper(self, levels=1):
-        try:
-            levels = int(levels)
-        except ValueError:
-            levels = 1
-        if levels > 10:
-            levels = 10
-        depth = self.hero.go_deeper(levels)
-        self.level = self.get_level(depth)
-        msg = self.level._text or self.get_text('deeper')
-        attribs = self.hero.get_attributes()
+    def action_climb(self):
+        towers = self.assassin.climb()
+        msg = self.get_text('climb')
+        attribs = self.assassin.get_attributes()
         msg = msg % attribs
         response = {
             'message': msg,
             'data': {
-                'hero': {
-                    'level': attribs['level'],
+                'assassin': {
+                    'towers': attribs['towers'],
                 }
             }
         }
         return response
 
-    def fight(self):
-        monster = self.get_monster(self.level.depth)
-        if not monster:
-            msg = self.get_text('nomonsters')
+    def action_assassinate(self):
+        target = self.get_target(self.assassin.towers)
+        if not target:
+            msg = self.get_text('notargets')
             response = {
-                'message': msg % self.hero.get_attributes(),
+                'message': msg % self.assassin.get_attributes(),
                 'success': 0,
             }
             return response
-        monster_health = monster.health
-        (won, hurt_in_fight) = self.hero.fight(monster)
-        attribs = self.hero.get_attributes()
+        target_health = target.health
+        (won, hurt_in_fight) = self.assassin.assassinate(target)
+        attribs = self.assassin.get_attributes()
         if won:
             msg = self.get_text('killed')
             attribs['slayed'] = self.get_text('slayed')
         else:
             msg = self.get_text('died')
-        attribs['monster'] = monster.name
+        attribs['target'] = target.name
         msg = msg % attribs
         msg = self.firstupper(msg)
         response = {
             'message': msg,
             'data': {
                 'hurt_in_fight': hurt_in_fight,
-                'hero': {
+                'assassin': {
                     'health': attribs['health'],
                     'hurt': attribs['hurt'],
                     'hurt_in_fight': hurt_in_fight,
-                    'kills': attribs['kills'],
+                    'assassinations': attribs['assassinations'],
                     'alive': attribs['alive'],
                 },
-                'monster': {
-                    'name': monster.name,
-                    'strength': monster.strength,
-                    'health': monster_health,
-                    'hurt': monster_health - monster.health,
-                    'boss': monster.boss,
+                'target': {
+                    'name': target.name,
+                    'strength': target.strength,
+                    'health': target_health,
+                    'hurt': target_health - target.health,
+                    'boss': target.boss,
                     'count': 1,
                 }
             }
         }
         return response
 
-    def show_charsheet(self):
+    def action_stats(self):
         msg = self.get_text('charsheet')
-        attribs = self.hero.get_attributes()
+        attribs = self.assassin.get_attributes()
         msg = msg % attribs
         response = {
             'message': msg,
             'data': {
-                'hero': attribs,
+                'assassin': attribs,
             }
         }
         return response
 
+    def sneak_attack(self):
+        target = self.get_target(self.assassin.towers)
+        target_health = target.health
+        (won, hurt_in_fight) = self.assassin.assassinate(target)
+        if won:
+            msg = self.get_text('sneak_attack_won')
+        else:
+            msg = self.get_text('sneak_attack_lost')
+        attribs = self.assassin.get_attributes()
+        attribs['target_name'] = target.name
+        msg = msg % attribs
+        # FIXME: the assassin.fight() method should return needed info.
+        response = {
+            'message': msg,
+            'success': 0,
+            'data': {
+                'hurt_in_fight': hurt_in_fight,
+                'assassin': {
+                    'hurt': attribs['hurt'],
+                    'health': attribs['health'],
+                    'assassinations': attribs['assassinations'],
+                    'alive': attribs['alive'],
+                    'rested': 0,
+                },
+                'target': {
+                    'name': target.name,
+                    'strength': target.strength,
+                    'health': target_health,
+                    'hurt': target_health - target.health,
+                    'boss': target.boss,
+                    'count': 1,
+                },
+            }
+        }
+        return response
 
 

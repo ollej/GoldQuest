@@ -25,30 +25,36 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-from google.appengine.ext import db
+import random
 
-import logging
+class Target(object):
+    name = None
+    strength = None
+    health = None
+    level = None
+    boss = None
 
-class DataStoreDataHandler(object):
-    def __init__(self, cfg):
-        self._cfg = cfg
+    def __init__(self, level=None, name=None, boss=False):
+        if not level:
+            level = 1
+        self.strength = random.randint(1, level)
+        self.health = random.randint(1, level)
+        self.boss = boss
+        if boss:
+            self.strength = self.strength + level
+            self.health = self.health + level
+        if name:
+            self.name = name
+        else:
+            self.name = self.random_name()
 
-    def create_object(self, obj, ds, Class):
-        if not ds:
-            ds = Class()
-        obj._ds = ds
-        for attr in ds.properties():
-            if attr[0] != '_':
-                value = getattr(ds, attr)
-                setattr(obj, attr, value)
-        return obj
-
-    def prepare_object(self, obj, Class):
-        if not hasattr(obj, '_ds') or not obj._ds:
-            obj._ds = Class()
-        for attr in obj._ds.properties():
-            value = getattr(obj, attr)
-            if attr[0] != '_':
-                setattr(obj._ds, attr, value)
-        return obj
+    def injure(self, hurt):
+        """
+        Injure the target with hurt points. Returns True if the target died.
+        """
+        self.health = self.health - hurt
+        if self.health <= 0:
+            return True
+        else:
+            return False
 

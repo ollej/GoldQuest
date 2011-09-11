@@ -29,15 +29,14 @@ THE SOFTWARE.
 from google.appengine.dist import use_library
 use_library('django', '1.2')
 
-import ConfigParser
-import sys
 import os
-import logging
-import simplejson
-import string
+import sys
 import uuid
-from datetime import datetime
+import string
+import logging
 import dumpdict
+import simplejson
+from datetime import datetime
 
 from google.appengine.ext import db
 from google.appengine.ext import webapp
@@ -55,32 +54,14 @@ class GameHandler(PageHandler):
     _cfg = None
     _game = None
     _channel = None
-    _basepath = os.path.dirname(__file__)
 
     @LogUsageCPU
     def __init__(self):
         pass
 
     def setup_game(self, game=None):
-        # Read configuration.
-        # TODO: Games probably need their own configs.
-        self._cfg = ConfigParser.ConfigParser()
-        config_path = os.path.join(self._basepath, 'config.ini')
-        self._cfg.read(config_path)
-
-        # Memcache is needed for some games.
-        self._memcache = memcache.Client()
-
         # Initialize game class.
-        # TODO: Make this dynamic.
-        if not game or game == 'goldquest':
-            from GoldFrame import GoldQuest
-            self._game = GoldQuest.GoldQuest(self._cfg, self._memcache)
-        elif game == 'assassinsgreed':
-            from GoldFrame import AssassinsGreed
-            self._game = AssassinsGreed.AssassinsGreed(self._cfg, self._memcache)
-        else:
-            logging.error('Game not available: %s', game)
+        self._game = GoldFrame.create_game(game, memcache.Client())
 
         # Call game setup code.
         self._game.setup()

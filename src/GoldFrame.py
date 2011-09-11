@@ -25,10 +25,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-import random
-import yaml
 import os
+import yaml
+import random
 import logging
+import ConfigParser
 
 class GoldFrameException(Exception):
     pass
@@ -37,8 +38,10 @@ class GoldFrameConfigException(GoldFrameException):
     pass
 
 class GamePlugin(object):
+    _memcache = None
     _datafile = None
     _gamedata = None
+    _basepath = None
     metadata = {
         'name': 'Game Plugin',
         'gamekey': 'gameplugin',
@@ -80,11 +83,38 @@ class GamePlugin(object):
     def play(self, command, asdict=False):
         """
         Override this method in the game sub-class to handle actions.
+        Default functionality is to call methods named "action_<command>" and return the response.
 
         command = String, name of the action to handle.
         asdict = Boolean, if True return a response dict with data, otherwise a string describing the result of the action.
         """
-        pass
+        # Handle action command.
+        try:
+            func = getattr(self, 'action_%s' % command)
+        except AttributeError:
+            return None
+        else:
+            response = func()
+
+        return self.return_response(response, asdict)
+
+    def template_charsheet(self):
+        """
+        Override this method and return the html to use for the character sheet in the web client.
+        Surround field names with "[[ ]]" to output the value of that field.
+        """
+        #path = os.path.join(os.path.dirname(__file__), 'extras', 'goldquest_template_charsheet.html')
+        #return file(path,'r').read()
+        return """
+        [[ name ]]
+        """
+
+    def template_actionline(self):
+        """
+        Override this method and return the html to use for the action lines in the web client.
+        Surround field names with "[[ ]]" to output the value of that field.
+        """
+        return "[[ line ]]"
 
     def roll(self, sides, times=1):
         """
@@ -153,5 +183,24 @@ class GamePlugin(object):
             return response
         else:
             return response['message']
+
+# TODO: Make this dynamic.
+def create_game(game, memcache=None):
+    # Read configuration.
+    # TODO: Games probably need their own configs.
+    cfg = ConfigParser.ConfigParser()
+    basepath = os.path.dirname(os.path.abspath(__file__))
+    config_path = os.path.join(basepath, 'config.ini')
+    cfg.read(config_path)
+
+    if not game or game == 'goldquest':
+        import GoldQuest
+        return GoldQuest.GoldQuest(cfg, memcache)
+    elif game == 'assassinsgreed':
+        import AssassinsGreed
+        return AssassinsGreed.AssassinsGreed(cfg, memcache)
+    else:
+        logging.error('Game not available: %s', game)
+        raise GoldFrameException("Game not available: %s" % game)
 
 

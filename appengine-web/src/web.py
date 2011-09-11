@@ -28,17 +28,21 @@ THE SOFTWARE.
 from google.appengine.dist import use_library
 use_library('django', '1.2')
 
+import os
 import logging
 
 from google.appengine.ext import db
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
+from google.appengine.api import memcache
 from appengine_utilities.sessions import Session
 
 from decorators import *
 import broadcast
 from datastorehelpers import *
 import goldenweb
+#import GoldFrame
+from GoldFrame import GoldFrame
 from GoldFrame.DataStoreDataHandler import *
 
 # TODO: Don't setup channels if game doesn't have broadcast_actions
@@ -89,6 +93,30 @@ class WebHandler(goldenweb.PageHandler):
                 func()
 
     @LogUsageCPU
+    def show_page_game(self, layout):
+        # Create game instance.
+        gamekey = self.request.get("game")
+        if not gamekey:
+            gamekey = 'goldquest'
+
+        game = GoldFrame.create_game(gamekey, memcache.Client())
+
+        values = {
+            'gamekey': gamekey,
+            'template_charsheet': game.template_charsheet(),
+            'template_actionline': game.template_actionline(),
+            'actions': game.metadata['actions'],
+        }
+
+        # Setup channel if game uses broadcast.
+        if game.metadata['broadcast_actions']:
+            channel_values = self.create_channel()
+            values.update(channel_values)
+
+        # Output page.
+        self.show_page('game', values, layout)
+
+    @LogUsageCPU
     def page_heroes(self):
         heroes = DSHero.all().order("-gold").fetch(10)
         gold = get_value('gold').value
@@ -109,18 +137,17 @@ class WebHandler(goldenweb.PageHandler):
 
     @LogUsageCPU
     def page_game(self):
-        values = self.create_channel()
-        self.show_page('game', values, 'bare')
+        self.show_page_game('bare')
+
+    @LogUsageCPU
+    def page_mobile(self):
+        self.show_page_game('mobile')
 
     @LogUsageCPU
     def page_createchannel(self):
         client_id = self.request.get('client_id')
         values = self.create_channel(client_id)
         self.show_page('createchannel', values, '')
-
-    def page_mobile(self):
-        values = self.create_channel()
-        self.show_page('game', values, 'mobile')
 
 def main():
     application = webapp.WSGIApplication([

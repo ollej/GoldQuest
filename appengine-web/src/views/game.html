@@ -9,31 +9,26 @@
     <div id="taskbarWrapper">
       <div id="taskbarContainer">
         <div id="taskbarDiv">
-          <div id="fightDiv" class="taskDiv"><button id="fightBtn" name="fight" class="commandBtn"><img src="images/icon-fight.png" class="taskImg" width="32" height="32" alt="Fight" title="Fight" /></button></div>
-          <div id="restDiv" class="taskDiv"><button id="restBtn" name="rest" class="commandBtn"><img src="images/icon-rest.png" class="taskImg" width="32" height="32" alt="Rest" title="Rest" /></button></div>
-          <div id="lootDiv" class="taskDiv"><button id="lootBtn" name="loot" class="commandBtn"><img src="images/icon-loot.png" class="taskImg" width="32" height="32" alt="Loot" title="Loot" /></button></div>
-          <div id="deeperDiv" class="taskDiv"><button id="deeperBtn" name="deeper" class="commandBtn"><img src="images/icon-deeper.png" class="taskImg" width="32" height="32" alt="Deeper" title="Deeper" /></button></div>
-          <div id="rerollDiv" class="taskDiv"><button id="rerollBtn" name="reroll" class="commandBtn"><img src="images/icon-reroll.png" class="taskImg" width="32" height="32" alt="Reroll" title="Reroll" /></button></div>
+{% for action in actions %}
+    {% if action.img %}
+    <div id="{{ action.key }}Div" class="taskDiv"><button id="{{ action.key }}Btn" name="{{ action.key }}" class="commandBtn"><img src="{{ action.img }}" class="taskImg" width="32" height="32" alt="{{ action.key }}" title="{{ action.description }}" /></button></div>
+    {% endif %}
+{% endfor %}
         </div>
       </div>
     </div>
   </div>
+{% autoescape off %}
   <div id="charsheetTemplate" style="display: none">
-        <img src="images/icon-stats.png" class="statsImage" style="float: left" width="32" height="32" alt="Stats" title="Stats" />
-        <h1 id="nameValue" class="nameValue">[[ name ]]</h1>
-        <ul class="charsheetList">
-          <li class="statItem" id="strengthStatDiv"><img src="images/tiny-icon-strength.png" width="16" height="16" alt="Strength" title="Strength" /><span class="statValue" id="strengthValue">[[ strength ]]</span></li>
-          <li class="statItem" id="healthStatDiv"><img src="images/tiny-icon-health.png" width="16" height="16" alt="Health" title="Health" /><span class="statValue" id="hurthealthValue">[[ current_health ]]/[[ health ]]</span></li>
-          <li class="statItem" id="levelStatDiv"><img src="images/tiny-icon-level.png" width="16" height="16" alt="Level" title="Level" /><span class="statValue" id="levelValue">[[ level ]]</span></li>
-          <li class="statItem" id="killsStatDiv"><img src="images/tiny-icon-kills.png" width="16" height="16" alt="Kills" title="Kills" /><span class="statValue" id="killsValue">[[ kills ]]</span></li>
-          <li class="statItem" id="goldStatDiv"><img src="images/tiny-icon-gold.png" width="16" height="16" alt="Gold" title="Gold" /><span class="statValue" id="goldValue">[[ gold ]]</span></li>
-        </ul>
+{{ template_charsheet }}
   </div>
   <div id="actionlineTemplate" style="display: none">
-    <li class='actionLine [[ cls ]]' id="action_[[ id ]]">[[ line ]][[ extraInfo ]]</li>
+{{ template_actionline }}
   </div>
-  <script type="text/javascript">
-    var channel_client_id = '{{channel_client_id}}';
-    var channel_token = '{{channel_token}}';
-  </script>
-
+{% endautoescape %}
+<script type="text/javascript">
+    var gameKey = '{{ gamekey }}';
+{% if channel_client_id %}
+{% include "broadcast_values_js.html" %}
+{% endif %}
+</script>

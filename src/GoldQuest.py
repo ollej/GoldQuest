@@ -38,10 +38,7 @@ from Monster import Monster
 from Level import Level
 
 class GoldQuest(GoldFrame.GamePlugin):
-    _gamedata = None
-    _basepath = None
-    _datafile = None
-    cfg = None
+    _cfg = None
     hero = None
     level = None
     _datafile = 'goldquest.dat'
@@ -49,95 +46,109 @@ class GoldQuest(GoldFrame.GamePlugin):
         'name': 'Gold Quest',
         'gamekey': 'goldquest',
         'broadcast_actions': ['fight', 'rest', 'loot', 'deeper', 'reroll'],
-        'actions': {
-            'fight': {
+        'actions': [
+            {
+                'key': 'fight',
                 'name': 'Fight',
                 'description': 'Find a monster and fight it.',
                 'img': 'images/icon-fight.png',
                 'tinyimg': 'images/tiny-icon-fight.png',
                 'color': '#C30017',
             },
-            'rest': {
+            {
+                'key': 'rest',
                 'name': 'Rest',
                 'description': 'Rest to regain some health.',
                 'img': 'images/icon-rest.png',
                 'tinyimg': 'images/tiny-icon-health.png',
                 'color': '#004C7B',
             },
-            'loot': {
+            {
+                'key': 'loot',
                 'name': 'Loot',
                 'description': 'Search for gold.',
                 'img': 'images/icon-loot.png',
                 'tinyimg': 'images/tiny-icon-gold.png',
                 'color': '#E9B700',
             },
-            'deeper': {
+            {
+                'key': 'deeper',
                 'name': 'Deeper',
                 'description': 'Descend deeper into the dungeon.',
                 'img': 'images/icon-deeper.png',
                 'tinyimg': 'images/tiny-icon-level.png',
                 'color': '#351E00',
             },
-            'reroll': {
+            {
+                'key': 'reroll',
                 'name': 'Reroll',
                 'description': 'Reroll a new hero if the current is dead..',
                 'img': 'images/icon-reroll.png',
                 'tinyimg': 'images/tiny-icon-reroll.png',
             },
-            'stats': {
+            {
+                'key': 'stats',
                 'name': 'Stats',
                 'description': 'Update character sheet.',
             },
-        },
+        ],
         'stats_img': 'images/icon-stats.png',
-        'stats': {
-            'name': {
+        'stats': [
+            {
+                'key': 'name',
                 'name': 'Name',
                 'description': '',
                 'type': 'string',
             },
-            'strength': {
+            {
+                'key': 'strength',
                 'name': 'Strength',
                 'description': '',
                 'type': 'integer',
                 'img': 'images/tiny-icon-strength.png',
             },
-            'health': {
+            {
+                'key': 'health',
                 'name': 'Health',
                 'description': '',
                 'type': 'integer',
                 'img': 'images/tiny-icon-health.png',
             },
-            'hurt': {
+            {
+                'key': 'hurt',
                 'name': 'Hurt',
                 'description': '',
                 'type': 'integer',
                 'img': 'images/tiny-icon-hurt.png',
             },
-            'level': {
+            {
+                'key': 'level',
                 'name': 'Level',
                 'description': '',
                 'type': 'integer',
                 'img': 'images/tiny-icon-level.png',
             },
-            'kills': {
+            {
+                'key': 'kills',
                 'name': 'Kills',
                 'description': '',
                 'type': 'integer',
                 'img': 'images/tiny-icon-kills.png',
             },
-            'gold': {
+            {
+                'key': 'gold',
                 'name': 'Gold',
                 'description': '',
                 'type': 'integer',
                 'img': 'images/tiny-icon-gold.png',
             },
-            'alive': {
+            {
+                'key': 'alive',
                 'name': 'Alive',
                 'type': 'boolean',
                 'description': '',
             },
-        },
+        ],
     }
 
     def setup(self):
@@ -146,6 +157,24 @@ class GoldQuest(GoldFrame.GamePlugin):
 
         # Read saved hero.
         self.get_hero()
+
+    def template_charsheet(self):
+        #path = os.path.join(os.path.dirname(__file__), 'extras', 'goldquest_template_charsheet.html')
+        #return file(path,'r').read()
+        return """
+        <img src="images/icon-stats.png" class="statsImage" style="float: left" width="32" height="32" alt="Stats" title="Stats" />
+        <h1 id="nameValue" class="nameValue">[[ name ]]</h1>
+        <ul class="charsheetList">
+          <li class="statItem" id="strengthStatDiv"><img src="images/tiny-icon-strength.png" width="16" height="16" alt="Strength" title="Strength" /><span class="statValue" id="strengthValue">[[ strength ]]</span></li>
+          <li class="statItem" id="healthStatDiv"><img src="images/tiny-icon-health.png" width="16" height="16" alt="Health" title="Health" /><span class="statValue" id="hurthealthValue">[[ current_health ]]/[[ health ]]</span></li>
+          <li class="statItem" id="levelStatDiv"><img src="images/tiny-icon-level.png" width="16" height="16" alt="Level" title="Level" /><span class="statValue" id="levelValue">[[ level ]]</span></li>
+          <li class="statItem" id="killsStatDiv"><img src="images/tiny-icon-kills.png" width="16" height="16" alt="Kills" title="Kills" /><span class="statValue" id="killsValue">[[ kills ]]</span></li>
+          <li class="statItem" id="goldStatDiv"><img src="images/tiny-icon-gold.png" width="16" height="16" alt="Gold" title="Gold" /><span class="statValue" id="goldValue">[[ gold ]]</span></li>
+        </ul>
+        """
+
+    def template_actionline(self):
+        return "<li class='actionLine [[ cls ]]' id='action_[[ id ]]'>[[ line ]][[ extraInfo ]]</li>"
 
     @LogUsageCPU
     def setup_database(self):
@@ -157,8 +186,8 @@ class GoldQuest(GoldFrame.GamePlugin):
             from SqlDataHandler import SqlDataHandler
             self._dh = SqlDataHandler(self._debug)
         elif datahandler == 'datastore':
-            from DataStoreDataHandler import DataStoreDataHandler
-            self._dh = DataStoreDataHandler(self._debug)
+            from GQDSHandler import GQDSHandler
+            self._dh = GQDSHandler(self._debug)
         else:
             raise GoldFrameConfigException, "Unknown datahandler: %s" % datahandler
 

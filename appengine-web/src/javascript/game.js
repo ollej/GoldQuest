@@ -43,7 +43,9 @@ $(document).ready(function() {
     function ajaxAction(cmd, successFn, url, data) {
         data = data || {};
         if (!data['format']) data['format'] = 'json';
-        url = url || gameUrl;
+        if (!url) {
+            url = gameKey ? gameUrl + gameKey + '/' : gameUrl;
+        }
         $.ajax({
             url: url + cmd,
             data: data,

@@ -46,6 +46,9 @@ class PageHandler(webapp.RequestHandler):
 
     @LogUsageCPU
     def get_template(self, page, values, layout='default'):
+        """
+        TODO: use django template include.
+        """
         page = "%s.html" % page
         path = os.path.join(self._basepath, 'views', page)
         logging.debug('template pathname: %s' % path)
