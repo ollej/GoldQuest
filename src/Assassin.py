@@ -53,7 +53,7 @@ class Assassin(object):
         self.hurt = 0
         self.assassinations = 0
         self.feathers = 0
-        self.towers = 1
+        self.towers = 0
         self.alive = True
         if name:
             self.name = name
