@@ -37,6 +37,7 @@ class DSAssassin(db.Model):
     health = db.IntegerProperty()
     strength = db.IntegerProperty()
     hurt = db.IntegerProperty()
+    kills = db.IntegerProperty()
     assassinations = db.IntegerProperty()
     feathers = db.IntegerProperty()
     towers = db.IntegerProperty()

@@ -34,6 +34,7 @@ class Assassin(object):
     health = None
     strength = None
     hurt = None
+    kills = None
     assassinations = None
     feathers = None
     towers = None
@@ -42,6 +43,7 @@ class Assassin(object):
 
     def __init__(self, texts=None, userid=None):
         self.hurt = 0
+        self.kills = 0
         self.assassinations = 0
         self.feathers = 0
         self.towers = 1
@@ -53,6 +55,7 @@ class Assassin(object):
         self.health = self.roll(20, 5)
         self.strength = self.roll(20, 5)
         self.hurt = 0
+        self.kills = 0
         self.assassinations = 0
         self.feathers = 0
         self.towers = 0
@@ -63,15 +66,16 @@ class Assassin(object):
             self.name = self.random_name()
 
     def collect(self):
-        self.feathers = self.feathers + 1
+        self.feathers += 1
         return self.feathers
 
     def injure(self, hurt):
         self.hurt = self.hurt + hurt
         if self.hurt > self.health:
             self.alive = False
+        return (self.alive, self.hurt)
 
-    def assassinate(self, target):
+    def fight(self, target):
         hurt_in_fight = 0
         while target.health >= 0 and self.hurt < self.health:
             hit = self.roll(self.strength)
@@ -83,7 +87,10 @@ class Assassin(object):
         if self.hurt >= self.health:
             self.alive = False
         else:
-            self.assassinations = self.assassinations + 1
+            if target.boss:
+                self.assassinations += 1
+            else:
+                self.kills += 1
         return (self.alive, hurt_in_fight)
 
     def heal(self):
@@ -96,13 +103,26 @@ class Assassin(object):
         return 0
 
     def climb(self):
-        self.towers = self.towers + 1
+        self.towers += 1
         return self.towers
+
+    def ding(self, strength):
+        chance = strength - self.strength
+        luck = self.roll(100)
+        logging.info('target strength: %d assassin strength: %d ding chance: %d luck: %d', strength, self.strength, chance, luck)
+        if luck < chance:
+            gain_strength = self.roll(4)
+            gain_health = self.roll(4)
+            logging.info('strength gain: %d health gain: %d', gain_strength, gain_health)
+            self.strength += gain_strength
+            self.health += gain_health
+            return True
+        return False
 
     def roll(self, sides, times=1):
         total = 0
         for i in range(times):
-            total = total + random.randint(1, sides)
+            total += random.randint(1, sides)
         return total
 
     def random_name(self):

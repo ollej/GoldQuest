@@ -44,6 +44,7 @@ import goldenweb
 #import GoldFrame
 from GoldFrame import GoldFrame
 from GoldFrame.DataStoreDataHandler import *
+from GoldFrame.GQDSHandler import *
 
 # TODO: Don't setup channels if game doesn't have broadcast_actions
 class WebHandler(goldenweb.PageHandler):

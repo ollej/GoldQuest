@@ -48,14 +48,22 @@ class AssassinsGreed(GoldFrame.GamePlugin):
         'name': "Assassin's Greed",
         'gamekey': 'assassinsgreed',
         'personal_hero': True,
-        'broadcast_actions': ['assassinate', 'heal', 'collect', 'climb', 'reroll'],
+        'broadcast_actions': ['assassinate', 'fight', 'heal', 'collect', 'climb', 'reroll'],
         'actions': [
             {
                 'key': 'assassinate',
                 'name': 'Assassinate',
                 'description': 'Find a villain to assassinate.',
+                'img': '/images/icon-assassinate.png',
+                'tinyimg': '/images/tiny-icon-assassination.png',
+                'color': '#C30017',
+            },
+            {
+                'key': 'fight',
+                'name': 'Fight',
+                'description': 'Find a villain to assassinate.',
                 'img': '/images/icon-fight.png',
-                'tinyimg': '/images/tiny-icon-assassinate.png',
+                'tinyimg': '/images/tiny-icon-fight.png',
                 'color': '#C30017',
             },
             {
@@ -132,11 +140,18 @@ class AssassinsGreed(GoldFrame.GamePlugin):
                 'img': '/images/tiny-icon-towers.png',
             },
             {
+                'key': 'kills',
+                'name': 'Kills',
+                'description': '',
+                'type': 'integer',
+                'img': '/images/tiny-icon-kills.png',
+            },
+            {
                 'key': 'assassinations',
                 'name': 'Assassinations',
                 'description': '',
                 'type': 'integer',
-                'img': '/images/tiny-icon-kills.png',
+                'img': '/images/tiny-icon-assassinations.png',
             },
             {
                 'key': 'feathers',
@@ -162,7 +177,8 @@ class AssassinsGreed(GoldFrame.GamePlugin):
           <li class="statItem" id="strengthStatDiv"><img src="/images/tiny-icon-strength.png" width="16" height="16" alt="Strength" title="Strength" /><span class="statValue" id="strengthValue">[[ strength ]]</span></li>
           <li class="statItem" id="healthStatDiv"><img src="/images/tiny-icon-health.png" width="16" height="16" alt="Health" title="Health" /><span class="statValue" id="hurthealthValue">[[ current_health ]]/[[ health ]]</span></li>
           <li class="statItem" id="towersStatDiv"><img src="/images/tiny-icon-towers.png" width="16" height="16" alt="Towers" title="Towers" /><span class="statValue" id="towersValue">[[ towers ]]</span></li>
-          <li class="statItem" id="assassinationsStatDiv"><img src="/images/tiny-icon-kills.png" width="16" height="16" alt="Assassinations" title="Assassinations" /><span class="statValue" id="assassinationsValue">[[ assassinations ]]</span></li>
+          <li class="statItem" id="assassinationsStatDiv"><img src="/images/tiny-icon-assassinations.png" width="16" height="16" alt="Assassinations" title="Assassinations" /><span class="statValue" id="assassinationsValue">[[ assassinations ]]</span></li>
+          <li class="statItem" id="killsStatDiv"><img src="/images/tiny-icon-kills.png" width="16" height="16" alt="Kills" title="Kills" /><span class="statValue" id="killsValue">[[ kills ]]</span></li>
           <li class="statItem" id="feathersStatDiv"><img src="/images/tiny-icon-feathers.png" width="16" height="16" alt="Feathers" title="Feathers" /><span class="statValue" id="feathersValue">[[ feathers ]]</span></li>
         </ul>
         """
@@ -195,6 +211,13 @@ class AssassinsGreed(GoldFrame.GamePlugin):
     @LogUsageCPU
     def get_assassin(self, userid=None):
         self.assassin = self._dh.get_alive_assassin(userid)
+
+    def get_boss(self, lvl=None):
+        if not lvl:
+            lvl = self.assassin.towers or 1
+        boss = random.choice(self._gamedata['boss'])
+        target = Target(lvl, boss, True)
+        return target
 
     def get_target(self, lvl=None):
         if not lvl:
@@ -279,14 +302,14 @@ class AssassinsGreed(GoldFrame.GamePlugin):
             }
         }
         attribs = self.assassin.get_attributes()
-        luck = self.roll(10)
-        if luck > 4:
+        luck = self.roll(20)
+        if luck > 8:
             msg = self.get_text('foundfeathers')
             # Should be a method on assassin
             response['data']['hero']['feathers'] = self.assassin.collect()
             response['data']['feathers'] = 1
             attribs['feathers'] = 1
-        elif luck > 1:
+        elif luck > 3:
             msg = self.get_text('nofeathers')
         else:
             return self.sneak_attack()
@@ -320,22 +343,74 @@ class AssassinsGreed(GoldFrame.GamePlugin):
         return response
 
     def action_climb(self):
-        towers = self.assassin.climb()
-        msg = self.get_text('climbs')
+        hurt_by_action = 0
+        climbed = 0
+        msg = ''
+        luck = self.roll(20)
+        if luck > 4:
+            towers = self.assassin.climb()
+            msg = self.get_text('climbs')
+            climbed = 1
+        else:
+            (msg, hurt_by_action) = self.fall()
         attribs = self.assassin.get_attributes()
+        attribs['hurt_by_action'] = hurt_by_action
         msg = msg % attribs
         response = {
             'message': msg,
             'data': {
+                'climbed': climbed,
+                'hurt_by_action': hurt_by_action,
                 'hero': {
                     'towers': attribs['towers'],
+                    'hurt': attribs['hurt'],
+                    'alive': attribs['alive'],
+                    'health': attribs['health'],
                 }
             }
         }
         return response
 
     def action_assassinate(self):
+        target = None
+        if self.assassin.assassinations < self.assassin.towers:
+            target = self.get_boss()
+        return self.fight_target(target)
+
+    def action_fight(self):
         target = self.get_target(self.assassin.towers)
+        return self.fight_target(target)
+
+    def action_stats(self):
+        msg = self.get_text('charsheet')
+        attribs = self.assassin.get_attributes()
+        msg = msg % attribs
+        response = {
+            'message': msg,
+            'data': {
+                'hero': attribs,
+            }
+        }
+        return response
+
+    def fall(self):
+        msg = ''
+        hurt_by_action = self.roll(self.assassin.towers)
+        if self.assassin.feathers > 0:
+            saved = self.roll(self.assassin.feathers)
+            logging.info('saved by feathers: %d, hurt_before: %d', saved, hurt_by_action)
+            hurt_by_action -= saved
+        if hurt_by_action > 0:
+            (alive, hurt) = self.assassin.injure(hurt_by_action)
+            if alive:
+                msg = self.get_text('fallen')
+            else:
+                msg = self.get_text('fallen_to_death')
+        else:
+            msg = self.get_text('fallen_feather_save')
+        return (msg, hurt_by_action)
+
+    def fight_target(self, target):
         if not target:
             msg = self.get_text('notargets')
             response = {
@@ -343,12 +418,14 @@ class AssassinsGreed(GoldFrame.GamePlugin):
                 'success': 0,
             }
             return response
+        dinged = False
         target_health = target.health
-        (won, hurt_in_fight) = self.assassin.assassinate(target)
+        (won, hurt_in_fight) = self.assassin.fight(target)
         attribs = self.assassin.get_attributes()
         if won:
             msg = self.get_text('killed')
             attribs['slayed'] = self.get_text('slayed')
+            dinged = self.assassin.ding(target.strength)
         else:
             msg = self.get_text('died')
         attribs['target'] = target.name
@@ -358,10 +435,12 @@ class AssassinsGreed(GoldFrame.GamePlugin):
             'message': msg,
             'data': {
                 'hurt_in_fight': hurt_in_fight,
+                'dinged': dinged,
                 'hero': {
+                    'strength': attribs['strength'],
                     'health': attribs['health'],
                     'hurt': attribs['hurt'],
-                    'hurt_in_fight': hurt_in_fight,
+                    'kills': attribs['kills'],
                     'assassinations': attribs['assassinations'],
                     'alive': attribs['alive'],
                 },
@@ -373,18 +452,6 @@ class AssassinsGreed(GoldFrame.GamePlugin):
                     'boss': target.boss,
                     'count': 1,
                 }
-            }
-        }
-        return response
-
-    def action_stats(self):
-        msg = self.get_text('charsheet')
-        attribs = self.assassin.get_attributes()
-        msg = msg % attribs
-        response = {
-            'message': msg,
-            'data': {
-                'hero': attribs,
             }
         }
         return response

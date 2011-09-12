@@ -121,6 +121,15 @@ texts:
   climbs:
     - "%(name)s climbs another tower."
     - "%(name)s has now climbed %(towers)d towers."
+  fallen:
+    - "%(name)s falls down from the tower and receives %(hurt_by_action)d hurt."
+    - "%(name)s loses grip and falls down, receiving %(hurt_by_action)d hurt."
+  fallen_to_death:
+    - "%(name)s falls down and dies."
+    - "A loose stone causes %(name)s to fall down and die."
+  fallen_feather_save:
+    - "%(name)s falls down but is saved by the collected feathers."
+    - "The feathers in %(name)s's pockets saves the assassin from getting hurt."
   notargets:
     - The hero searches high and low, but can't find any more targets.
   killed:
