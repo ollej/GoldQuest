@@ -38,14 +38,15 @@ from gaesessions import get_current_session
 
 from decorators import *
 
-def broadcast(message):
+def broadcast(message, skip_clients=None):
     """
     Broadcast message to all connected clients.
     """
     channels = simplejson.loads(memcache.get('channels') or '{}')
     encoded_message = simplejson.dumps(message)
     for channel_id in channels.iterkeys():
-        channel.send_message(channel_id, encoded_message)
+        if not skip_clients or channel_id not in skip_clients:
+            channel.send_message(channel_id, encoded_message)
 
 class ChannelUpdater(object):
     _instance = None
@@ -58,7 +59,7 @@ class ChannelUpdater(object):
         return cls._instance
 
     def __init__(self):
-        self._channels = self.get_channels()
+        #self._channels = self.get_channels()
         self._session = get_current_session()
 
     @LogUsageCPU
@@ -66,6 +67,10 @@ class ChannelUpdater(object):
         return simplejson.loads(memcache.get('channels') or '{}')
 
     def set_channels(self, channels):
+        """
+        Set the channel list in memcache to channels.
+        Note: Not safe, will overwrite old value without checking.
+        """
         memcache.set('channels', simplejson.dumps(channels))
 
     def create_id(self):
@@ -91,36 +96,46 @@ class ChannelUpdater(object):
         """
         channels = self.get_channels()
         for client_id in channels.iterkeys():
-            if hasattr(self._session, 'channel_client_id') and client_id != self._session['channel_client_id']:
+            if self._session.has_key('channel_client_id') and client_id != self._session['channel_client_id']:
                 self.send_update(client_id, message)
 
     def send_all_update(self, message):
         """
         Send a message to all connected clients in a deferred background task.
         """
-        deferred.defer(broadcast, message)
+        skip_client = None
+        if self._session.has_key('channel_client_id'):
+            skip_client = [self._session['channel_client_id']]
+        deferred.defer(broadcast, message, skip_client)
 
     def connect(self, client_id):
         """
         Add client_id to list of active clients.
         """
-        channels = self.get_channels()
-        if not hasattr(channels, client_id):
-            logging.debug("Adding new client: %s" % client_id)
-            channels[client_id] = str(datetime.now())
-            self.set_channels(channels)
+        mc = memcache.Client()
+        while True:
+            channels = simplejson.loads(mc.gets('channels') or '{}')
+            if hasattr(channels, client_id):
+                break
+            else:
+                logging.debug("Adding new client: %s" % client_id)
+                channels[client_id] = str(datetime.now())
+                if mc.cas('channels', simplejson.dumps(channels)):
+                    break
 
     def disconnect(self, client_id):
         """
         Remove client_id from list of active clients.
         """
-        channels = self.get_channels()
-        try:
-            del channels[client_id]
-        except KeyError, e:
-            logging.debug("Tried to remove unknown client: %s" % client_id)
-        else:
-            self.set_channels(channels)
+        mc = memcache.Client()
+        while True:
+            channels = simplejson.loads(mc.gets('channels') or '{}')
+            if hasattr(channels, client_id):
+                del channels[client_id]
+                if mc.cas('channels', simplejson.dumps(channels)):
+                    break
+            else:
+                break
 
 class ChannelHandler(webapp.RequestHandler):
     _channel = None
