@@ -35,7 +35,7 @@ from google.appengine.ext import db
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 from google.appengine.api import memcache
-from appengine_utilities.sessions import Session
+from gaesessions import get_current_session
 
 from decorators import *
 import broadcast
@@ -53,7 +53,7 @@ class WebHandler(goldenweb.PageHandler):
     @LogUsageCPU
     def __init__(self):
         self._channel = broadcast.ChannelUpdater()
-        self._session = Session()
+        self._session = get_current_session()
 
     @LogUsageCPU
     def create_channel(self, client_id=None):

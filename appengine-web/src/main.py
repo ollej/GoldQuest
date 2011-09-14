@@ -43,7 +43,7 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 from google.appengine.api import memcache
 from google.appengine.api import users
-from appengine_utilities.sessions import Session
+from gaesessions import get_current_session
 
 from decorators import *
 import broadcast
@@ -59,7 +59,7 @@ class GameHandler(PageHandler):
 
     @LogUsageCPU
     def __init__(self):
-        self._session = Session()
+        self._session = get_current_session()
 
     def setup_game(self, game=None):
         # Initialize game class.
