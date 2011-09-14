@@ -27,5 +27,7 @@ handlers:
   static_dir: images
 - url: /api/.*
   script: main.py
+- url: /game/goldquest/.*
+  script: GoldFrame/games/goldquest/web.py
 - url: /.*
   script: web.py

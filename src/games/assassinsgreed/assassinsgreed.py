@@ -30,14 +30,14 @@ import yaml
 import os
 import logging
 
-import GoldFrame
+from GoldFrame import GoldFrame
 
 from decorators import *
 
 from Assassin import Assassin
 from Target import Target
 
-class AssassinsGreed(GoldFrame.GamePlugin):
+class Game(GoldFrame.GamePlugin):
     _gamedata = None
     _basepath = None
     _datafile = None

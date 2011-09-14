@@ -30,14 +30,14 @@ import yaml
 import os
 import logging
 
-import GoldFrame
+from GoldFrame import GoldFrame
 from decorators import *
 
 from Hero import Hero
 from Monster import Monster
 from Level import Level
 
-class GoldQuest(GoldFrame.GamePlugin):
+class Game(GoldFrame.GamePlugin):
     _cfg = None
     hero = None
     level = None

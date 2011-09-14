@@ -130,3 +130,19 @@ class PageHandler(webapp.RequestHandler):
         except TemplateDoesNotExist:
             self.response.set_status(404)
 
+    @LogUsageCPU
+    def get_page(self, page):
+        template_values = {}
+        (pagename, ext) = self.parse_pagename(page)
+        if not pagename or pagename == 'index':
+            self.show_page('index')
+        else:
+            func_name = 'page_%s' % pagename
+            logging.debug('loading page: %s' % func_name)
+            try:
+                func = getattr(self, func_name)
+            except AttributeError:
+                self.show_page(pagename, None, 'default')
+            else:
+                func()
+

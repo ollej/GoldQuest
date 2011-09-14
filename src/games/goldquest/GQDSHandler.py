@@ -29,38 +29,52 @@ from google.appengine.ext import db
 
 import logging
 
-from DataStoreDataHandler import DataStoreDataHandler
-from Assassin import Assassin
+from GoldFrame.DataStoreDataHandler import DataStoreDataHandler
+from Hero import Hero
+from Level import Level
 
-class DSAssassin(db.Model):
+class DSHero(db.Model):
     name = db.StringProperty()
     health = db.IntegerProperty()
     strength = db.IntegerProperty()
     hurt = db.IntegerProperty()
     kills = db.IntegerProperty()
-    assassinations = db.IntegerProperty()
-    feathers = db.IntegerProperty()
-    towers = db.IntegerProperty()
+    gold = db.IntegerProperty()
+    level = db.IntegerProperty()
     alive = db.BooleanProperty()
-    userid = db.StringProperty()
 
     def get_current_health(self):
         return (self.health - self.hurt)
 
     current_health = property(get_current_health)
 
-class AGDSHandler(DataStoreDataHandler):
-    def save_data(self, assassin):
-        assassin = self.prepare_object(assassin, DSAssassin)
-        assassin._ds.put()
+class DSLevel(db.Model):
+    depth = db.IntegerProperty()
+    killed = db.IntegerProperty()
+    looted = db.IntegerProperty()
 
-    def get_alive_assassin(self, userid):
-        query = DSAssassin.all()
+class GQDSHandler(DataStoreDataHandler):
+    def save_data(self, hero, level):
+        hero = self.prepare_object(hero, DSHero)
+        hero._ds.put()
+        level = self.prepare_object(level, DSLevel)
+        level._ds.put()
+
+    def get_alive_hero(self):
+        query = DSHero.all()
         query.filter('alive =', True)
-        if not userid:
-            userid = '__global'
-        query.filter('userid =', userid)
-        assassinds = query.get()
-        if assassinds:
-            return self.create_object(Assassin(), assassinds, DSAssassin)
+        herods = query.get()
+        if herods:
+            return self.create_object(Hero(), herods, DSHero)
+
+    def get_level(self, lvl):
+        query = DSLevel.all()
+        query.filter('depth =', lvl)
+        levelds = query.get()
+        if levelds:
+            return self.create_object(Level(), levelds, DSLevel)
+
+    def clear_levels(self):
+        # Delete all old Level data.
+        db.delete(DSLevel.all())
 

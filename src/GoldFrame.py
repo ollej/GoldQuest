@@ -26,6 +26,7 @@ THE SOFTWARE.
 """
 
 import os
+import sys
 import yaml
 import random
 import logging
@@ -54,7 +55,7 @@ class GamePlugin(object):
         }
     }
 
-    def __init__(self, cfg, memcache=None, userid=None):
+    def __init__(self, cfg, memcache=None, userid=None, basepath=None):
         """
         Send in a ConfigParser object.
         If self._datafile is set, the contents of that file in the extras/ dir will be read, parsed as YAML and saved in self._gamedata
@@ -71,11 +72,15 @@ class GamePlugin(object):
         if userid:
             self._userid = userid
 
-        path = os.path.abspath(__file__)
-        self._basepath = os.path.dirname(path)
+        if basepath:
+            self._basepath = basepath
+        else:
+            path = os.path.abspath(__file__)
+            self._basepath = os.path.dirname(path)
+        logging.info('path: %s', self._basepath)
         if self._datafile:
-            self._datafile = os.path.join(self._basepath, 'extras', self._datafile)
-            #logging.info('Datafile: %s', self._datafile)
+            self._datafile = os.path.join(self._basepath, self._datafile)
+            logging.info('Datafile: %s', self._datafile)
             self._gamedata = self.read_texts(self._datafile)
             #logging.info(self._gamedata)
 
@@ -158,7 +163,7 @@ class GamePlugin(object):
         """
         # If memcache isn't available, just load the file immediately.
         if not self._memcache:
-            return self.load_file(self._datafile)
+            return self.load_file(file)
 
         # Read data from memcache, unless it has changed.
         texts = self._memcache.get('gamedata', namespace=self.metadata['gamekey'])
@@ -167,7 +172,7 @@ class GamePlugin(object):
         #logging.info('Data file mtime: %s, data_mtime: %s', mtime, texts_mtime)
         if not texts or not texts_mtime or mtime > texts_mtime:
             #logging.info('Updating data file.')
-            texts = self.load_file(self._datafile)
+            texts = self.load_file(file)
             self._memcache.set('goldquest_data', texts)
             self._memcache.set('goldquest_data_mtime', mtime)
         return texts
@@ -176,7 +181,7 @@ class GamePlugin(object):
         """
         Loads file and parses it as YAML and returns the result.
         """
-        f = open(self._datafile)
+        f = open(file)
         texts = yaml.load(f)
         f.close()
         return texts
@@ -189,21 +194,41 @@ class GamePlugin(object):
         else:
             return response['message']
 
-# TODO: Make this dynamic.
-def create_game(game, memcache=None, userid=None):
-    # Read configuration.
-    # TODO: Games probably need their own configs.
+basepath = os.path.dirname(os.path.abspath(__file__))
+
+def load_game(game, memcache, userid):
+    gamepath = os.path.join(basepath, 'games', game)
+    sys.path.append(gamepath)
+
+    # Load game config
     cfg = ConfigParser.ConfigParser()
-    basepath = os.path.dirname(os.path.abspath(__file__))
-    config_path = os.path.join(basepath, 'config.ini')
+    config_path = os.path.join(gamepath, 'config.ini')
     cfg.read(config_path)
 
-    if not game or game == 'goldquest':
-        import GoldQuest
-        return GoldQuest.GoldQuest(cfg, memcache, userid)
-    elif game == 'assassinsgreed':
-        import AssassinsGreed
-        return AssassinsGreed.AssassinsGreed(cfg, memcache, userid)
+    # Load game module
+    gamemodule = __import__(game)
+    gamemodule.__file__ = os.path.join(gamepath, '%s.py' % game)
+    globals()[game] = gamemodule
+
+    # Create game
+    logging.info('gamepath: %s', gamepath)
+    return gamemodule.Game(cfg, memcache, userid, gamepath)
+
+def get_games():
+    games = []
+    gamedir = os.path.join(basepath, 'games')
+    for filename in os.listdir(gamedir):
+        games.append(filename)
+    return games
+
+
+# TODO: Make this dynamic.
+def create_game(game, memcache=None, userid=None):
+    # Find all games
+    games = get_games()
+
+    if game in games:
+        return load_game(game, memcache, userid)
     else:
         logging.error('Game not available: %s', game)
         raise GoldFrameException("Game not available: %s" % game)

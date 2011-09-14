@@ -44,7 +44,6 @@ import goldenweb
 #import GoldFrame
 from GoldFrame import GoldFrame
 from GoldFrame.DataStoreDataHandler import *
-from GoldFrame.GQDSHandler import *
 
 # TODO: Don't setup channels if game doesn't have broadcast_actions
 class WebHandler(goldenweb.PageHandler):
@@ -117,6 +116,7 @@ class WebHandler(goldenweb.PageHandler):
 
     @LogUsageCPU
     def page_heroes(self):
+        from GQDSHandler import *
         heroes = DSHero.all().order("-gold").fetch(10)
         gold = get_value('gold').value
         kills = get_value('kills').value
@@ -149,6 +149,7 @@ class WebHandler(goldenweb.PageHandler):
         self.show_page('createchannel', values, '')
 
 def main():
+            #(r'/game/goldquest/(.*)', goldquest.main.GameWebHandler),
     application = webapp.WSGIApplication([
             (r'/_ah/channel/(connected|disconnected)/', broadcast.ChannelHandler),
             (r'/(.*)', WebHandler),
