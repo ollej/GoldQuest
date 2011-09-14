@@ -32,9 +32,20 @@ from datetime import datetime
 from google.appengine.api import channel
 from google.appengine.ext import webapp
 from google.appengine.api import memcache
+from google.appengine.ext import deferred
+
 from gaesessions import get_current_session
 
 from decorators import *
+
+def broadcast(message):
+    """
+    Broadcast message to all connected clients.
+    """
+    channels = simplejson.loads(memcache.get('channels') or '{}')
+    encoded_message = simplejson.dumps(message)
+    for channel_id in channels.iterkeys():
+        channel.send_message(channel_id, encoded_message)
 
 class ChannelUpdater(object):
     _instance = None
@@ -74,14 +85,20 @@ class ChannelUpdater(object):
         logging.debug('Sending message to client: %s - %s' % (client_id, message))
         channel.send_message(client_id, message)
 
-    def send_all_update(self, message):
+    def send_all_update_now(self, message):
         """
-        Send message to all connected clients.
+        Send message to all connected clients immediately.
         """
         channels = self.get_channels()
         for client_id in channels.iterkeys():
             if hasattr(self._session, 'channel_client_id') and client_id != self._session['channel_client_id']:
                 self.send_update(client_id, message)
+
+    def send_all_update(self, message):
+        """
+        Send a message to all connected clients in a deferred background task.
+        """
+        deferred.defer(broadcast, message)
 
     def connect(self, client_id):
         """
