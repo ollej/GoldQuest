@@ -258,8 +258,10 @@ $(document).ready(function() {
         // Load stats.
         ajaxAction('stats', onStats);
 
-        // Setup channel
-        channel = setup_channel(channel_token);
+        // Setup channel if there is a channel token.
+        if (window['channel_token']) {
+            channel = setup_channel(channel_token);
+        }
     }
 
     // Call setup function.

@@ -58,12 +58,10 @@ class WebHandler(goldenweb.PageHandler):
     @LogUsageCPU
     def create_channel(self, client_id=None):
         token = None
-        try:
+        if self._session.has_key('channel_token'):
             token = self._session['channel_token']
-            if not client_id:
-                client_id = self._session['channel_client_id']
-        except KeyError:
-            pass
+        if not client_id and self._session.has_key('channel_client_id'):
+            client_id = self._session['channel_client_id']
         if not token or not client_id:
             (token, client_id) = self._channel.create_channel(client_id)
             self._session['channel_token'] = token

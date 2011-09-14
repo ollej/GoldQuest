@@ -48,7 +48,7 @@ class AssassinsGreed(GoldFrame.GamePlugin):
         'name': "Assassin's Greed",
         'gamekey': 'assassinsgreed',
         'personal_hero': True,
-        'broadcast_actions': ['assassinate', 'fight', 'heal', 'collect', 'climb', 'reroll'],
+        'broadcast_actions': [],
         'actions': [
             {
                 'key': 'assassinate',
