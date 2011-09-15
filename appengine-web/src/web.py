@@ -25,15 +25,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-from google.appengine.dist import use_library
-use_library('django', '1.2')
-
 import os
 import logging
 
 from google.appengine.ext import db
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
+from google.appengine.ext.webapp import template
 from google.appengine.api import memcache
 from gaesessions import get_current_session
 
@@ -43,7 +41,6 @@ from datastorehelpers import *
 import goldenweb
 #import GoldFrame
 from GoldFrame import GoldFrame
-from GoldFrame.DataStoreDataHandler import *
 
 # TODO: Don't setup channels if game doesn't have broadcast_actions
 class WebHandler(goldenweb.PageHandler):
@@ -113,26 +110,6 @@ class WebHandler(goldenweb.PageHandler):
 
         # Output page.
         self.show_page('game', values, layout)
-
-    @LogUsageCPU
-    def page_heroes(self):
-        from GQDSHandler import *
-        heroes = DSHero.all().order("-gold").fetch(10)
-        gold = get_value('gold').value
-        kills = get_value('kills').value
-        hero_count = get_value('heroes').value
-        level = 0
-        high_level_hero = DSHero.all().order("-level").get()
-        if high_level_hero:
-            level = high_level_hero.level
-        values = {
-            'heroes': heroes,
-            'gold': gold,
-            'kills': kills,
-            'level': level,
-            'hero_count': hero_count,
-        }
-        self.show_page('heroes', values)
 
     @LogUsageCPU
     def page_game(self):

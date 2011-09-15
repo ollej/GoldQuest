@@ -5,11 +5,11 @@
 <li class="heroEl">
     <b class="nameValue">{{ hero.name }}</b>
     <ul class="charsheetList">
-        <li class="statItem"><img src="images/tiny-icon-strength.png" width="16" height="16" alt="Strength" title="Strength" /><span class="statValue">{{ hero.strength }}</span></li>
-        <li class="statItem"><img src="images/tiny-icon-health.png" width="16" height="16" alt="Health" title="Health" /><span class="statValue">{{ hero.current_health }}/{{ hero.health }}</span></li>
-        <li class="statItem"><img src="images/tiny-icon-level.png" width="16" height="16" alt="Level" title="Level" /><span class="statValue">{{ hero.level }}</span></li>
-        <li class="statItem"><img src="images/tiny-icon-kills.png" width="16" height="16" alt="Kills" title="Kills" /><span class="statValue">{{ hero.kills }}</span></li>
-        <li class="statItem"><img src="images/tiny-icon-gold.png" width="16" height="16" alt="Gold" title="Gold" /><span class="statValue">{{ hero.gold }}</span></li>
+        <li class="statItem"><img src="/images/tiny-icon-strength.png" width="16" height="16" alt="Strength" title="Strength" /><span class="statValue">{{ hero.strength }}</span></li>
+        <li class="statItem"><img src="/images/tiny-icon-health.png" width="16" height="16" alt="Health" title="Health" /><span class="statValue">{{ hero.current_health }}/{{ hero.health }}</span></li>
+        <li class="statItem"><img src="/images/tiny-icon-level.png" width="16" height="16" alt="Level" title="Level" /><span class="statValue">{{ hero.level }}</span></li>
+        <li class="statItem"><img src="/images/tiny-icon-kills.png" width="16" height="16" alt="Kills" title="Kills" /><span class="statValue">{{ hero.kills }}</span></li>
+        <li class="statItem"><img src="/images/tiny-icon-gold.png" width="16" height="16" alt="Gold" title="Gold" /><span class="statValue">{{ hero.gold }}</span></li>
         <li class="statItem">{% if not hero.alive %}(Deceased){% endif %}</li>
     </ul>
 </li>
