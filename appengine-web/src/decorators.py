@@ -30,10 +30,13 @@ from google.appengine.api import quota
 import logging
 
 def LogUsageCPU(func):
-    def repl_func(*args):
+    def repl_func(*args, **kwargs):
         start = quota.get_request_cpu_usage()
-        ret = func(*args)
+        ret = func(*args, **kwargs)
         end = quota.get_request_cpu_usage()
-        logging.debug("%s method cost %d megacycles." % (func.__name__, end - start))
+        name = func.__name__
+        if len(args) > 0 and hasattr(args[0], '__class__'):
+            name = "%s.%s" % (args[0].__class__.__name__, name)
+        logging.debug("%s method cost %d megacycles." % (name, end - start))
         return ret
     return repl_func
