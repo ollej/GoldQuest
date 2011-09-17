@@ -25,6 +25,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
+#import setup_django_version
+
 import os
 import sys
 import uuid
@@ -68,7 +70,7 @@ class GameHandler(PageHandler):
         self._game.setup()
 
         # Setup channel if necessary.
-        if self._game.metadata['broadcast_actions']:
+        if not DEBUG and self._game.metadata['broadcast_actions']:
             self._channel = broadcast.ChannelUpdater()
 
     def output_html(self, page, template_values=None, layout='default'):
@@ -133,7 +135,7 @@ class GameHandler(PageHandler):
                 self.track_values(response)
 
             # Broadcast response to all players.
-            if command in self._game.metadata['broadcast_actions']:
+            if not DEBUG and command in self._game.metadata['broadcast_actions']:
                 self._channel.send_all_update(response)
 
             # Show response.

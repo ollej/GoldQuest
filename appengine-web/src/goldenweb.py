@@ -25,6 +25,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
+#import setup_django_version
+
 import os
 import logging
 import simplejson
@@ -36,6 +38,12 @@ from google.appengine.ext.webapp import template
 from django.template import TemplateDoesNotExist
 
 from decorators import *
+
+DEBUG = False
+logging.info('SERVER_SOFTWARE: %s', os.environ.get('SERVER_SOFTWARE',''))
+if os.environ.get('SERVER_SOFTWARE','').startswith('Development'):
+    logging.info('Running on development server.')
+    DEBUG = True
 
 class PageHandler(webapp.RequestHandler):
     """

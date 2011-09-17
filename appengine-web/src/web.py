@@ -25,6 +25,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
+#import setup_django_version
+
 import os
 import logging
 
@@ -38,17 +40,17 @@ from gaesessions import get_current_session
 from decorators import *
 import broadcast
 from datastorehelpers import *
-import goldenweb
+from goldenweb import *
 #import GoldFrame
 from GoldFrame import GoldFrame
 
-# TODO: Don't setup channels if game doesn't have broadcast_actions
-class WebHandler(goldenweb.PageHandler):
+class WebHandler(PageHandler):
     _channel = None
 
     @LogUsageCPU
     def __init__(self):
-        self._channel = broadcast.ChannelUpdater()
+        if not DEBUG:
+            self._channel = broadcast.ChannelUpdater()
         self._session = get_current_session()
 
     @LogUsageCPU
@@ -104,7 +106,7 @@ class WebHandler(goldenweb.PageHandler):
         }
 
         # Setup channel if game uses broadcast.
-        if game.metadata['broadcast_actions']:
+        if not DEBUG and game.metadata['broadcast_actions']:
             channel_values = self.create_channel()
             values.update(channel_values)
 
@@ -126,7 +128,7 @@ class WebHandler(goldenweb.PageHandler):
         self.show_page('createchannel', values, '')
 
 def main():
-            #(r'/game/goldquest/(.*)', goldquest.main.GameWebHandler),
+    #(r'/game/goldquest/(.*)', goldquest.main.GameWebHandler),
     application = webapp.WSGIApplication([
             (r'/_ah/channel/(connected|disconnected)/', broadcast.ChannelHandler),
             (r'/(.*)', WebHandler),

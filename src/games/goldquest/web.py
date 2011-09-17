@@ -25,6 +25,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
+#import setup_django_version
+
 import os
 import logging
 
@@ -39,11 +41,8 @@ from decorators import *
 import broadcast
 from datastorehelpers import *
 import goldenweb
-#import GoldFrame
 from GoldFrame import GoldFrame
 from GoldFrame.DataStoreDataHandler import *
-#from GQDSHandler import *
-#import GQDSHandler
 from GoldFrame.games.goldquest.GQDSHandler import *
 
 class GameWebHandler(goldenweb.PageHandler):

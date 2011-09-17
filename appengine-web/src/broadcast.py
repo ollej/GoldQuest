@@ -25,6 +25,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
+#import setup_django_version
+
+import os
 import simplejson
 import uuid
 from datetime import datetime
