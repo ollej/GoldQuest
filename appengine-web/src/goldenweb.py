@@ -74,12 +74,17 @@ class PageHandler(webapp.RequestHandler):
         Select output format based on Accept headers.
         """
         #logging.debug(template_values)
-        accept = self.request.headers['Accept']
-        logging.debug('Accept content-type: %s' % accept)
-        #(mime, parms, qval, accept_parms) = httpheader.parse_accept_header(accept)
+        accept = None
         acceptparams = None
         try:
-            acceptparams = httpheader.parse_accept_header(accept)
+            accept = self.request.headers['Accept']
+        except KeyError, ke:
+            logging.debug('Request contained no Accept header.')
+        logging.debug('Accept content-type: %s' % accept)
+        #(mime, parms, qval, accept_parms) = httpheader.parse_accept_header(accept)
+        try:
+            if accept:
+                acceptparams = httpheader.parse_accept_header(accept)
         except ParseError, e:
             logging.error('Error parsing HTTP Accept header: %s', e)
         logging.debug(acceptparams)
