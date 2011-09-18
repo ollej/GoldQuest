@@ -2,6 +2,7 @@ $(document).ready(function() {
     var gameUrl = '/api/',
         MAX_LINES = 50,
         templates,
+        metadata = {},
         channel,
         handledActions = [],
         heroStats = {},
@@ -23,6 +24,7 @@ $(document).ready(function() {
         if (!templates) {
             templates = {
                 'actionline': getTemplate('actionline'),
+                'actionbutton': getTemplate('actionbutton'),
                 'charsheet': getTemplate('charsheet')
             };
             //log('Read templates:', templates);
@@ -45,6 +47,15 @@ $(document).ready(function() {
         hero = data['data']['hero']
         //log('Got stats!', data, textStatus, jqXhr);
         updateCharsheet(hero);
+    }
+
+    function onMetadata(data, textStatus, jqXhr) {
+        if (data) {
+            metadata = $.extend(true, {}, data, metadata);
+        }
+        if (metadata['actions']) {
+            updateTaskbar(metadata['actions']);
+        }
     }
 
     function ajaxAction(cmd, successFn, url, data) {
@@ -149,6 +160,7 @@ $(document).ready(function() {
     }
 
     function updateCharsheet(hero) {
+        var stats, valueDiv;
         // Cache reference to hero div.
         if (!heroDiv) {
             heroDiv = $('#heroDiv');
@@ -166,17 +178,30 @@ $(document).ready(function() {
         // Update div with new data.
         //log('heroDiv:' + heroDiv.html() + '|', 'hero', hero);
         if ($.trim(heroDiv.html()) == '') {
-            var stats = $.tache(getTemplates().charsheet, heroStats);
+            stats = $.tache(getTemplates().charsheet, heroStats);
             heroDiv.html(stats);
         } else {
             for (var field in heroStats) if (heroStats.hasOwnProperty(field)) {
                 //log('field', field, 'value', hero[field]);
-                var valueDiv = $('#' + field + 'Value');
+                valueDiv = $('#' + field + 'Value');
                 if (valueDiv) {
                     valueDiv.html(heroStats[field]);
                 }
             }
         }
+    }
+
+    function updateTaskbar(actions) {
+        var i = 0, taskbar = '', actionbutton = '';
+        log('taskbar actions', actions);
+        for (i in actions) if (actions.hasOwnProperty(i)) {
+            action = actions[i];
+            if (action['img'] && (!action['button'] || $.inArray(action['button'], ['active', 'disabled']) >= 0)) {
+                actionbutton = $.tache(getTemplates().actionbutton, action);
+                taskbar += actionbutton;
+            }
+        }
+        $('#taskbarDiv').html(taskbar);
     }
 
     function onCreateChannel(data, textStatus, jqXhr) {
@@ -235,6 +260,7 @@ $(document).ready(function() {
 
             // Disallow some actions when hero is dead.
             // FIXME: Need to get list of actions from game.
+            /*
             if (!heroStats['alive'] || heroStats['hurt'] >= heroStats['health']) {
                 if ($.inArray(cmd, ['fight', 'loot', 'rest', 'deeper']) >= 0) {
                     //log('Hero is dead, action not allowed');
@@ -243,6 +269,11 @@ $(document).ready(function() {
                 }
             }
             if (heroStats['alive'] && heroStats['hurt'] == 0 && cmd == 'rest') {
+                $('#' + cmd + 'Btn').effect("highlight", { color: 'red' }, 500);
+                return false;
+            }
+            */
+            if (metadata['actions'][cmd]) {
                 $('#' + cmd + 'Btn').effect("highlight", { color: 'red' }, 500);
                 return false;
             }
@@ -257,6 +288,9 @@ $(document).ready(function() {
 
         // Load stats.
         ajaxAction('stats', onStats);
+
+        // Load game actions
+        ajaxAction('metadata', onMetadata);
 
         // Setup channel if there is a channel token.
         if (window['channel_token']) {

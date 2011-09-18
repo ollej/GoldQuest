@@ -150,6 +150,12 @@ html, body {
   margin: 2px 0px 3px 0px;
 }
 
+.taskDiv.disabledState img {
+  zoom: 1;
+  filter: alpha(opacity=50);
+  opacity: 0.5;
+}
+
 .taskHover {
   display: block;
   width: 32px;

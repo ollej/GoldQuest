@@ -81,6 +81,8 @@ class GameHandler(PageHandler):
         if self._game.metadata['broadcast_actions']:
             self._channel = broadcast.ChannelUpdater()
 
+        return self._game
+
     def output_html(self, page, template_values=None, layout='default'):
         """
         Override the html output to print data.
@@ -120,15 +122,22 @@ class GameHandler(PageHandler):
     @LogUsageCPU
     def get(self, *args):
         # Read arguments
-        (game, command) = self.parse_arguments(*args)
-
-        logging.info('game: %s command: %s', game, command)
+        (gamekey, command) = self.parse_arguments(*args)
 
         # Setup the game.
-        self.setup_game(game)
+        game = self.setup_game(gamekey)
+
+        if command == 'metadata':
+            response = game.get_metadata()
+            self.show_page(command, response, 'default')
+        else:
+            self.play(game, command)
+
+    def play(self, game, command):
+        logging.info('game: %s command: %s', game, command)
 
         # Call the action handler in the game.
-        response = self._game.play(command, True)
+        response = game.play(command, True)
 
         # Handle the game response.
         if response and response['message']:
@@ -137,13 +146,15 @@ class GameHandler(PageHandler):
             response['id'] = uuid.uuid4().hex
             response['command'] = command
 
+            metadata = game.get_metadata()
+
             # Gold Quest needs some extra tracking for the moment.
             # TODO: Define tracking in game metadata.
-            if game == 'goldquest':
+            if metadata['gamekey'] == 'goldquest':
                 self.track_values(response)
 
             # Broadcast response to all players.
-            if command in self._game.metadata['broadcast_actions'] and not 'personal' in response:
+            if command in metadata['broadcast_actions'] and not 'personal' in response:
                 self._channel.send_all_update(response)
 
             # Show response.

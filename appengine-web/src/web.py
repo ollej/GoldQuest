@@ -106,6 +106,7 @@ class WebHandler(PageHandler):
             'gamekey': gamekey,
             'template_charsheet': game.template_charsheet(),
             'template_actionline': game.template_actionline(),
+            'template_actionbutton': game.template_actionbutton(),
             'actions': game.metadata['actions'],
         }
 

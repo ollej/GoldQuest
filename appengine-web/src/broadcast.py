@@ -57,12 +57,6 @@ class ChannelUpdater(object):
     _broadcast_id = None
     _listname = 'channels'
 
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = super(ChannelUpdater, cls).__new__(
-                                cls, *args, **kwargs)
-        return cls._instance
-
     def __init__(self, id=None):
         #self._channels = self.get_channels()
         self._session = get_current_session()

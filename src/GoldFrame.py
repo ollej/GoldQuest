@@ -44,6 +44,7 @@ class GamePlugin(object):
     _gamedata = None
     _basepath = None
     _userid = None
+    _updated_metadata = None
     metadata = {
         'name': 'Game Plugin',
         'gamekey': 'gameplugin',
@@ -60,6 +61,7 @@ class GamePlugin(object):
         Send in a ConfigParser object.
         If self._datafile is set, the contents of that file in the extras/ dir will be read, parsed as YAML and saved in self._gamedata
         """
+        self._updated_metadata = self.metadata
         self._cfg = cfg
         try:
             self._debug = self._cfg.getboolan('LOCAL', 'debug')
@@ -125,6 +127,39 @@ class GamePlugin(object):
         Surround field names with "[[ ]]" to output the value of that field.
         """
         return "[[ line ]]"
+    
+    def template_actionbutton(self):
+        """
+        Override this method and return the html to use to display an action button.
+        """
+        return """
+    <div id="[[ key ]]Div" class="taskDiv [[ button ]]State"><button id="[[ key ]]Btn" name="[[ key ]]" class="commandBtn" style="background: url([[ img ]]) no-repeat center center"><a href="#[[ key ]]Task" class="taskHover"><img src="/images/icon-hover.png" width="32" height="32" alt="[[ name ]]" title="[[ description ]]" style="visibility: hidden" /></a></button></div>
+        """
+
+    def get_metadata(self):
+        """
+        Returns the game metadata.
+        TODO: Should keep track of metadata changes.
+        """
+        return self._updated_metadata
+
+    def disable_action(self, action):
+        self._updated_metadata['actions'][action]['button'] = 'disabled'
+        m = { 'actions': {} }
+        m['actions'][action] = self._updated_metadata['actions'][action]
+        return m
+
+    def activate_action(self, action):
+        self._updated_metadata['actions'][action]['button'] = 'active'
+        m = { 'actions': {} }
+        m['actions'][action] = self._updated_metadata['actions'][action]
+        return m
+
+    def hide_action(self, action):
+        self._updated_metadata['actions'][action]['button'] = 'hidden'
+        m = { 'actions': {} }
+        m['actions'][action] = self._updated_metadata['actions'][action]
+        return m
 
     def roll(self, sides, times=1):
         """

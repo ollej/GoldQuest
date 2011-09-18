@@ -9,11 +9,6 @@
     <div id="taskbarWrapper">
       <div id="taskbarContainer">
         <div id="taskbarDiv">
-{% for action in actions %}
-    {% if action.img %}
-    <div id="{{ action.key }}Div" class="taskDiv"><button id="{{ action.key }}Btn" name="{{ action.key }}" class="commandBtn" style="background: url({{ action.img }}) no-repeat center center"><a href="#{{ action.key }}Task" class="taskHover"><img src="/images/icon-hover.png" width="32" height="32" alt="" style="visibility: hidden" /></a></button></div>
-    {% endif %}
-{% endfor %}
         </div>
       </div>
     </div>
@@ -24,6 +19,9 @@
   </div>
   <div id="actionlineTemplate" style="display: none">
 {{ template_actionline }}
+  </div>
+  <div id="actionbuttonTemplate" style="display: none">
+{{ template_actionbutton }}
   </div>
 {% endautoescape %}
 <script type="text/javascript">

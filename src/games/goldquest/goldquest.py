@@ -55,7 +55,7 @@ class Game(GoldFrame.GamePlugin):
                 'img': 'images/icon-fight.png',
                 'tinyimg': 'images/tiny-icon-fight.png',
                 'color': '#C30017',
-                'button': 'visible',
+                'button': 'active',
             },
             {
                 'key': 'rest',
@@ -64,7 +64,7 @@ class Game(GoldFrame.GamePlugin):
                 'img': 'images/icon-rest.png',
                 'tinyimg': 'images/tiny-icon-health.png',
                 'color': '#004C7B',
-                'button': 'visible',
+                'button': 'active',
             },
             {
                 'key': 'loot',
@@ -73,7 +73,7 @@ class Game(GoldFrame.GamePlugin):
                 'img': 'images/icon-loot.png',
                 'tinyimg': 'images/tiny-icon-gold.png',
                 'color': '#E9B700',
-                'button': 'visible',
+                'button': 'active',
             },
             {
                 'key': 'deeper',
@@ -82,7 +82,7 @@ class Game(GoldFrame.GamePlugin):
                 'img': 'images/icon-deeper.png',
                 'tinyimg': 'images/tiny-icon-level.png',
                 'color': '#351E00',
-                'button': 'visible',
+                'button': 'active',
             },
             {
                 'key': 'reroll',
@@ -90,7 +90,7 @@ class Game(GoldFrame.GamePlugin):
                 'description': 'Reroll a new hero if the current is dead..',
                 'img': 'images/icon-reroll.png',
                 'tinyimg': 'images/tiny-icon-reroll.png',
-                'button': 'visible',
+                'button': 'active',
             },
             {
                 'key': 'stats',
