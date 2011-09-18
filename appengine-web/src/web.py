@@ -45,24 +45,25 @@ from goldenweb import *
 from GoldFrame import GoldFrame
 
 class WebHandler(PageHandler):
-    _channel = None
 
     @LogUsageCPU
     def __init__(self):
-        self._channel = broadcast.ChannelUpdater()
         self._session = get_current_session()
 
     @LogUsageCPU
-    def create_channel(self, client_id=None):
+    def create_channel(self, client_id=None, game=None):
+        channel = broadcast.ChannelUpdater(game)
         token = None
-        if self._session.has_key('channel_token'):
-            token = self._session['channel_token']
-        if not client_id and self._session.has_key('channel_client_id'):
-            client_id = self._session['channel_client_id']
+        tokenname = '%s_channel_token' % game
+        clientidname = '%s_channel_client_id' % game
+        if self._session.has_key(tokenname):
+            token = self._session[tokenname]
+        if not client_id and self._session.has_key(clientidname):
+            client_id = self._session[clientidname]
         if not token or not client_id:
-            (token, client_id) = self._channel.create_channel(client_id)
-            self._session['channel_token'] = token
-            self._session['channel_client_id'] = client_id
+            (token, client_id) = channel.create_channel(client_id)
+            self._session[tokenname] = token
+            self._session[clientidname] = client_id
         else:
             logging.debug('Channel already exists with client_id %s and token %s', client_id, token)
         values = {
@@ -88,12 +89,16 @@ class WebHandler(PageHandler):
             else:
                 func()
 
-    @LogUsageCPU
-    def show_page_game(self, layout):
-        # Create game instance.
+    def get_gamekey(self):
         gamekey = self.request.get("game")
         if not gamekey:
             gamekey = 'goldquest'
+        return gamekey
+
+    @LogUsageCPU
+    def show_page_game(self, layout):
+        # Create game instance.
+        gamekey = self.get_gamekey()
 
         game = GoldFrame.create_game(gamekey, memcache.Client())
 
@@ -106,7 +111,7 @@ class WebHandler(PageHandler):
 
         # Setup channel if game uses broadcast.
         if game.metadata['broadcast_actions']:
-            channel_values = self.create_channel()
+            channel_values = self.create_channel(None, gamekey)
             values.update(channel_values)
 
         # Output page.
@@ -122,8 +127,9 @@ class WebHandler(PageHandler):
 
     @LogUsageCPU
     def page_createchannel(self):
+        gamekey = self.get_gamekey()
         client_id = self.request.get('client_id')
-        values = self.create_channel(client_id)
+        values = self.create_channel(client_id, gamekey)
         self.show_page('createchannel', values, '')
 
 def main():

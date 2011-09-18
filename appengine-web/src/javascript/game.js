@@ -212,7 +212,7 @@ $(document).ready(function() {
     function onChannelClose() {
         log('Channel was closed.');
         // TODO: Request a new client_id and channel.
-        ajaxAction('createchannel', onCreateChannel, '/', { client_id: channel_client_id });
+        ajaxAction('createchannel', onCreateChannel, '/', { client_id: channel_client_id, game: gameKey });
     }
 
     function setup_channel(token) {

@@ -41,11 +41,11 @@ from gaesessions import get_current_session
 
 from decorators import *
 
-def broadcast(message, skip_clients=None):
+def broadcast(message, list='channels', skip_clients=None):
     """
     Broadcast message to all connected clients.
     """
-    channels = simplejson.loads(memcache.get('channels') or '{}')
+    channels = simplejson.loads(memcache.get(list) or '{}')
     encoded_message = simplejson.dumps(message)
     for channel_id in channels.iterkeys():
         if not skip_clients or channel_id not in skip_clients:
@@ -54,6 +54,8 @@ def broadcast(message, skip_clients=None):
 class ChannelUpdater(object):
     _instance = None
     _session = None
+    _broadcast_id = None
+    _listname = 'channels'
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -61,20 +63,24 @@ class ChannelUpdater(object):
                                 cls, *args, **kwargs)
         return cls._instance
 
-    def __init__(self):
+    def __init__(self, id=None):
         #self._channels = self.get_channels()
         self._session = get_current_session()
 
+        if id:
+            self._listname = 'channels_%s' % id
+            self._broadcast_id = id
+
     @LogUsageCPU
     def get_channels(self):
-        return simplejson.loads(memcache.get('channels') or '{}')
+        return simplejson.loads(memcache.get(self._listname) or '{}')
 
     def set_channels(self, channels):
         """
         Set the channel list in memcache to channels.
         Note: Not safe, will overwrite old value without checking.
         """
-        memcache.set('channels', simplejson.dumps(channels))
+        memcache.set(self._listname, simplejson.dumps(channels))
 
     def create_id(self):
         return uuid.uuid4().hex
@@ -83,6 +89,7 @@ class ChannelUpdater(object):
         if not client_id:
             client_id = self.create_id()
         token = channel.create_channel(client_id)
+        self.connect(client_id, self._broadcast_id)
         return (token, client_id)
 
     def send_update(self, client_id, message):
@@ -107,56 +114,68 @@ class ChannelUpdater(object):
         Send a message to all connected clients in a deferred background task.
         """
         skip_client = None
-        if self._session.has_key('channel_client_id'):
-            skip_client = [self._session['channel_client_id']]
-        deferred.defer(broadcast, message, skip_client)
+        key = 'channel_client_id'
+        if self._broadcast_id:
+            key = '%s_channel_client_id' % self._broadcast_id
+        if self._session.has_key(key):
+            skip_client = [self._session[key]]
+        deferred.defer(broadcast, message, self._listname, skip_client)
 
-    def connect(self, client_id):
+    def update_memcache_key(self, list, key, value=None):
         """
-        Add client_id to list of active clients.
+        Update key/value in memcached dict list or add if it doesn't exist.
+        If value is not truthy, the key will be removed.
         """
         mc = memcache.Client()
         counter = 0
         while True:
-            channels = simplejson.loads(mc.gets('channels') or '{}')
-            if hasattr(channels, client_id):
+            channels = simplejson.loads(mc.gets(list) or '{}')
+            if value and hasattr(channels, key):
+                # No need to add key if client_id already exists.
+                break
+            elif not value and not hasattr(channels, key):
+                # No need to remove key if client_id doesn't exist.
                 break
             else:
-                logging.debug("Adding new client: %s" % client_id)
-                channels[client_id] = str(datetime.now())
+                logging.debug("Adding new client: %s" % key)
+                if value:
+                    channels[key] = value
+                else:
+                    del channels[key]
                 channelsjson = simplejson.dumps(channels)
-                if mc.cas('channels', channelsjson):
-                    logging.debug('Set new clientid in memcache: %s', client_id)
+                if mc.cas(list, channelsjson):
+                    logging.debug('Set new clientid in memcache: %s', key)
                     break
                 elif counter > 2:
-                    mc.add('channels', channelsjson)
+                    mc.add(list, channelsjson)
                     break
                 else:
                     counter += 1
 
+    def get_listname(self, client_id):
+        """
+        Returns name of broadcast channel client_id is in.
+        """
+        channels = simplejson.loads(mc.gets('clients') or '{}')
+        if hasattr(channels, client_id):
+            return channels[client_id]
 
+    def connect(self, client_id, id=None):
+        """
+        Add client_id to list of active clients.
+        """
+        self.update_memcache_key(self._listname, client_id, str(datetime.now()))
+        if id:
+            self.update_memcache_key('clients', client_id, id)
 
     def disconnect(self, client_id):
         """
         Remove client_id from list of active clients.
         """
-        mc = memcache.Client()
-        counter = 0
-        while True:
-            channels = simplejson.loads(mc.gets('channels') or '{}')
-            if hasattr(channels, client_id):
-                del channels[client_id]
-                channelsjson = simplejson.dumps(channels)
-                if mc.cas('channels', channelsjson):
-                    logging.debug('Removed clientid from memcache: %s', client_id)
-                    break
-                elif counter > 2:
-                    mc.add('channels', channelsjson)
-                    break
-                else:
-                    counter += 1
-            else:
-                break
+        listname = self.get_listname(client_id)
+        if listname:
+            self.update_memcache_key(listname, client_id)
+            self.update_memcache_key('clients', client_id)
 
 class ChannelHandler(webapp.RequestHandler):
     _channel = None
@@ -171,3 +190,4 @@ class ChannelHandler(webapp.RequestHandler):
             self._channel.connect(client_id)
         elif action == 'disconnected':
             self._channel.disconnect(client_id)
+
