@@ -124,11 +124,12 @@ class ChannelUpdater(object):
             else:
                 logging.debug("Adding new client: %s" % client_id)
                 channels[client_id] = str(datetime.now())
-                if mc.cas('channels', simplejson.dumps(channels)):
+                channelsjson = simplejson.dumps(channels)
+                if mc.cas('channels', channelsjson):
                     logging.debug('Set new clientid in memcache: %s', client_id)
                     break
                 elif counter > 2:
-                    mc.add('channels', channels)
+                    mc.add('channels', channelsjson)
                     break
                 else:
                     counter += 1
@@ -145,11 +146,12 @@ class ChannelUpdater(object):
             channels = simplejson.loads(mc.gets('channels') or '{}')
             if hasattr(channels, client_id):
                 del channels[client_id]
-                if mc.cas('channels', simplejson.dumps(channels)):
+                channelsjson = simplejson.dumps(channels)
+                if mc.cas('channels', channelsjson):
                     logging.debug('Removed clientid from memcache: %s', client_id)
                     break
                 elif counter > 2:
-                    mc.add('channels', channels)
+                    mc.add('channels', channelsjson)
                     break
                 else:
                     counter += 1
