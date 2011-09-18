@@ -116,6 +116,7 @@ class ChannelUpdater(object):
         Add client_id to list of active clients.
         """
         mc = memcache.Client()
+        counter = 0
         while True:
             channels = simplejson.loads(mc.gets('channels') or '{}')
             if hasattr(channels, client_id):
@@ -124,19 +125,34 @@ class ChannelUpdater(object):
                 logging.debug("Adding new client: %s" % client_id)
                 channels[client_id] = str(datetime.now())
                 if mc.cas('channels', simplejson.dumps(channels)):
+                    logging.debug('Set new clientid in memcache: %s', client_id)
                     break
+                elif counter > 2:
+                    mc.add('channels', channels)
+                    break
+                else:
+                    counter += 1
+
+
 
     def disconnect(self, client_id):
         """
         Remove client_id from list of active clients.
         """
         mc = memcache.Client()
+        counter = 0
         while True:
             channels = simplejson.loads(mc.gets('channels') or '{}')
             if hasattr(channels, client_id):
                 del channels[client_id]
                 if mc.cas('channels', simplejson.dumps(channels)):
+                    logging.debug('Removed clientid from memcache: %s', client_id)
                     break
+                elif counter > 2:
+                    mc.add('channels', channels)
+                    break
+                else:
+                    counter += 1
             else:
                 break
 

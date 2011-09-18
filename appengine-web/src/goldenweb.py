@@ -39,11 +39,7 @@ from django.template import TemplateDoesNotExist
 
 from decorators import *
 
-DEBUG = False
-logging.info('SERVER_SOFTWARE: %s', os.environ.get('SERVER_SOFTWARE',''))
-if os.environ.get('SERVER_SOFTWARE','').startswith('Development'):
-    logging.info('Running on development server.')
-    DEBUG = True
+DEBUG = os.environ['SERVER_SOFTWARE'].startswith('Development')
 
 class PageHandler(webapp.RequestHandler):
     """

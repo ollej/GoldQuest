@@ -49,8 +49,7 @@ class WebHandler(PageHandler):
 
     @LogUsageCPU
     def __init__(self):
-        if not DEBUG:
-            self._channel = broadcast.ChannelUpdater()
+        self._channel = broadcast.ChannelUpdater()
         self._session = get_current_session()
 
     @LogUsageCPU
@@ -106,7 +105,7 @@ class WebHandler(PageHandler):
         }
 
         # Setup channel if game uses broadcast.
-        if not DEBUG and game.metadata['broadcast_actions']:
+        if game.metadata['broadcast_actions']:
             channel_values = self.create_channel()
             values.update(channel_values)
 
