@@ -50,6 +50,8 @@ from datastorehelpers import *
 from goldenweb import *
 from web import *
 
+GAME = {}
+
 class GameHandler(PageHandler):
     default_game = 'goldquest'
     _cfg = None
@@ -64,10 +66,16 @@ class GameHandler(PageHandler):
         # Initialize game class.
         userid = self.get_userid()
         logging.info('game: %s user: %s', game, userid)
-        self._game = GoldFrame.create_game(game, memcache=memcache.Client(), userid=userid)
+        if game not in GAME:
+            logging.info('Creating new game instance.')
+            GAME[game] = GoldFrame.create_game(game, memcache=memcache.Client(), userid=userid)
 
-        # Call game setup code.
-        self._game.setup()
+            # Call game setup code.
+            GAME[game].setup()
+        else:
+            logging.info('Using cached game instance')
+            GAME[game]._userid = userid
+        self._game = GAME[game]
 
         # Setup channel if necessary.
         if self._game.metadata['broadcast_actions']:
