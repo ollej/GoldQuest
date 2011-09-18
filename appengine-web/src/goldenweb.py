@@ -31,6 +31,7 @@ import os
 import logging
 import simplejson
 import httpheader
+from httpheader import ParseError
 import Py2XML
 
 from google.appengine.ext import webapp
