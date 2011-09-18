@@ -143,7 +143,7 @@ class GameHandler(PageHandler):
                 self.track_values(response)
 
             # Broadcast response to all players.
-            if command in self._game.metadata['broadcast_actions']:
+            if command in self._game.metadata['broadcast_actions'] and not 'personal' in response:
                 self._channel.send_all_update(response)
 
             # Show response.
