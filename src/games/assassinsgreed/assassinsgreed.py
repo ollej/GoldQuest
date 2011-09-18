@@ -41,7 +41,7 @@ class Game(GoldFrame.GamePlugin):
     _gamedata = None
     _basepath = None
     _datafile = None
-    cfg = None
+    _cfg = None
     assassin = None
     _datafile = 'assassinsgreed.dat'
     metadata = {
@@ -57,6 +57,7 @@ class Game(GoldFrame.GamePlugin):
                 'img': '/images/icon-assassinate.png',
                 'tinyimg': '/images/tiny-icon-assassination.png',
                 'color': '#C30017',
+                'button': 'active',
             },
             {
                 'key': 'fight',
@@ -65,6 +66,7 @@ class Game(GoldFrame.GamePlugin):
                 'img': '/images/icon-fight.png',
                 'tinyimg': '/images/tiny-icon-fight.png',
                 'color': '#C30017',
+                'button': 'active',
             },
             {
                 'key': 'heal',
@@ -73,6 +75,7 @@ class Game(GoldFrame.GamePlugin):
                 'img': '/images/icon-rest.png',
                 'tinyimg': '/images/tiny-icon-health.png',
                 'color': '#004C7B',
+                'button': 'active',
             },
             {
                 'key': 'collect',
@@ -81,6 +84,7 @@ class Game(GoldFrame.GamePlugin):
                 'img': '/images/icon-collect.png',
                 'tinyimg': '/images/tiny-icon-feathers.png',
                 'color': '#E9B700',
+                'button': 'active',
             },
             {
                 'key': 'climb',
@@ -89,6 +93,7 @@ class Game(GoldFrame.GamePlugin):
                 'img': '/images/icon-climb.png',
                 'tinyimg': '/images/tiny-icon-towers.png',
                 'color': '#351E00',
+                'button': 'active',
             },
             {
                 'key': 'reroll',
@@ -96,11 +101,13 @@ class Game(GoldFrame.GamePlugin):
                 'description': 'Reroll a new assassin if the current is dead.',
                 'img': '/images/icon-reroll.png',
                 'tinyimg': '/images/tiny-icon-reroll.png',
+                'button': 'active',
             },
             {
                 'key': 'stats',
                 'name': 'Stats',
                 'description': 'Update character sheet.',
+                'button': 'hidden',
             },
         ],
         'stats_img': '/images/icon-stats.png',
@@ -168,6 +175,30 @@ class Game(GoldFrame.GamePlugin):
             },
         ],
     }
+    _foo = {
+                'key': 'buy',
+                'name': 'Buy',
+                'description': 'Buy items from a local merchant.',
+                'img': '/images/icon-buy.png',
+                'tinyimg': '/images/tiny-icon-buy.png',
+                'color': '#C30017',
+                'button': 'active',
+                'arguments': [
+                    {
+                        'type': 'list',
+                        'key': 'item',
+                        'name': 'Item',
+                        'description': 'Item to buy',
+                        'items': ['Potion', 'Bomb', 'Dagger'],
+                    },
+                    {
+                        'type': 'input',
+                        'key': 'amount',
+                        'name': 'Amount',
+                        'description': 'Amount of items to buy',
+                    },
+                ]
+            },
 
     def template_charsheet(self):
         return """
@@ -459,7 +490,7 @@ class Game(GoldFrame.GamePlugin):
     def sneak_attack(self):
         target = self.get_target(self.assassin.towers)
         target_health = target.health
-        (won, hurt_in_fight) = self.assassin.assassinate(target)
+        (won, hurt_in_fight) = self.assassin.fight(target)
         if won:
             msg = self.get_text('sneak_attack_won')
         else:
