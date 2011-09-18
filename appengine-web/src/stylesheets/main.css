@@ -35,6 +35,22 @@ body {
   border: thin solid black;
 }
 
+#gameSelectionDiv {
+  float: left;
+}
+
+#gameSelectionDiv ul {
+  list-style: none;
+}
+
+#gameSelectionDiv ul li {
+  padding-bottom: 5px;
+}
+
+#gameSelectionDiv img {
+  border: 0;
+}
+
 #footerDiv {
   text-align: right;
   font-size: 8pt;
