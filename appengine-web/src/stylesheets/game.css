@@ -141,7 +141,7 @@ html, body {
 }
 
 .taskDiv {
-  display: inline;
+  display: inline-block;
 }
 
 .taskDiv button {
@@ -150,7 +150,7 @@ html, body {
   margin: 2px 0px 3px 0px;
 }
 
-.taskDiv.disabledState img {
+.disabledState button {
   zoom: 1;
   filter: alpha(opacity=50);
   opacity: 0.5;

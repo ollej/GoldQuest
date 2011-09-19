@@ -150,7 +150,7 @@ class ChannelUpdater(object):
         """
         Returns name of broadcast channel client_id is in.
         """
-        channels = simplejson.loads(memcache.gets('clients') or '{}')
+        channels = simplejson.loads(memcache.get('clients') or '{}')
         if hasattr(channels, client_id):
             return channels[client_id]
 

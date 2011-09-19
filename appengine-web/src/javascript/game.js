@@ -50,7 +50,18 @@ $(document).ready(function() {
     }
 
     function updateMetadata(data) {
-        metadata = $.extend(true, {}, data, metadata);
+        log('updateMetadata()', data);
+        // Update the metadata
+        metadata = $.extend(true, {}, metadata, data);
+
+        // Keep list of disabled actions for easy access.
+        metadata['_disabled_actions'] = [];
+        $.each(metadata['actions'], function(i, item) {
+            if (item['button'] == 'disabled') {
+                metadata['_disabled_actions'].push(item['key']);
+            }
+        });
+        log('updated metadata:', metadata);
     }
 
     function onMetadata(data, textStatus, jqXhr) {
@@ -155,6 +166,7 @@ $(document).ready(function() {
 
         // Update taskbar if it has changed.
         if (data['metadata']) {
+            log('metadata', data['metadata']);
             updateMetadata(data['metadata'])
             if (data['metadata']['actions']) {
                 updateTaskbar(metadata['actions']);
@@ -285,8 +297,9 @@ $(document).ready(function() {
                 return false;
             }
             */
-            if (metadata['actions'][cmd]) {
-                $('#' + cmd + 'Btn').effect("highlight", { color: 'red' }, 500);
+            log('cmd', cmd, 'metadata actions:', metadata['actions']);
+            if ($.inArray(cmd, metadata['_disabled_actions']) >= 0) {
+                $('#' + cmd + 'Div').effect("highlight", { color: 'red' }, 500);
                 return false;
             }
 
@@ -298,11 +311,11 @@ $(document).ready(function() {
             ajaxAction('stats', onStats);
         });
 
-        // Load stats.
-        ajaxAction('stats', onStats);
-
         // Load game actions
         ajaxAction('metadata', onMetadata);
+
+        // Load stats.
+        ajaxAction('stats', onStats);
 
         // Setup channel if there is a channel token.
         if (window['channel_token']) {

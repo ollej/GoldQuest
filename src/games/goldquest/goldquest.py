@@ -42,6 +42,14 @@ class Game(GoldFrame.GamePlugin):
     hero = None
     level = None
     _datafile = 'goldquest.dat'
+    _alive_actions = {
+        'hidden': ['reroll'],
+        'active': ['fight', 'deeper', 'loot', 'rest'],
+    }
+    _dead_actions = {
+        'active': ['reroll'],
+        'hidden': ['fight', 'deeper', 'loot', 'rest'],
+    }
     metadata = {
         'name': 'Gold Quest',
         'gamekey': 'goldquest',
@@ -90,7 +98,7 @@ class Game(GoldFrame.GamePlugin):
                 'description': 'Reroll a new hero if the current is dead..',
                 'img': 'images/icon-reroll.png',
                 'tinyimg': 'images/tiny-icon-reroll.png',
-                'button': 'active',
+                'button': 'hidden',
             },
             {
                 'key': 'stats',
@@ -232,14 +240,14 @@ class Game(GoldFrame.GamePlugin):
         rest = rest.strip()
         if command in ['reroll']:
             response = self.reroll()
-            return self.return_response(response, asdict)
+            return self.return_response(response, asdict, self._alive_actions)
         if not self.hero or not self.hero.alive:
             msg = self.get_text('nochampion')
             response = {
                 'message': msg,
                 'success': 0,
             }
-            return self.return_response(response, asdict)
+            return self.return_response(response, asdict, self._dead_actions)
         if command in ['rest', 'vila']:
             response = self.rest()
         elif command in ['fight', 'kill', 'slay', u'slåss']:
@@ -253,7 +261,10 @@ class Game(GoldFrame.GamePlugin):
         else:
             return None
         self.save_data()
-        return self.return_response(response, asdict)
+        change_buttons = None
+        if not self.hero.alive:
+            change_buttons = self._dead_actions
+        return self.return_response(response, asdict, change_buttons)
 
     def save_data(self):
         self._dh.save_data(self.hero, self.level)

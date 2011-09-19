@@ -143,24 +143,6 @@ class GamePlugin(object):
         """
         return self._updated_metadata
 
-    def disable_action(self, action):
-        self._updated_metadata['actions'][action]['button'] = 'disabled'
-        m = { 'actions': {} }
-        m['actions'][action] = self._updated_metadata['actions'][action]
-        return m
-
-    def activate_action(self, action):
-        self._updated_metadata['actions'][action]['button'] = 'active'
-        m = { 'actions': {} }
-        m['actions'][action] = self._updated_metadata['actions'][action]
-        return m
-
-    def hide_action(self, action):
-        self._updated_metadata['actions'][action]['button'] = 'hidden'
-        m = { 'actions': {} }
-        m['actions'][action] = self._updated_metadata['actions'][action]
-        return m
-
     def roll(self, sides, times=1):
         """
         Roll times dice with sides number of sides.
@@ -221,10 +203,32 @@ class GamePlugin(object):
         f.close()
         return texts
 
-    def return_response(self, response, asdict):
+    def change_action(self, action_name, key, value):
+        for action in self._updated_metadata['actions']:
+            if action['key'] == action_name:
+                action[key] = value
+                break
+        return action
+
+    def change_actions(self, change_buttons):
+        actionlist = []
+        for method, actions in change_buttons.iteritems():
+            for action in actions:
+                md = self.change_action(action, 'button', method)
+                actionlist.append(md)
+        return actionlist
+
+    def return_response(self, response, asdict=False, change_buttons=None):
         if asdict:
             if not 'success' in response:
                 response['success'] = 1
+            if change_buttons:
+                actions = self.change_actions(change_buttons)
+                if actions:
+                    try:
+                        response['metadata']['actions'] = actions
+                    except KeyError:
+                        response['metadata'] = { 'actions': actions }
             return response
         else:
             return response['message']
