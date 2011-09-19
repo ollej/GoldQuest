@@ -266,6 +266,10 @@ class Game(GoldFrame.GamePlugin):
         return target
 
     def play(self, command, asdict=False):
+        # Load user assassin if needed.
+        if self.assassin.userid != self._userid:
+            self.get_assassin(self._userid)
+            
         # Handle action command.
         response = None
         if command in ['reroll']:
@@ -426,7 +430,7 @@ class Game(GoldFrame.GamePlugin):
 
     def fall(self):
         msg = ''
-        hurt_by_action = self.roll(self.assassin.towers)
+        hurt_by_action = self.roll(self.assassin.towers + 1)
         if self.assassin.feathers > 0:
             saved = self.roll(self.assassin.feathers)
             logging.info('saved by feathers: %d, hurt_before: %d', saved, hurt_by_action)

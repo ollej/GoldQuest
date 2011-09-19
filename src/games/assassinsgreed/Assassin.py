@@ -46,7 +46,7 @@ class Assassin(object):
         self.kills = 0
         self.assassinations = 0
         self.feathers = 0
-        self.towers = 1
+        self.towers = 0
         self.alive = True
         self.userid = userid
         self._texts = texts
