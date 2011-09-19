@@ -267,7 +267,7 @@ class Game(GoldFrame.GamePlugin):
 
     def play(self, command, asdict=False):
         # Load user assassin if needed.
-        if self.assassin.userid != self._userid:
+        if self.assassin == None or self.assassin.userid != self._userid:
             self.get_assassin(self._userid)
             
         # Handle action command.
