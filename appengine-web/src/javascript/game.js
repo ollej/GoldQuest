@@ -49,9 +49,13 @@ $(document).ready(function() {
         updateCharsheet(hero);
     }
 
+    function updateMetadata(data) {
+        metadata = $.extend(true, {}, data, metadata);
+    }
+
     function onMetadata(data, textStatus, jqXhr) {
         if (data) {
-            metadata = $.extend(true, {}, data, metadata);
+            updateMetadata(data);
         }
         if (metadata['actions']) {
             updateTaskbar(metadata['actions']);
@@ -147,6 +151,14 @@ $(document).ready(function() {
         // Update character sheet with new data.
         if (data['data'] && data['data']['hero']) {
             updateCharsheet(data['data']['hero']);
+        }
+
+        // Update taskbar if it has changed.
+        if (data['metadata']) {
+            updateMetadata(data['metadata'])
+            if (data['metadata']['actions']) {
+                updateTaskbar(metadata['actions']);
+            }
         }
 
         // Create line html.
