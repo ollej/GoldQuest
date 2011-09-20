@@ -29,6 +29,7 @@ import random
 
 from GoldFrame import GoldFrame
 import Dice
+from datastorehelpers import *
 
 class Game(GoldFrame.GamePlugin):
     rolls = 0
@@ -37,7 +38,7 @@ class Game(GoldFrame.GamePlugin):
         'name': 'Dicey',
         'gamekey': 'dicey',
         'personal_hero': False,
-        'broadcast_actions': [ 'd6', 'd10', 'd12', 'd20', 'd100' ],
+        'broadcast_actions': [],
         'actions': [
             {
                 'key': 'd6',
@@ -106,24 +107,32 @@ class Game(GoldFrame.GamePlugin):
         return "<li class='actionLine [[ cls ]]' id='action_[[ id ]]'>[[ line ]][[ extraInfo ]]</li>"
 
     def setup(self):
-        pass
+        self.rolls = get_value('dicey_rolls').value
 
     def play(self, command, asdict=False):
         """
+        Roll the given die.
         """
         # Handle action command.
         response = None
         if command == 'stats':
+            rolls = self.rolls
+            if not rolls:
+                rolls = get_value('dicey_rolls').value
+                self.rolls = rolls
             response = {
                 'message': 'Statistics',
-                'data': { 'hero': { 'rolls': self.rolls } },
+                'data': { 'hero': { 'rolls': rolls } },
             }
         else:
+            # Roll the selected die.
             sides = int(command[1:])
             die = Dice.Die(sides)
             roll = die.roll(sides)
             msg = "The result of the %s roll was: %d" % (command, roll)
 
+            # Update count of dice rolls.
+            inc_value('dicey_rolls')
             self.rolls += 1
 
             response = {

@@ -29,13 +29,14 @@ from google.appengine.ext import db
 from decorators import *
 
 class KeyValueInt(db.Model):
-    """Shards for the counter"""
+    """A simple Key/Value db store."""
     name = db.StringProperty(required=True, default='')
     value = db.IntegerProperty(required=True, default=0)
 
 @LogUsageCPU
 def get_value(name):
     """Retrieve the value for a given key."""
+    # TODO: Read from memcache first. If not in memcache, read from db and update memcache.
     k = db.Key.from_path('KeyValueInt', name)
     val = db.get(k)
     #val = KeyValueInt.all().filter('name =', name).get()
@@ -46,6 +47,7 @@ def get_value(name):
 @LogUsageCPU
 def set_value(name, value):
     """Update the value for a given name."""
+    # TODO: Update memcache value as well.
     k = db.Key.from_path('KeyValueInt', name)
     val = db.get(k)
     if not val:
@@ -57,8 +59,10 @@ def set_value(name, value):
 @LogUsageCPU
 def inc_value(name, inc=1):
     """Increment the value for a given sharded counter."""
+    # TODO: Update memcache value as well.
     def txn(name, inc):
         val = get_value(name)
         val.value += inc
         val.put()
     db.run_in_transaction(txn, name, inc)
+
