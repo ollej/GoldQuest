@@ -27,6 +27,7 @@ THE SOFTWARE.
 
 from google.appengine.ext import db
 from decorators import *
+from google.appengine.api import memcache
 
 class KeyValueInt(db.Model):
     """A simple Key/Value db store."""
@@ -36,18 +37,20 @@ class KeyValueInt(db.Model):
 @LogUsageCPU
 def get_value(name):
     """Retrieve the value for a given key."""
-    # TODO: Read from memcache first. If not in memcache, read from db and update memcache.
-    k = db.Key.from_path('KeyValueInt', name)
-    val = db.get(k)
-    #val = KeyValueInt.all().filter('name =', name).get()
-    if not val:
-        val = KeyValueInt(key_name=name, name=name, value=0)
-    return val
+    value = memcache.get('__kvi_%s' % name)
+    if not value:
+        k = db.Key.from_path('KeyValueInt', name)
+        val = db.get(k)
+        if val:
+            value = val.value
+        else:
+            value = 0
+        memcache.set('__kvi_%s' % name, value)
+    return value
 
 @LogUsageCPU
 def set_value(name, value):
     """Update the value for a given name."""
-    # TODO: Update memcache value as well.
     k = db.Key.from_path('KeyValueInt', name)
     val = db.get(k)
     if not val:
@@ -55,14 +58,18 @@ def set_value(name, value):
     else:
         val.value = value
     val.put()
+    memcache.set('__kvi_%s' % name, value)
 
 @LogUsageCPU
 def inc_value(name, inc=1):
     """Increment the value for a given sharded counter."""
-    # TODO: Update memcache value as well.
     def txn(name, inc):
-        val = get_value(name)
+        k = db.Key.from_path('KeyValueInt', name)
+        val = db.get(k)
+        if not val:
+            val = KeyValueInt(key_name=name, name=name, value=0)
         val.value += inc
         val.put()
+        memcache.set('__kvi_%s' % name, val.value)
     db.run_in_transaction(txn, name, inc)
 

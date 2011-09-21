@@ -53,9 +53,9 @@ class GameWebHandler(goldenweb.PageHandler):
     @LogUsageCPU
     def page_heroes(self):
         heroes = DSHero.all().order("-gold").fetch(10)
-        gold = get_value('gold').value
-        kills = get_value('kills').value
-        hero_count = get_value('heroes').value
+        gold = get_value('gold')
+        kills = get_value('kills')
+        hero_count = get_value('heroes')
         level = 0
         high_level_hero = DSHero.all().order("-level").get()
         if high_level_hero:

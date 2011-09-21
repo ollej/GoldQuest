@@ -107,7 +107,7 @@ class Game(GoldFrame.GamePlugin):
         return "<li class='actionLine [[ cls ]]' id='action_[[ id ]]'>[[ line ]][[ extraInfo ]]</li>"
 
     def setup(self):
-        self.rolls = get_value('dicey_rolls').value
+        self.rolls = get_value('dicey_rolls')
 
     def play(self, command, asdict=False):
         """
@@ -118,7 +118,7 @@ class Game(GoldFrame.GamePlugin):
         if command == 'stats':
             rolls = self.rolls
             if not rolls:
-                rolls = get_value('dicey_rolls').value
+                rolls = get_value('dicey_rolls')
                 self.rolls = rolls
             response = {
                 'message': 'Statistics',
