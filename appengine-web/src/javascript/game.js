@@ -10,7 +10,7 @@ $(document).ready(function() {
 
     // Log if console.log exists and we are running on localhost
     function log() {
-        if (console && console.log && document.domain == 'localhost') {
+        if (window.console && console.log && document.domain == 'localhost') {
             console.log.apply(console, arguments)
         }
     }
