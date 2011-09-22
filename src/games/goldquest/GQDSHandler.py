@@ -61,16 +61,12 @@ class GQDSHandler(DataStoreDataHandler):
         level._ds.put()
 
     def get_alive_hero(self):
-        query = DSHero.all()
-        query.filter('alive =', True)
-        herods = query.get()
+        herods = DSHero.all().filter('alive =', True).get()
         if herods:
             return self.create_object(Hero(), herods, DSHero)
 
     def get_level(self, lvl):
-        query = DSLevel.all()
-        query.filter('depth =', lvl)
-        levelds = query.get()
+        levelds = DSLevel.all().filter('depth =', lvl).get()
         if levelds:
             return self.create_object(Level(), levelds, DSLevel)
 

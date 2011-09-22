@@ -168,7 +168,7 @@ class Game(GoldFrame.GamePlugin):
 
     def setup(self):
         # Configure datahandler backend.
-        self.setup_database()
+        #self.setup_database()
 
         # Read saved hero.
         self.get_hero()
@@ -210,7 +210,7 @@ class Game(GoldFrame.GamePlugin):
     def get_hero(self):
         self.hero = self._dh.get_alive_hero()
         if self.hero and not self.level:
-            self.level = self.get_level(self.hero.level) #Level(self.hero.level)
+            self.level = self.get_level(self.hero.level)
 
     def get_level_texts(self, depth):
         for lvl in self._gamedata['level']:

@@ -86,6 +86,9 @@ class GamePlugin(object):
             self._gamedata = self.read_texts(self._datafile)
             #logging.info(self._gamedata)
 
+        if hasattr(self, 'setup_database'):
+            self.setup_database()
+
     def setup(self):
         """
         Override this method in subclass for any additional setup that is needed.

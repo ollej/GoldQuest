@@ -71,11 +71,13 @@ class GameHandler(PageHandler):
             GAME[game] = GoldFrame.create_game(game, memcache=memcache.Client(), userid=userid)
 
             # Call game setup code.
-            GAME[game].setup()
+            #GAME[game].setup()
         else:
             logging.info('Using cached game instance')
             GAME[game]._userid = userid
+
         self._game = GAME[game]
+        self._game.setup()
 
         # Setup channel if necessary.
         if self._game.metadata['broadcast_actions']:

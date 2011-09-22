@@ -219,7 +219,7 @@ class Game(GoldFrame.GamePlugin):
 
     def setup(self):
         # Configure datahandler backend.
-        self.setup_database()
+        #self.setup_database()
 
         # Read saved assassin.
         self.get_assassin(self._userid)
