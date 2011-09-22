@@ -78,6 +78,110 @@ class Game(GoldFrame.GamePlugin):
                 'button': 'active',
             },
             {
+                'key': 'research',
+                'name': 'Research',
+                'description': 'Start researching a new advancement.',
+                'img': '/images/icon-research.png',
+                'tinyimg': '/images/tiny-icon-research.png',
+                'color': '#C30017',
+                'button': 'active',
+                'arguments': [
+                    {
+                        'type': 'list',
+                        'key': 'researcharea',
+                        'name': 'Research Area',
+                        'description': 'Research area.',
+                        'items': [
+                            {
+                                'type': 'list',
+                                'key': 'building',
+                                'name': 'Building',
+                                'description': 'Research new buildings',
+                                'items': [
+                                    'Barracks',
+                                    'Hangar',
+                                    'Water Plant',
+                                    'Biodome',
+                                    'Living Pods',
+                                ],
+                            },
+                            {
+                                'type': 'list',
+                                'key': 'vehicles',
+                                'name': 'Vehicles',
+                                'description': 'Research new vehicles',
+                                'items': [
+                                    {
+                                        'key': 'jeep1',
+                                        'name': 'Moon Buggy Mk1',
+                                        'description': 'A small jeep requiring riders wearing space suits.',
+                                    },
+                                    {
+                                        'key': 'truck1',
+                                        'name': 'Space Truck Mk1',
+                                        'description': 'A small truck for carrying ore.',
+                                    },
+                                    {
+                                        'key': 'drill1',
+                                        'name': 'Mining Drill',
+                                        'description': 'A drill for mining ore.',
+                                    },
+
+                                    {
+                                        'key': 'spacefighter1',
+                                        'name': 'Space Fighter',
+                                        'description': 'A small fighter spaceship.',
+                                    },
+                                ],
+                            },
+                            {
+                                'type': 'list',
+                                'key': 'weapons',
+                                'name': 'Weapons',
+                                'description': 'Research new weapons',
+                                'items': [
+                                    'Automatic Sentry Gun',
+                                    'Laser Gun',
+                                    'Plasma Gun',
+                                    'Gauss Gun',
+                                    'Defense Tower',
+                                ],
+                            },
+                        ],
+                    },
+                    {
+                        'type': 'input',
+                        'key': 'researchers',
+                        'name': 'Researchers',
+                        'description': 'How many researchers should be working on this research project?',
+                    },
+                ],
+            },
+            {
+                'key': 'buy',
+                'name': 'Buy',
+                'description': 'Buy items from a local merchant.',
+                'img': '/images/icon-buy.png',
+                'tinyimg': '/images/tiny-icon-buy.png',
+                'color': '#C30017',
+                'button': 'active',
+                'arguments': [
+                    {
+                        'type': 'list',
+                        'key': 'item',
+                        'name': 'Item',
+                        'description': 'Item to buy',
+                        'items': ['Potion', 'Bomb', 'Dagger'],
+                    },
+                    {
+                        'type': 'input',
+                        'key': 'amount',
+                        'name': 'Amount',
+                        'description': 'Amount of items to buy',
+                    },
+                ]
+            },
+            {
                 'key': 'collect',
                 'name': 'Collect Feathers',
                 'description': 'Search for feathers.',

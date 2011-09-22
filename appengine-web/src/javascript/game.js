@@ -6,7 +6,9 @@ $(document).ready(function() {
         channel,
         handledActions = [],
         heroStats = {},
-        heroDiv;
+        heroDiv,
+        actionargs = [],
+        activeMenu;
 
     // Log if console.log exists and we are running on localhost
     function log() {
@@ -62,6 +64,16 @@ $(document).ready(function() {
             }
         });
         log('updated metadata:', metadata);
+    }
+
+    function getAction(name) {
+        var action;
+        $.each(metadata['actions'], function(i, item) {
+            if (item['key'] == name) {
+                action = item;
+            }
+        });
+        return action;
     }
 
     function onMetadata(data, textStatus, jqXhr) {
@@ -183,6 +195,37 @@ $(document).ready(function() {
         clearLines();
     }
 
+    function handleButtonClick(event) {
+        var cmd = $(this).attr('name'),
+            fn = (cmd == 'stats') ? onStats : onAction
+            action = '';
+
+        log('cmd', cmd, 'metadata actions:', metadata['actions']);
+        // Check if action is disabled.
+        // TODO: Possibly move this to own button listener.
+        if ($.inArray(cmd, metadata['_disabled_actions']) >= 0) {
+            $('#' + cmd + 'Div').effect("highlight", { color: 'red' }, 500);
+            return false;
+        }
+
+        // Check arguments
+        action = getAction(cmd);
+        if (action && action['arguments']) {
+            // TODO: Loop through all arguments for action.
+            // TODO: Needs to reset menu.
+            actionargs = [];
+            if (!action['menus']) {
+                action['menus'] = createMenu(action);
+            }
+            log('menu:', action['menus']);
+            activeMenu = action['menus'][0];
+            $('#' + activeMenu['id'] + 'Div').css('visibility', 'visible');
+            actionargs.push(activeMenu['key']);
+        } else {
+            ajaxAction(cmd, fn);
+        }
+    }
+
     function updateCharsheet(hero) {
         var stats, valueDiv;
         // Cache reference to hero div.
@@ -276,38 +319,101 @@ $(document).ready(function() {
         return channel;
     }
 
+    function buildMenuHtml(menu, menuid) {
+        var html = '', menuid = menuid || '';
+        log('buildMenuHtml', menu, menuid);
+        if (menuid) html += '<div id="' + menuid + 'Div" class="drilldown-menu menu-container" style="visibility: hidden">';
+        if (!menuid && menu['name']) {
+            html += '<a href="#">' + menu['name'] + '</a>';
+        }
+        if (menuid) {
+            html += '<ul id="' + menuid + '">';
+        } else {
+            html += '<ul>';
+        }
+        $.each(menu['items'], function(i, item) {
+            var li = '', arg = '', leaf = '';
+            if ($.type(item) == 'string') {
+                li = '<a href="#">' + item + '</a>';
+                leaf = ' class="menu-leaf"'
+                arg = item;
+            } else {
+                if (item['items']) {
+                    li = buildMenuHtml(item);
+                } else {
+                    li = '<a href="#">' + item['name'] + '</a>';
+                    leaf = ' class="menu-leaf"'
+                }
+                arg = item['key'];
+            }
+            //html += '<li><a class="actionArgumentLink" href="#' + arg + '">' + li + '</a></li>';
+            html += '<li title="' + arg + '"' + leaf + '>' + li + '</li>';
+        });
+        html += '</ul>';
+        if (menuid) html += '</div>';
+        log('Menu html:', html);
+        return html;
+    }
+
+    function createMenu(action) {
+        var menus = [], menu = {}, menuId = '', menuPrefix = 'actionMenu_' + action['key'] + '_',
+            menuHtml = '', menuDiv, menuName = '';
+
+        // Build menu html for all arguments
+        // TODO: Need to be able to handle multiple list arguments properly.
+        $.each(action['arguments'], function(i, item) {
+            if (item['type'] == 'list') {
+                menu = {
+                    'id': menuPrefix + item['key'],
+                    'key': item['key'],
+                    'name': item['name'],
+                };
+
+                // Remove old menu div.
+                menuDiv = $('#' + menu['id']);
+                if (menuDiv) menuDiv.remove();
+                menu['html'] = buildMenuHtml(item, menu['id']);
+
+                // Setup menu
+                $('body').append(menu['html']);
+                $('#' + menu['id']).dcDrilldown({
+                    'speed': 'fast', 'effect': 'slide', 'saveState': false, 'event': 'click',
+                    'showCount': false, 'linkType': 'breadcrumb', 'defaultText': menu['name'],
+                    'resetText': 'Back'
+                });
+                menus.push(menu);
+            }
+        });
+
+        log('menu:', action, menus);
+        //$('#' + menuid).position({ my: 'center center', at: 'center center', of: 'body' });
+        return menus;
+    }
+
     function setup() {
         // Setup command buttons
-        $('.commandBtn').live('click', function(event) {
-            var cmd = $(this).attr('name'),
-                fn = (cmd == 'stats') ? onStats : onAction;
-
-            // Disallow some actions when hero is dead.
-            // FIXME: Need to get list of actions from game.
-            /*
-            if (!heroStats['alive'] || heroStats['hurt'] >= heroStats['health']) {
-                if ($.inArray(cmd, ['fight', 'loot', 'rest', 'deeper']) >= 0) {
-                    //log('Hero is dead, action not allowed');
-                    $('#' + cmd + 'Btn').effect("highlight", { color: 'red' }, 500);
-                    return false;
-                }
+        $('.commandBtn').live('click', handleButtonClick);
+        $('.dd-wrapper li').live('click', function(ev) {
+            var arg = $(this).attr('title');
+            log('arg:', arg);
+            if (arg) {
+                actionargs.push(arg);
             }
-            if (heroStats['alive'] && heroStats['hurt'] == 0 && cmd == 'rest') {
-                $('#' + cmd + 'Btn').effect("highlight", { color: 'red' }, 500);
-                return false;
+            log('arglist:', actionargs);
+            if ($(this).hasClass('menu-leaf')) {
+                //$('#' + action['menu'] + 'Div').css('visibility', 'visible');
+                log('closing menu');
+                $('#' + activeMenu['id'] + 'Div').css('visibility', 'hidden');
+                console.log($('#' + activeMenu['id']));
+                activeMenu = undefined;
+                // TODO: Needs to open next argument
             }
-            */
-            log('cmd', cmd, 'metadata actions:', metadata['actions']);
-            if ($.inArray(cmd, metadata['_disabled_actions']) >= 0) {
-                $('#' + cmd + 'Div').effect("highlight", { color: 'red' }, 500);
-                return false;
-            }
-
-            ajaxAction(cmd, fn);
+            //ev.preventDefault();
+            return false;
         });
 
         // Update charsheet when clicked.
-        $('#heroDiv').live('click', function(event) {
+        $('#heroDiv').live('click', function(ev) {
             ajaxAction('stats', onStats);
         });
 

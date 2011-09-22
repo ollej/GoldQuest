@@ -45,7 +45,7 @@ class Game(GoldFrame.GamePlugin):
                 'name': 'D6',
                 'description': 'Roll a D6',
                 'img': 'images/icon-d6.gif',
-                'tinyimg': 'images/icon-dice.png',
+                'tinyimg': 'images/icon-d6.gif',
                 'color': '#C30017',
             },
             {
@@ -53,7 +53,7 @@ class Game(GoldFrame.GamePlugin):
                 'name': 'D10',
                 'description': 'Roll a D10',
                 'img': 'images/icon-d10.gif',
-                'tinyimg': 'images/icon-dice.png',
+                'tinyimg': 'images/icon-d10.gif',
                 'color': '#C30017',
             },
             {
@@ -61,7 +61,7 @@ class Game(GoldFrame.GamePlugin):
                 'name': 'D12',
                 'description': 'Roll a D12',
                 'img': 'images/icon-d12.gif',
-                'tinyimg': 'images/icon-dice.png',
+                'tinyimg': 'images/icon-d12.gif',
                 'color': '#C30017',
             },
             {
@@ -69,7 +69,7 @@ class Game(GoldFrame.GamePlugin):
                 'name': 'D20',
                 'description': 'Roll a D20',
                 'img': 'images/icon-d20.gif',
-                'tinyimg': 'images/icon-dice.png',
+                'tinyimg': 'images/icon-d20.gif',
                 'color': '#C30017',
             },
             {
@@ -77,7 +77,7 @@ class Game(GoldFrame.GamePlugin):
                 'name': 'D100',
                 'description': 'Roll a D100',
                 'img': 'images/icon-d100.gif',
-                'tinyimg': 'images/icon-dice.png',
+                'tinyimg': 'images/icon-d100.gif',
                 'color': '#C30017',
             },
             {
