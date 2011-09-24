@@ -87,6 +87,12 @@ class Game(GoldFrame.GamePlugin):
                 'button': 'active',
                 'arguments': [
                     {
+                        'type': 'input',
+                        'key': 'researchers',
+                        'name': 'Researchers',
+                        'description': 'How many researchers should be working on this research project?',
+                    },
+                    {
                         'type': 'list',
                         'key': 'researcharea',
                         'name': 'Research Area',
@@ -148,12 +154,6 @@ class Game(GoldFrame.GamePlugin):
                                 ],
                             },
                         ],
-                    },
-                    {
-                        'type': 'input',
-                        'key': 'researchers',
-                        'name': 'Researchers',
-                        'description': 'How many researchers should be working on this research project?',
                     },
                 ],
             },
