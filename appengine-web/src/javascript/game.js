@@ -354,7 +354,7 @@ $(document).ready(function() {
             title: arg['name'], autoOpen: false
         });
 
-        $('.argumentMenuItem').live('click', function(ev) {
+        $('.argumentMenuItem', $dialog).bind('click', function(ev) {
             var item = {}, items = [], value = '';
 
             // Add given value to argument list.
