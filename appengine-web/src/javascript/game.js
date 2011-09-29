@@ -311,8 +311,6 @@ $(document).ready(function() {
     }
 
     // TODO: Save each dialog, or remove it when finished.
-    // TODO: Make sure correct key/value pair is saved in arglist
-    // TODO: Only one api call per action
     // TODO: Some design.
     function buildArgumentMenu(argumenttree, action, arglist) {
         var arg;
@@ -338,20 +336,20 @@ $(document).ready(function() {
             html += '<p>' + arg['description'] + '</p>';
         }
 
-        html += '<ul>';
+        html += '<ul class="argumentMenu">';
         $.each(arg['items'], function(i, item) {
             if ($.type(item) == 'string') {
-                html += '<li class="argumentMenuItem" title="' + item + '">' + item + '</li>';
+                html += '<li class="argumentMenuItem" title="' + item + '"><a href="#' + item + '">' + item + '</a></li>';
             } else {
-                html += '<li class="argumentMenuItem" title="' + item['key'] + '">' + item['name'] + '</li>';
+                html += '<li class="argumentMenuItem" title="' + item['key'] + '"><a href="#' + item['key'] + '">' + item['name'] + '</a></li>';
             }
         });
         html += '</ul>';
 
         // TODO: Save dialog in action item.
         $dialog = $('<div></div>').html(html).dialog({
-            draggable: false, maxHeight: 340, maxWidth: 240, modal: true, resizable: false,
-            title: arg['name'], autoOpen: false
+            draggable: false, width: 240, modal: true, resizable: false,
+            title: arg['name'], autoOpen: false, dialogClass: 'argumentDialog'
         });
 
         $('.argumentMenuItem', $dialog).bind('click', function(ev) {
@@ -394,13 +392,13 @@ $(document).ready(function() {
         if (arg['description']) {
             html += '<p>' + arg['description'] + '</p>';
         }
-        html += '<input type="input" name="argumentInput_' + arg['key'] + '" value="" />';
+        html += '<input type="input" class="argumentInput" name="argumentInput_' + arg['key'] + '" value="" />';
 
         // TODO: Handle enter/ok button click -> call menuHandler
 
         $dialog = $('<div></div>').html(html).dialog({
-            draggable: false, maxHeight: 320, maxWidth: 240, modal: true, resizable: false,
-            title: arg['name'],
+            draggable: false, width: 240, modal: true, resizable: false,
+            title: arg['name'], dialogClass: 'argumentDialog',
             buttons: { 
                 "Ok": function (ev) {
                     var item = {}, value = '';
