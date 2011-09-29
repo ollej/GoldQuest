@@ -93,7 +93,15 @@ class GameHandler(PageHandler):
         }
         return super(GameHandler, self).output_html('api_response', values, layout)
 
-    def parse_arguments(self, *args):
+    def get_arguments(self):
+        args = self.request.arguments()
+        arguments = {}
+        for arg in args:
+            if arg != u'format':
+                arguments[arg] = self.request.get(arg)
+        return arguments
+
+    def parse_command(self, *args):
         game = self.default_game
         command = args[0]
         if len(args) == 2:
@@ -122,7 +130,7 @@ class GameHandler(PageHandler):
     @LogUsageCPU
     def get(self, *args):
         # Read arguments
-        (gamekey, command) = self.parse_arguments(*args)
+        (gamekey, command) = self.parse_command(*args)
 
         # Setup the game.
         game = self.setup_game(gamekey)
@@ -137,7 +145,8 @@ class GameHandler(PageHandler):
         logging.info('game: %s command: %s', game, command)
 
         # Call the action handler in the game.
-        response = game.play(command, True)
+        arguments = self.get_arguments()
+        response = game.play(command, True, arguments=arguments)
 
         # Handle the game response.
         if response and response['message']:

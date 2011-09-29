@@ -38,45 +38,7 @@ from Assassin import Assassin
 from Target import Target
 
 class Game(GoldFrame.GamePlugin):
-    _gamedata = None
-    _basepath = None
-    _datafile = None
-    _cfg = None
-    assassin = None
-    _datafile = 'assassinsgreed.dat'
-    metadata = {
-        'name': "Assassin's Greed",
-        'gamekey': 'assassinsgreed',
-        'personal_hero': True,
-        'broadcast_actions': [],
-        'actions': [
-            {
-                'key': 'assassinate',
-                'name': 'Assassinate',
-                'description': 'Find a villain to assassinate.',
-                'img': '/images/icon-assassinate.png',
-                'tinyimg': '/images/tiny-icon-assassination.png',
-                'color': '#C30017',
-                'button': 'active',
-            },
-            {
-                'key': 'fight',
-                'name': 'Fight',
-                'description': 'Find a villain to assassinate.',
-                'img': '/images/icon-fight.png',
-                'tinyimg': '/images/tiny-icon-fight.png',
-                'color': '#C30017',
-                'button': 'active',
-            },
-            {
-                'key': 'heal',
-                'name': 'Heal',
-                'description': 'Heal to regain some health.',
-                'img': '/images/icon-rest.png',
-                'tinyimg': '/images/tiny-icon-health.png',
-                'color': '#004C7B',
-                'button': 'active',
-            },
+    """
             {
                 'key': 'research',
                 'name': 'Research',
@@ -156,6 +118,46 @@ class Game(GoldFrame.GamePlugin):
                         'description': 'How many researchers should be working on this research project?',
                     },
                 ],
+            },
+    """
+    _gamedata = None
+    _basepath = None
+    _datafile = None
+    _cfg = None
+    assassin = None
+    _datafile = 'assassinsgreed.dat'
+    metadata = {
+        'name': "Assassin's Greed",
+        'gamekey': 'assassinsgreed',
+        'personal_hero': True,
+        'broadcast_actions': [],
+        'actions': [
+            {
+                'key': 'assassinate',
+                'name': 'Assassinate',
+                'description': 'Find a villain to assassinate.',
+                'img': '/images/icon-assassinate.png',
+                'tinyimg': '/images/tiny-icon-assassination.png',
+                'color': '#C30017',
+                'button': 'active',
+            },
+            {
+                'key': 'fight',
+                'name': 'Fight',
+                'description': 'Find a villain to assassinate.',
+                'img': '/images/icon-fight.png',
+                'tinyimg': '/images/tiny-icon-fight.png',
+                'color': '#C30017',
+                'button': 'active',
+            },
+            {
+                'key': 'heal',
+                'name': 'Heal',
+                'description': 'Heal to regain some health.',
+                'img': '/images/icon-rest.png',
+                'tinyimg': '/images/tiny-icon-health.png',
+                'color': '#004C7B',
+                'button': 'active',
             },
             {
                 'key': 'buy',
@@ -369,11 +371,13 @@ class Game(GoldFrame.GamePlugin):
         target = Target(self.assassin.towers, name)
         return target
 
-    def play(self, command, asdict=False):
+    def play(self, command, asdict=False, arguments=None):
         # Load user assassin if needed.
         if self.assassin == None or self.assassin.userid != self._userid:
             self.get_assassin(self._userid)
-            
+
+        logging.info(arguments)
+
         # Handle action command.
         response = None
         if command in ['reroll']:
@@ -428,6 +432,13 @@ class Game(GoldFrame.GamePlugin):
                 }
             }
             return response
+
+    def action_buy(self):
+        response = {
+            'message': 'Merchant has closed.',
+            'success': 0,
+        }
+        return response
 
     def action_collect(self):
         msg = ''

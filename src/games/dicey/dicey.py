@@ -109,7 +109,7 @@ class Game(GoldFrame.GamePlugin):
     def setup(self):
         self.rolls = get_value('dicey_rolls')
 
-    def play(self, command, asdict=False):
+    def play(self, command, asdict=False, arguments=None):
         """
         Roll the given die.
         """

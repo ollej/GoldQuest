@@ -92,13 +92,14 @@ class GamePlugin(object):
         """
         pass
 
-    def play(self, command, asdict=False):
+    def play(self, command, asdict=False, arguments=None):
         """
         Override this method in the game sub-class to handle actions.
         Default functionality is to call methods named "action_<command>" and return the response.
 
         command = String, name of the action to handle.
         asdict = Boolean, if True return a response dict with data, otherwise a string describing the result of the action.
+        arguments = dict with action arguments
         """
         # Handle action command.
         try:
