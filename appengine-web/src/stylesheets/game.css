@@ -33,7 +33,7 @@ html, body {
   margin-left: -5px;
 }
 
-#heroDiv, #actionList li, #taskbarContainer, body {
+#heroDiv, #actionList li, #taskbarContainer, body, .argumentMenuItem {
   background: #d7d7d7;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#d0d0d0', endColorstr='#d7d7d7');
   background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#ddd), to(#d7d7d7));
@@ -166,3 +166,37 @@ html, body {
 .taskHover:hover {
   background: url(/images/icon-hover.png) no-repeat center center;
 }
+
+.argumentDialog {
+}
+
+.argumentDialog p {
+  padding: 3px 0px;
+}
+
+.argumentDialog input {
+  padding: 2px;
+  margin: 8px 0px 2px 0px;
+}
+
+.argumentMenu {
+  padding: 3px 0px;
+}
+
+.argumentMenuItem {
+  padding: 1px 0px;
+  border-top: 1px solid #D1D1D1;
+  text-shadow: 0 1px 1px #fff;
+  padding: 3px 5px 5px 5px;
+  font-family: Arial,"Helvetica Neue",sans-serif; font-size: 14px; line-height: 18px; word-wrap: break-word; color: #444;
+  list-style: none;
+}
+
+.argumentMenuItem a {
+  text-decoration: none;
+}
+
+.argumentMenuItem a:hover {
+  background: yellow;
+}
+

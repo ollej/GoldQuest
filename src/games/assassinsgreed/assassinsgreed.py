@@ -38,6 +38,88 @@ from Assassin import Assassin
 from Target import Target
 
 class Game(GoldFrame.GamePlugin):
+    """
+            {
+                'key': 'research',
+                'name': 'Research',
+                'description': 'Start researching a new advancement.',
+                'img': '/images/icon-research.png',
+                'tinyimg': '/images/tiny-icon-research.png',
+                'color': '#C30017',
+                'button': 'active',
+                'arguments': [
+                    {
+                        'type': 'list',
+                        'key': 'researcharea',
+                        'name': 'Research Area',
+                        'description': 'Research area.',
+                        'items': [
+                            {
+                                'type': 'list',
+                                'key': 'building',
+                                'name': 'Building',
+                                'description': 'Research new buildings',
+                                'items': [
+                                    'Barracks',
+                                    'Hangar',
+                                    'Water Plant',
+                                    'Biodome',
+                                    'Living Pods',
+                                ],
+                            },
+                            {
+                                'type': 'list',
+                                'key': 'vehicles',
+                                'name': 'Vehicles',
+                                'description': 'Research new vehicles',
+                                'items': [
+                                    {
+                                        'key': 'jeep1',
+                                        'name': 'Moon Buggy Mk1',
+                                        'description': 'A small jeep requiring riders wearing space suits.',
+                                    },
+                                    {
+                                        'key': 'truck1',
+                                        'name': 'Space Truck Mk1',
+                                        'description': 'A small truck for carrying ore.',
+                                    },
+                                    {
+                                        'key': 'drill1',
+                                        'name': 'Mining Drill',
+                                        'description': 'A drill for mining ore.',
+                                    },
+
+                                    {
+                                        'key': 'spacefighter1',
+                                        'name': 'Space Fighter',
+                                        'description': 'A small fighter spaceship.',
+                                    },
+                                ],
+                            },
+                            {
+                                'type': 'list',
+                                'key': 'weapons',
+                                'name': 'Weapons',
+                                'description': 'Research new weapons',
+                                'items': [
+                                    'Automatic Sentry Gun',
+                                    'Laser Gun',
+                                    'Plasma Gun',
+                                    'Gauss Gun',
+                                    'Defense Tower',
+                                ],
+                            },
+                        ],
+                    },
+                    {
+                        'type': 'input',
+                        'key': 'researchers',
+                        'name': 'Researchers',
+                        'description': 'How many researchers should be working on this research project?',
+                    },
+                ],
+            },
+    """
     _gamedata = None
     _basepath = None
     _datafile = None
@@ -76,6 +158,30 @@ class Game(GoldFrame.GamePlugin):
                 'tinyimg': '/images/tiny-icon-health.png',
                 'color': '#004C7B',
                 'button': 'active',
+            },
+            {
+                'key': 'buy',
+                'name': 'Buy',
+                'description': 'Buy items from a local merchant.',
+                'img': '/images/icon-buy.png',
+                'tinyimg': '/images/tiny-icon-buy.png',
+                'color': '#C30017',
+                'button': 'active',
+                'arguments': [
+                    {
+                        'type': 'list',
+                        'key': 'item',
+                        'name': 'Item',
+                        'description': 'Item to buy',
+                        'items': ['Potion', 'Bomb', 'Dagger'],
+                    },
+                    {
+                        'type': 'input',
+                        'key': 'amount',
+                        'name': 'Amount',
+                        'description': 'Amount of items to buy',
+                    },
+                ]
             },
             {
                 'key': 'collect',
@@ -265,11 +371,13 @@ class Game(GoldFrame.GamePlugin):
         target = Target(self.assassin.towers, name)
         return target
 
-    def play(self, command, asdict=False):
+    def play(self, command, asdict=False, arguments=None):
         # Load user assassin if needed.
         if self.assassin == None or self.assassin.userid != self._userid:
             self.get_assassin(self._userid)
-            
+
+        logging.info(arguments)
+
         # Handle action command.
         response = None
         if command in ['reroll']:
@@ -324,6 +432,13 @@ class Game(GoldFrame.GamePlugin):
                 }
             }
             return response
+
+    def action_buy(self):
+        response = {
+            'message': 'Merchant has closed.',
+            'success': 0,
+        }
+        return response
 
     def action_collect(self):
         msg = ''

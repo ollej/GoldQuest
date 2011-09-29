@@ -139,7 +139,7 @@ class Game(GoldFrame.GamePlugin):
     def template_actionline(self):
         return "<li class='actionLine [[ cls ]]' id='action_[[ id ]]'>[[ line ]][[ extraInfo ]]</li>"
 
-    def play(self, command, asdict=False):
+    def play(self, command, asdict=False, arguments=None):
 
         self.load()
 

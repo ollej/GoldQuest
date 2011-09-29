@@ -6,7 +6,9 @@ $(document).ready(function() {
         channel,
         handledActions = [],
         heroStats = {},
-        heroDiv;
+        heroDiv,
+        actionargs = [],
+        activeMenu;
 
     // Log if console.log exists and we are running on localhost
     function log() {
@@ -62,6 +64,16 @@ $(document).ready(function() {
             }
         });
         log('updated metadata:', metadata);
+    }
+
+    function getAction(name) {
+        var action;
+        $.each(metadata['actions'], function(i, item) {
+            if (item['key'] == name) {
+                action = item;
+            }
+        });
+        return action;
     }
 
     function onMetadata(data, textStatus, jqXhr) {
@@ -183,6 +195,28 @@ $(document).ready(function() {
         clearLines();
     }
 
+    function handleButtonClick(event) {
+        var cmd = $(this).attr('name'), action = '', argumenttree;
+            fn = (cmd == 'stats') ? onStats : onAction,
+
+        log('cmd', cmd, 'metadata actions:', metadata['actions']);
+        // Check if action is disabled.
+        // TODO: Possibly move this to own button listener.
+        if ($.inArray(cmd, metadata['_disabled_actions']) >= 0) {
+            $('#' + cmd + 'Div').effect("highlight", { color: 'red' }, 500);
+            return false;
+        }
+
+        // Check arguments
+        action = getAction(cmd);
+        if (action && action['arguments']) {
+            argumenttree = $.extend(true, [], action['arguments']);
+            buildArgumentMenu(argumenttree, action, {});
+        } else {
+            ajaxAction(cmd, fn);
+        }
+    }
+
     function updateCharsheet(hero) {
         var stats, valueDiv;
         // Cache reference to hero div.
@@ -276,38 +310,130 @@ $(document).ready(function() {
         return channel;
     }
 
-    function setup() {
-        // Setup command buttons
-        $('.commandBtn').live('click', function(event) {
-            var cmd = $(this).attr('name'),
-                fn = (cmd == 'stats') ? onStats : onAction;
+    // TODO: Save each dialog, or remove it when finished.
+    // TODO: Some design.
+    function buildArgumentMenu(argumenttree, action, arglist) {
+        var arg;
+        // If argument tree is empty, call action with arglist.
+        if (!argumenttree || argumenttree.length == 0) {
+            log('Argument tree is empty.', argumenttree, action, arglist);
+            ajaxAction(action['key'], onAction, undefined, arglist);
+            return true;
+        }
+        arg = argumenttree[0];
+        if (arg['type'] == 'list') {
+            createDialogMenu(arg, argumenttree, action, arglist);
+        } else if (arg['type'] == 'input') {
+            createDialogInput(arg, argumenttree, action, arglist);
+        }
+        // actionargs.push(arg);
+    }
 
-            // Disallow some actions when hero is dead.
-            // FIXME: Need to get list of actions from game.
-            /*
-            if (!heroStats['alive'] || heroStats['hurt'] >= heroStats['health']) {
-                if ($.inArray(cmd, ['fight', 'loot', 'rest', 'deeper']) >= 0) {
-                    //log('Hero is dead, action not allowed');
-                    $('#' + cmd + 'Btn').effect("highlight", { color: 'red' }, 500);
-                    return false;
-                }
-            }
-            if (heroStats['alive'] && heroStats['hurt'] == 0 && cmd == 'rest') {
-                $('#' + cmd + 'Btn').effect("highlight", { color: 'red' }, 500);
-                return false;
-            }
-            */
-            log('cmd', cmd, 'metadata actions:', metadata['actions']);
-            if ($.inArray(cmd, metadata['_disabled_actions']) >= 0) {
-                $('#' + cmd + 'Div').effect("highlight", { color: 'red' }, 500);
-                return false;
-            }
+    function createDialogMenu(arg, argumenttree, action, arglist) {
+        var html = '', $dialog = {};
+        //argumenttree.shift();
+        if (arg['description']) {
+            html += '<p>' + arg['description'] + '</p>';
+        }
 
-            ajaxAction(cmd, fn);
+        html += '<ul class="argumentMenu">';
+        $.each(arg['items'], function(i, item) {
+            if ($.type(item) == 'string') {
+                html += '<li class="argumentMenuItem" title="' + item + '"><a href="#' + item + '">' + item + '</a></li>';
+            } else {
+                html += '<li class="argumentMenuItem" title="' + item['key'] + '"><a href="#' + item['key'] + '">' + item['name'] + '</a></li>';
+            }
+        });
+        html += '</ul>';
+
+        // TODO: Save dialog in action item.
+        $dialog = $('<div></div>').html(html).dialog({
+            draggable: false, width: 240, modal: true, resizable: false,
+            title: arg['name'], autoOpen: false, dialogClass: 'argumentDialog'
         });
 
+        $('.argumentMenuItem', $dialog).bind('click', function(ev) {
+            var item = {}, items = [], value = '';
+
+            // Add given value to argument list.
+            value = $(this).attr('title');
+            //arglist.push({ 'key': arg['key'], 'value': value });
+            arglist[arg['key']] = value;
+            log('key:', arg['key'], 'value:', value, 'arglist:', arglist, 'tree', argumenttree);
+
+            // Update argument tree
+            items = $.grep(arg['items'], function(itm, idx) {
+                if ($.type(itm) != 'string' && itm['key'] == value && itm['items']) {
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+            if (items.length > 0) {
+                argumenttree[0] = items[0];
+            } else {
+                argumenttree.shift();
+            }
+
+            // Close dialog
+            $dialog.dialog('destroy');
+            $dialog.remove();
+
+            // Build next dialog in tree, or send action if empty.
+            buildArgumentMenu(argumenttree, action, arglist);
+        });
+
+        $dialog.dialog('open');
+    }
+
+    function createDialogInput(arg, argumenttree, action, arglist) {
+        var html = '', $dialog = {};
+        // Handle sub-trees
+        if (arg['description']) {
+            html += '<p>' + arg['description'] + '</p>';
+        }
+        html += '<input type="input" class="argumentInput" name="argumentInput_' + arg['key'] + '" value="" />';
+
+        // TODO: Handle enter/ok button click -> call menuHandler
+
+        $dialog = $('<div></div>').html(html).dialog({
+            draggable: false, width: 240, modal: true, resizable: false,
+            title: arg['name'], dialogClass: 'argumentDialog',
+            buttons: { 
+                "Ok": function (ev) {
+                    var item = {}, value = '';
+
+                    // Add given value to argument list.
+                    value = $(this).children('input').val();
+                    //arglist.push({ 'key': arg['key'], 'value': value });
+                    arglist[arg['key']] = value;
+                    log('key:', arg['key'], 'value:', value, 'arglist:', arglist, 'tree', argumenttree);
+
+                    // Update argument tree
+                    if (arg['subtree']) {
+                        argumenttree[0] = arg['subtree'];
+                    } else {
+                        argumenttree.shift();
+                    }
+
+                    // Close dialog
+                    //$dialog.dialog('close');
+                    $dialog.dialog('destroy');
+                    $dialog.remove();
+
+                    // Build next dialog in tree, or send action if empty.
+                    buildArgumentMenu(argumenttree, action, arglist);
+                }
+            }
+        });
+    }
+
+    function setup() {
+        // Setup command buttons
+        $('.commandBtn').live('click', handleButtonClick);
+
         // Update charsheet when clicked.
-        $('#heroDiv').live('click', function(event) {
+        $('#heroDiv').live('click', function(ev) {
             ajaxAction('stats', onStats);
         });
 

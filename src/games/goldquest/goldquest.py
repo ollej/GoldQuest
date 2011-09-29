@@ -230,7 +230,7 @@ class Game(GoldFrame.GamePlugin):
             name = None
         return self.level.get_monster(name)
 
-    def play(self, command, asdict=False):
+    def play(self, command, asdict=False, arguments=None):
         response = ""
         command = command.strip().lower()
         try:
