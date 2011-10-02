@@ -130,7 +130,7 @@ class GamePlugin(object):
         Override this method and return the html to use for the action lines in the web client.
         Surround field names with "[[ ]]" to output the value of that field.
         """
-        return "[[ line ]]"
+        return "<li class='actionLine [[ cls ]]' id='action_[[ id ]]'>[[ line ]][[ extraInfo ]]</li>"
     
     def template_actionbutton(self):
         """
@@ -224,6 +224,8 @@ class GamePlugin(object):
 
     def return_response(self, response, asdict=False, change_buttons=None):
         if asdict:
+            if isinstance(response, basestring):
+                response = { 'message': response }
             if not 'success' in response:
                 response['success'] = 1
             if change_buttons:
@@ -235,7 +237,10 @@ class GamePlugin(object):
                         response['metadata'] = { 'actions': actions }
             return response
         else:
-            return response['message']
+            if isinstance(response, basestring):
+                return response
+            else:
+                return response['message']
 
 basepath = os.path.dirname(os.path.abspath(__file__))
 
