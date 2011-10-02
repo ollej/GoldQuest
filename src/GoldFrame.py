@@ -110,7 +110,7 @@ class GamePlugin(object):
         except AttributeError:
             return None
         else:
-            response = func()
+            response = func(arguments)
 
         return self.return_response(response, asdict)
 

@@ -394,7 +394,7 @@ class Game(GoldFrame.GamePlugin):
             except AttributeError:
                 return None
             else:
-                response = func()
+                response = func(arguments)
 
         self.save_data()
 
@@ -408,7 +408,7 @@ class Game(GoldFrame.GamePlugin):
         assassin = self._dh.get_alive_assassin()
         return assassin
 
-    def action_reroll(self):
+    def action_reroll(self, aguments):
         if self.assassin and self.assassin.alive:
             response = {
                 'message': self.get_text('noreroll') % self.assassin.get_attributes(),
@@ -433,14 +433,14 @@ class Game(GoldFrame.GamePlugin):
             }
             return response
 
-    def action_buy(self):
+    def action_buy(self, arguments):
         response = {
             'message': 'Merchant has closed.',
             'success': 0,
         }
         return response
 
-    def action_collect(self):
+    def action_collect(self, arguments):
         msg = ''
         response = {
             'message': msg,
@@ -467,7 +467,7 @@ class Game(GoldFrame.GamePlugin):
         response['message'] = msg
         return response
 
-    def action_heal(self):
+    def action_heal(self, arguments):
         healed = self.assassin.heal()
         if healed:
             if self.assassin.hurt:
@@ -492,7 +492,7 @@ class Game(GoldFrame.GamePlugin):
         }
         return response
 
-    def action_climb(self):
+    def action_climb(self, arguments):
         hurt_by_action = 0
         climbed = 0
         msg = ''
@@ -521,17 +521,17 @@ class Game(GoldFrame.GamePlugin):
         }
         return response
 
-    def action_assassinate(self):
+    def action_assassinate(self, arguments):
         target = None
         if self.assassin.assassinations < self.assassin.towers:
             target = self.get_boss()
         return self.fight_target(target)
 
-    def action_fight(self):
+    def action_fight(self, arguments):
         target = self.get_target(self.assassin.towers)
         return self.fight_target(target)
 
-    def action_stats(self):
+    def action_stats(self, arguments):
         msg = self.get_text('charsheet')
         attribs = self.assassin.get_attributes()
         msg = msg % attribs
