@@ -159,3 +159,8 @@ texts:
     - Poor %(name)s was attacked and didn't survive.
     - "%(target_name)s sneaks up on %(name)s and kills the assassin."
     - "%(name)s is killed by %(target_name)s."
+  buy_item:
+    - "%(name)s bought %(amount)d %(item)s."
+  no_money:
+    - "%(name)s doesn't have enough money to buy %(amount)d %(item)s."
+

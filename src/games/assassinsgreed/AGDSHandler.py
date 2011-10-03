@@ -33,14 +33,19 @@ from GoldFrame.DataStoreDataHandler import DataStoreDataHandler
 from Assassin import Assassin
 
 class DSAssassin(db.Model):
-    name = db.StringProperty()
-    health = db.IntegerProperty()
-    strength = db.IntegerProperty()
-    hurt = db.IntegerProperty()
-    kills = db.IntegerProperty()
-    assassinations = db.IntegerProperty()
-    feathers = db.IntegerProperty()
-    towers = db.IntegerProperty()
+    name = db.StringProperty(required=True)
+    health = db.IntegerProperty(default=0)
+    strength = db.IntegerProperty(default=0)
+    hurt = db.IntegerProperty(default=0)
+    kills = db.IntegerProperty(default=0)
+    assassinations = db.IntegerProperty(default=0)
+    feathers = db.IntegerProperty(default=0)
+    towers = db.IntegerProperty(default=0)
+    potions = db.IntegerProperty(default=0)
+    smokebombs = db.IntegerProperty(default=0)
+    splinterbombs = db.IntegerProperty(default=0)
+    daggers = db.IntegerProperty(default=0)
+    gold = db.IntegerProperty(default=0)
     alive = db.BooleanProperty()
     userid = db.StringProperty()
 

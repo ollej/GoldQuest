@@ -33,12 +33,14 @@ class Target(object):
     health = None
     level = None
     boss = None
+    _original_health = None
 
     def __init__(self, level=None, name=None, boss=False):
         if not level:
             level = 1
         self.strength = random.randint(1, level)
         self.health = random.randint(1, level)
+        self._original_health = self.health
         self.boss = boss
         if boss:
             self.strength = self.strength + level
@@ -58,3 +60,9 @@ class Target(object):
         else:
             return False
 
+    def drop_loot(self):
+        gold = 0
+        max_gold = int(self._original_health / 10)
+        if max_gold > 0:
+            gold = random.randint(1, max_gold)
+        return gold

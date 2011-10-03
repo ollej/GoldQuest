@@ -39,6 +39,11 @@ class Assassin(object):
     feathers = None
     towers = None
     alive = None
+    potions = None
+    smokebombs = None
+    splinterbombs = None
+    daggers = None
+    gold = None
     userid = None
 
     def __init__(self, texts=None, userid=None):
@@ -48,6 +53,11 @@ class Assassin(object):
         self.feathers = 0
         self.towers = 0
         self.alive = True
+        self.potions = 0
+        self.smokebombs = 0
+        self.splinterbombs = 0
+        self.daggers = 0
+        self.gold = 0
         self.userid = userid
         self._texts = texts
 
@@ -60,6 +70,11 @@ class Assassin(object):
         self.feathers = 0
         self.towers = 0
         self.alive = True
+        self.potions = 0
+        self.smokebombs = 0
+        self.splinterbombs = 0
+        self.daggers = 0
+        self.gold = 0
         if name:
             self.name = name
         else:
@@ -118,6 +133,19 @@ class Assassin(object):
             self.health += gain_health
             return True
         return False
+
+    def buy(self, item, amount):
+        if not hasattr(self, item['key']):
+            logging.info("Item '%s' doesn't exist!" % item['key'])
+        oldval = getattr(self, item['key'])
+        cost = item['price'] * amount
+        # TODO: Buy as many items as possible.
+        if cost <= self.gold:
+            setattr(self, item['key'], oldval + amount)
+            self.gold -= cost
+            return cost
+        else:
+            return 0
 
     def roll(self, sides, times=1):
         total = 0

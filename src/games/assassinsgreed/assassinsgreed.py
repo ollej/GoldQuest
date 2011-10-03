@@ -38,94 +38,20 @@ from Assassin import Assassin
 from Target import Target
 
 class Game(GoldFrame.GamePlugin):
-    """
-            {
-                'key': 'research',
-                'name': 'Research',
-                'description': 'Start researching a new advancement.',
-                'img': '/images/icon-research.png',
-                'tinyimg': '/images/tiny-icon-research.png',
-                'color': '#C30017',
-                'button': 'active',
-                'arguments': [
-                    {
-                        'type': 'list',
-                        'key': 'researcharea',
-                        'name': 'Research Area',
-                        'description': 'Research area.',
-                        'items': [
-                            {
-                                'type': 'list',
-                                'key': 'building',
-                                'name': 'Building',
-                                'description': 'Research new buildings',
-                                'items': [
-                                    'Barracks',
-                                    'Hangar',
-                                    'Water Plant',
-                                    'Biodome',
-                                    'Living Pods',
-                                ],
-                            },
-                            {
-                                'type': 'list',
-                                'key': 'vehicles',
-                                'name': 'Vehicles',
-                                'description': 'Research new vehicles',
-                                'items': [
-                                    {
-                                        'key': 'jeep1',
-                                        'name': 'Moon Buggy Mk1',
-                                        'description': 'A small jeep requiring riders wearing space suits.',
-                                    },
-                                    {
-                                        'key': 'truck1',
-                                        'name': 'Space Truck Mk1',
-                                        'description': 'A small truck for carrying ore.',
-                                    },
-                                    {
-                                        'key': 'drill1',
-                                        'name': 'Mining Drill',
-                                        'description': 'A drill for mining ore.',
-                                    },
-
-                                    {
-                                        'key': 'spacefighter1',
-                                        'name': 'Space Fighter',
-                                        'description': 'A small fighter spaceship.',
-                                    },
-                                ],
-                            },
-                            {
-                                'type': 'list',
-                                'key': 'weapons',
-                                'name': 'Weapons',
-                                'description': 'Research new weapons',
-                                'items': [
-                                    'Automatic Sentry Gun',
-                                    'Laser Gun',
-                                    'Plasma Gun',
-                                    'Gauss Gun',
-                                    'Defense Tower',
-                                ],
-                            },
-                        ],
-                    },
-                    {
-                        'type': 'input',
-                        'key': 'researchers',
-                        'name': 'Researchers',
-                        'description': 'How many researchers should be working on this research project?',
-                    },
-                ],
-            },
-    """
     _gamedata = None
     _basepath = None
     _datafile = None
     _cfg = None
     assassin = None
     _datafile = 'assassinsgreed.dat'
+    _alive_actions = {
+        'hidden': ['reroll'],
+        'active': ['assassinate', 'fight', 'heal', 'buy', 'collect', 'climb'],
+    }
+    _dead_actions = {
+        'active': ['reroll'],
+        'hidden': ['assassinate', 'fight', 'heal', 'buy', 'collect', 'climb'],
+    }
     metadata = {
         'name': "Assassin's Greed",
         'gamekey': 'assassinsgreed',
@@ -173,7 +99,7 @@ class Game(GoldFrame.GamePlugin):
                         'key': 'item',
                         'name': 'Item',
                         'description': 'Item to buy',
-                        'items': ['Potion', 'Bomb', 'Dagger'],
+                        'items': ['Potion', 'Smokebomb', 'Splinterbomb', 'Dagger'],
                     },
                     {
                         'type': 'input',
@@ -207,7 +133,7 @@ class Game(GoldFrame.GamePlugin):
                 'description': 'Reroll a new assassin if the current is dead.',
                 'img': '/images/icon-reroll.png',
                 'tinyimg': '/images/tiny-icon-reroll.png',
-                'button': 'active',
+                'button': 'button',
             },
             {
                 'key': 'stats',
@@ -274,6 +200,34 @@ class Game(GoldFrame.GamePlugin):
                 'img': '/images/tiny-icon-feathers.png',
             },
             {
+                'key': 'potions',
+                'name': 'Potions',
+                'description': 'Health potions.',
+                'type': 'integer',
+                'img': '/images/tiny-icon-potions.png',
+            },
+            {
+                'key': 'smokebombs',
+                'name': 'Smokebombs',
+                'description': 'Smokebombs',
+                'type': 'integer',
+                'img': '/images/tiny-icon-smokebombs.png',
+            },
+            {
+                'key': 'splinterbombs',
+                'name': 'Splinterbombs',
+                'description': 'Splinterbombs',
+                'type': 'integer',
+                'img': '/images/tiny-icon-splinterbombs.png',
+            },
+            {
+                'key': 'daggers',
+                'name': 'Daggers',
+                'description': 'Daggers',
+                'type': 'integer',
+                'img': '/images/tiny-icon-daggers.png',
+            },
+            {
                 'key': 'alive',
                 'name': 'Alive',
                 'type': 'boolean',
@@ -281,30 +235,12 @@ class Game(GoldFrame.GamePlugin):
             },
         ],
     }
-    _foo = {
-                'key': 'buy',
-                'name': 'Buy',
-                'description': 'Buy items from a local merchant.',
-                'img': '/images/icon-buy.png',
-                'tinyimg': '/images/tiny-icon-buy.png',
-                'color': '#C30017',
-                'button': 'active',
-                'arguments': [
-                    {
-                        'type': 'list',
-                        'key': 'item',
-                        'name': 'Item',
-                        'description': 'Item to buy',
-                        'items': ['Potion', 'Bomb', 'Dagger'],
-                    },
-                    {
-                        'type': 'input',
-                        'key': 'amount',
-                        'name': 'Amount',
-                        'description': 'Amount of items to buy',
-                    },
-                ]
-            },
+    _items = {
+        'Potion': { 'key': 'potions', 'price': 10 },
+        'Smokebomb': { 'key': 'smokebombs', 'price': 25 },
+        'Splinterbomb': { 'key': 'splinterbombs', 'price': 15 },
+        'Dagger': { 'key': 'daggers', 'price': 10 },
+    }
 
     def template_charsheet(self):
         return """
@@ -380,8 +316,10 @@ class Game(GoldFrame.GamePlugin):
 
         # Handle action command.
         response = None
+        actionbuttons = None
         if command in ['reroll']:
             response = self.action_reroll()
+            actionbuttons = self._alive_actions
         elif not self.assassin or not self.assassin.alive:
             msg = self.get_text('nochampion')
             response = {
@@ -398,7 +336,10 @@ class Game(GoldFrame.GamePlugin):
 
         self.save_data()
 
-        return self.return_response(response, asdict)
+        if not self.assassin or not self.assassin.alive:
+            actionbuttons = self._dead_actions
+
+        return self.return_response(response, asdict, actionbuttons)
 
     def save_data(self):
         if self.assassin:
@@ -434,9 +375,42 @@ class Game(GoldFrame.GamePlugin):
             return response
 
     def action_buy(self, arguments):
+        try:
+            item = arguments['item']
+            logging.info('item: %s' % item)
+            amount = int(arguments['amount'])
+            logging.info('amount: %d' % amount)
+            itemobj = self._items[item]
+        except KeyError, ValueError:
+            response = {
+                'message': 'Merchant has closed.',
+                'success': 0,
+            }
+            return response
+        item_text = item.lower()
+        if amount > 1:
+            item_text = "%ss" % item_text
+        total_price = self.assassin.buy(itemobj, amount)
+        attribs = self.assassin.get_attributes()
+        attribs['amount'] = amount
+        attribs['item'] = item_text
+        attribs['total_price'] = total_price
+        if total_price == 0:
+            response = {
+                'message': self.get_text('no_money') % attribs,
+                'success': 0,
+            }
+            return response
+        msg = self.get_text('buy_item') % attribs
         response = {
-            'message': 'Merchant has closed.',
-            'success': 0,
+            'message': msg,
+            'data': {
+                'extra_info': {
+                    'item': item,
+                    'total_price': total_price,
+                },
+                'hero': self.assassin.get_attributes(),
+            }
         }
         return response
 
@@ -445,7 +419,9 @@ class Game(GoldFrame.GamePlugin):
         response = {
             'message': msg,
             'data': {
-                'feathers': 0,
+                'extra_info': {
+                    'feathers': 0,
+                },
                 'hero': {
                     'feathers': self.assassin.feathers,
                 }
@@ -457,7 +433,7 @@ class Game(GoldFrame.GamePlugin):
             msg = self.get_text('foundfeathers')
             # Should be a method on assassin
             response['data']['hero']['feathers'] = self.assassin.collect()
-            response['data']['feathers'] = 1
+            response['data']['extra_info']['feathers'] = 1
             attribs['feathers'] = 1
         elif luck > 3:
             msg = self.get_text('nofeathers')
@@ -482,7 +458,9 @@ class Game(GoldFrame.GamePlugin):
         response = {
             'message': msg,
             'data': {
-                'healed': attribs['healed'],
+                'extra_info': {
+                    'healed': attribs['healed'],
+                },
                 'hero': {
                     'health': attribs['health'],
                     'hurt': attribs['hurt'],
@@ -509,8 +487,10 @@ class Game(GoldFrame.GamePlugin):
         response = {
             'message': msg,
             'data': {
-                'climbed': climbed,
-                'hurt_by_action': hurt_by_action,
+                'extra_info': {
+                    'climbed': climbed,
+                    'hurt_by_action': hurt_by_action,
+                },
                 'hero': {
                     'towers': attribs['towers'],
                     'hurt': attribs['hurt'],
@@ -570,12 +550,15 @@ class Game(GoldFrame.GamePlugin):
             return response
         dinged = False
         target_health = target.health
+        gold = 0
         (won, hurt_in_fight) = self.assassin.fight(target)
         attribs = self.assassin.get_attributes()
         if won:
             msg = self.get_text('killed')
             attribs['slayed'] = self.get_text('slayed')
             dinged = self.assassin.ding(target.strength)
+            gold = target.drop_loot()
+            self.assassin.gold += gold
         else:
             msg = self.get_text('died')
         attribs['target'] = target.name
@@ -584,8 +567,11 @@ class Game(GoldFrame.GamePlugin):
         response = {
             'message': msg,
             'data': {
-                'hurt_in_fight': hurt_in_fight,
-                'dinged': dinged,
+                'extra_info': {
+                    'hurt_in_fight': hurt_in_fight,
+                    'dinged': dinged,
+                    'gold': gold,
+                },
                 'hero': {
                     'strength': attribs['strength'],
                     'health': attribs['health'],
@@ -593,6 +579,7 @@ class Game(GoldFrame.GamePlugin):
                     'kills': attribs['kills'],
                     'assassinations': attribs['assassinations'],
                     'alive': attribs['alive'],
+                    'gold': self.assassin.gold,
                 },
                 'target': {
                     'name': target.name,
@@ -622,7 +609,9 @@ class Game(GoldFrame.GamePlugin):
             'message': msg,
             'success': 0,
             'data': {
-                'hurt_in_fight': hurt_in_fight,
+                'extra_info': {
+                    'hurt_in_fight': hurt_in_fight,
+                },
                 'hero': {
                     'hurt': attribs['hurt'],
                     'health': attribs['health'],

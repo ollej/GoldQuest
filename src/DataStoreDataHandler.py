@@ -37,9 +37,15 @@ class DataStoreDataHandler(object):
         if not ds:
             ds = Class()
         obj._ds = ds
-        for attr in ds.properties():
+        props = ds.properties()
+        for attr in props:
             if attr[0] != '_':
                 value = getattr(ds, attr)
+                if value is None:
+                    if isinstance(props[attr], db.IntegerProperty):
+                        value = 0
+                    elif isinstance(props[attr], db.StringProerty):
+                        value = ""
                 setattr(obj, attr, value)
         return obj
 
