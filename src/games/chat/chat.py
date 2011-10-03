@@ -76,5 +76,5 @@ class Game(GoldFrame.GamePlugin):
         """
         Make a prediction.
         """
-        return arguments['chatmessage']
+        return "<%s> %s" % (self._userid, arguments['chatmessage'])
 
