@@ -92,7 +92,7 @@ class WebHandler(PageHandler):
     def get_gamekey(self):
         gamekey = self.request.get("game")
         if not gamekey:
-            gamekey = 'goldquest'
+            gamekey = 'goldapps'
         return gamekey
 
     @LogUsageCPU
@@ -116,7 +116,8 @@ class WebHandler(PageHandler):
             values.update(channel_values)
 
         # Output page.
-        self.show_page('game', values, layout)
+        logging.info('game basepath: %s', game._basepath)
+        self.show_page('game', values, layout, basepath=game._basepath)
 
     @LogUsageCPU
     def page_game(self):

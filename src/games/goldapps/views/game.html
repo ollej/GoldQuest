@@ -1,0 +1,75 @@
+<script type="text/javascript">
+$(document).ready(function() {
+    function onAppList(data, textStatus, jqXhr) {
+        if (!data) return;
+        $.each(data['games'], function(i, item) {
+            var html;
+            if (item == 'goldapps') return;
+            html = '<img src="images/icon-' + item + '.png" class="appIcon" alt="' + item + '" title="' + item + '" />';
+            $('#appsDiv').append(html);
+        });
+    }
+
+    $.ajax({
+        url: '/api/applist',
+        data: {},
+        headers: { 
+            'Accept': 'application/json',
+            'Content-Type': 'text/plain; charset=utf-8'
+        },
+        dataType: 'json',
+        success: onAppList
+    });
+
+    $('.appIcon').live('click', function(ev) {
+        var game = $(ev.target).attr('alt');
+        if (game) {
+            document.location = '?game=' + game;
+        }
+    });
+});
+</script>
+<style type="text/css">
+.appIcon {
+  margin: 18px;
+}
+.appIcon:hover {
+  cursor: pointer;
+}
+</style>
+  <div id="mainDiv">
+    <div id="heroDiv" class="heroEl">
+    </div>
+    <div id="contentDiv">
+    <br /> <br /><br />
+      <h1>Gold Apps</h1>
+      <div id="appsDiv">
+      </div>
+      <div id="actionsDiv">
+        <ul id="actionList"></ul>
+      </div>
+    </div>
+    <div id="taskbarWrapper">
+      <div id="taskbarContainer">
+        <div id="taskbarDiv">
+        </div>
+      </div>
+    </div>
+  </div>
+{% autoescape off %}
+  <div id="charsheetTemplate" style="display: none">
+{{ template_charsheet }}
+  </div>
+  <div id="actionlineTemplate" style="display: none">
+{{ template_actionline }}
+  </div>
+  <div id="actionbuttonTemplate" style="display: none">
+{{ template_actionbutton }}
+  </div>
+{% endautoescape %}
+<script type="text/javascript">
+    var gameKey = '{{ gamekey }}';
+{% if channel_client_id %}
+{% include "broadcast_values_js.html" %}
+{% endif %}
+</script>

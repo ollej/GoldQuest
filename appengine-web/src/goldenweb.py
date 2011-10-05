@@ -50,12 +50,16 @@ class PageHandler(webapp.RequestHandler):
     _basepath = os.path.dirname(__file__)
 
     @LogUsageCPU
-    def get_template(self, page, values, layout='default'):
+    def get_template(self, page, values, layout='default', basepath=None):
         """
         TODO: use django template include.
         """
         page = "%s.html" % page
-        path = os.path.join(self._basepath, 'views', page)
+        path = ''
+        if basepath:
+            path = os.path.join(basepath, 'views', page)
+        if not basepath or not os.path.exists(path):
+            path = os.path.join(self._basepath, 'views', page)
         logging.debug('template pathname: %s' % path)
         content = template.render(path, values)
         if layout:
@@ -70,7 +74,7 @@ class PageHandler(webapp.RequestHandler):
         return (pagename, ext)
 
     @LogUsageCPU
-    def show_page(self, page, template_values=None, layout='default', default_format=None):
+    def show_page(self, page, template_values=None, layout='default', default_format=None, basepath=None):
         """
         Select output format based on Accept headers.
         """
@@ -95,7 +99,7 @@ class PageHandler(webapp.RequestHandler):
             format = default_format
         logging.debug('selected format: %s' % format)
         if format == 'html' or ((not acceptparams or not accept or accept == '*/*' or httpheader.acceptable_content_type(accept, 'text/html')) and not format):
-            self.output_html(page, template_values, layout)
+            self.output_html(page, template_values=template_values, layout=layout, basepath=basepath)
         elif format == 'json' or httpheader.acceptable_content_type(accept, 'application/json'):
             self.output_json(template_values)
         elif format == 'xml' or (httpheader.acceptable_content_type(accept, 'application/xml') and not format):
@@ -111,7 +115,7 @@ class PageHandler(webapp.RequestHandler):
                     self.output_text(str(template_values))
         else:
             logging.debug('Defaulting output to html.')
-            self.output_html(page, template_values, layout)
+            self.output_html(page, template_values, layout=layout, basepath=basepath)
 
     @LogUsageCPU
     def output_json(self, template_values=None):
@@ -133,9 +137,9 @@ class PageHandler(webapp.RequestHandler):
         self.response.out.write(content)
 
     @LogUsageCPU
-    def output_html(self, page, template_values=None, layout='default'):
+    def output_html(self, page, template_values=None, layout='default', basepath=None):
         try:
-            content = self.get_template(page, template_values, layout)
+            content = self.get_template(page, template_values, layout, basepath=basepath)
             self.response.out.write(content)
         except TemplateDoesNotExist:
             self.response.set_status(404)

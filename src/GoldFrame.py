@@ -266,7 +266,8 @@ def get_games():
     games = []
     gamedir = os.path.join(basepath, 'games')
     for filename in os.listdir(gamedir):
-        games.append(filename)
+        if filename.find('.') == -1:
+            games.append(filename)
     return games
 
 

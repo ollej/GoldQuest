@@ -85,7 +85,7 @@ class GameHandler(PageHandler):
 
         return self._game
 
-    def output_html(self, page, template_values=None, layout='default'):
+    def output_html(self, page, template_values=None, layout='default', basepath=None):
         """
         Override the html output to print data.
         """
@@ -129,7 +129,6 @@ class GameHandler(PageHandler):
 
         return userid
 
-    @LogUsageCPU
     def get(self, *args):
         # Read arguments
         (gamekey, command) = self.parse_command(*args)
@@ -140,8 +139,16 @@ class GameHandler(PageHandler):
         if command == 'metadata':
             response = game.get_metadata()
             self.show_page(command, response, 'default')
+        elif command == 'applist':
+            self.show_apps()
         else:
             self.play(game, command)
+
+    def show_apps(self):
+        #gamepath = os.path.join(basepath, 'games', game)
+        games = GoldFrame.get_games()
+        response = { 'games': games }
+        self.show_page('applist', response, layout='default')
 
     def play(self, game, command):
         logging.info('game: %s command: %s', game, command)
