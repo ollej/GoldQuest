@@ -33,7 +33,7 @@ from GoldFrame.DataStoreDataHandler import DataStoreDataHandler
 from Assassin import Assassin
 
 class DSAssassin(db.Model):
-    name = db.StringProperty(required=True)
+    name = db.StringProperty(default="")
     health = db.IntegerProperty(default=0)
     strength = db.IntegerProperty(default=0)
     hurt = db.IntegerProperty(default=0)

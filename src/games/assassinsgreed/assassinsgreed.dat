@@ -115,7 +115,7 @@ texts:
   healed:
     - "%(name)s is fully healed."
     - After drinking a health potion, %(name)s is healed.
-  alreadyhealed:
+  already_healed:
     - "%(name)s is already fully healed."
     - "%(name)s is already at full health."
   climbs:
@@ -163,4 +163,7 @@ texts:
     - "%(name)s bought %(amount)d %(item)s."
   no_money:
     - "%(name)s doesn't have enough money to buy %(amount)d %(item)s."
+  no_potions:
+    - "%(name)s doesn't have any potions to heal with."
+    - "You need to buy more potions to heal."
 

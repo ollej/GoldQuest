@@ -318,7 +318,7 @@ class Game(GoldFrame.GamePlugin):
         response = None
         actionbuttons = None
         if command in ['reroll']:
-            response = self.action_reroll()
+            response = self.action_reroll(arguments)
             actionbuttons = self._alive_actions
         elif not self.assassin or not self.assassin.alive:
             msg = self.get_text('nochampion')
@@ -361,6 +361,7 @@ class Game(GoldFrame.GamePlugin):
             self.assassin = Assassin(self._gamedata['assassin'], userid=self._userid)
             self.assassin.reroll()
             attribs = self.assassin.get_attributes()
+            logging.info(attribs)
             msg = self.get_text('newassassin')
             try:
                 msg = msg % attribs
@@ -445,13 +446,16 @@ class Game(GoldFrame.GamePlugin):
 
     def action_heal(self, arguments):
         healed = self.assassin.heal()
-        if healed:
+        if healed > 0:
             if self.assassin.hurt:
                 healmsg = self.get_text('heals')
             else:
                 healmsg = self.get_text('healed')
+        elif healed == -1:
+            healmsg = self.get_text('no_potions')
+            healed = 0
         else:
-            healmsg = self.get_text('alreadyhealed')
+            healmsg = self.get_text('already_healed')
         attribs = self.assassin.get_attributes()
         attribs['healed'] = healed
         msg = healmsg % attribs
@@ -465,6 +469,7 @@ class Game(GoldFrame.GamePlugin):
                     'health': attribs['health'],
                     'hurt': attribs['hurt'],
                     'alive': attribs['alive'],
+                    'potions': attribs['potions'],
                 }
             }
         }

@@ -109,13 +109,16 @@ class Assassin(object):
         return (self.alive, hurt_in_fight)
 
     def heal(self):
-        if self.hurt > 0:
-            heal = self.roll(10)
-            if heal > self.hurt:
-                heal = self.hurt
-            self.hurt = self.hurt - heal
-            return heal
-        return 0
+        if not self.hurt:
+            return 0
+        if self.potions == 0:
+            return -1
+        heal = self.roll(10)
+        if heal > self.hurt:
+            heal = self.hurt
+        self.hurt -= heal
+        self.potions -= 1
+        return heal
 
     def climb(self):
         self.towers += 1
