@@ -62,7 +62,8 @@ class Target(object):
 
     def drop_loot(self):
         gold = 0
-        max_gold = int(self._original_health / 10)
+        max_gold = int(self._original_health / 5)
         if max_gold > 0:
             gold = random.randint(1, max_gold)
         return gold
+
