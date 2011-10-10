@@ -77,7 +77,8 @@ class WebHandler(PageHandler):
         template_values = {}
         (pagename, ext) = self.parse_pagename(page)
         if not pagename or pagename == 'index':
-            self.show_page('index')
+            template_values = { 'game': self.get_gamekey() }
+            self.show_page('index', template_values)
         else:
             func_name = 'page_%s' % pagename
             logging.debug('loading page: %s' % func_name)
