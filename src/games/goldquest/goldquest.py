@@ -239,7 +239,7 @@ class Game(GoldFrame.GamePlugin):
             rest = ""
         rest = rest.strip()
         if command in ['reroll']:
-            response = self.reroll()
+            response = self.action_reroll()
             return self.return_response(response, asdict, self._alive_actions)
         if not self.hero or not self.hero.alive:
             msg = self.get_text('nochampion')
@@ -249,15 +249,15 @@ class Game(GoldFrame.GamePlugin):
             }
             return self.return_response(response, asdict, self._dead_actions)
         if command in ['rest', 'vila']:
-            response = self.rest()
+            response = self.action_rest()
         elif command in ['fight', 'kill', 'slay', u'slåss']:
-            response = self.fight()
+            response = self.action_fight()
         elif command in ['deeper', 'down', 'descend', 'vidare']:
-            response = self.go_deeper(rest)
+            response = self.action_deeper(rest)
         elif command in ['loot', 'search', u'sök', 'finna']:
-            response = self.search_treasure()
+            response = self.action_loot()
         elif command in ['charsheet', 'stats', u'formulär']:
-            response = self.show_charsheet()
+            response = self.action_stats()
         else:
             return None
         self.save_data()
@@ -286,7 +286,7 @@ class Game(GoldFrame.GamePlugin):
             level._boss = random.choice(self._gamedata['boss'])
         return level
 
-    def reroll(self):
+    def action_reroll(self):
         if self.hero and self.hero.alive:
             response = {
                 'message': self.get_text('noreroll') % self.hero.get_attributes(),
@@ -320,7 +320,7 @@ class Game(GoldFrame.GamePlugin):
             }
             return response
 
-    def search_treasure(self):
+    def action_loot(self):
         #loot = self.hero.search_treasure()
         loot = 0
         msg = ''
@@ -401,7 +401,7 @@ class Game(GoldFrame.GamePlugin):
                 }
                 return response
 
-    def rest(self):
+    def action_rest(self):
         # If there are monsters alive on the level, there is a
         # risk of a sneak attack while resting.
         response = self.sneak_attack()
@@ -431,13 +431,19 @@ class Game(GoldFrame.GamePlugin):
         }
         return response
 
-    def go_deeper(self, levels=1):
+    def action_deeper(self, levels=1):
         try:
             levels = int(levels)
         except ValueError:
             levels = 1
         if levels > 10:
             levels = 10
+        if self.level.has_monsters():
+            response = {
+                'message': self.get_text('level_not_cleared') % self.hero.get_attributes(),
+                'success': 0,
+            }
+            return response
         depth = self.hero.go_deeper(levels)
         self.level = self.get_level(depth)
         msg = self.level._text or self.get_text('deeper')
@@ -453,8 +459,11 @@ class Game(GoldFrame.GamePlugin):
         }
         return response
 
-    def fight(self):
+    def action_fight(self):
         monster = self.get_monster(self.level.depth)
+        return self.fight_monster(monster)
+
+    def fight_monster(self, monster):
         if not monster:
             msg = self.get_text('nomonsters')
             response = {
@@ -496,7 +505,7 @@ class Game(GoldFrame.GamePlugin):
         }
         return response
 
-    def show_charsheet(self):
+    def action_stats(self):
         msg = self.get_text('charsheet')
         attribs = self.hero.get_attributes()
         msg = msg % attribs

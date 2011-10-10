@@ -893,3 +893,9 @@ texts:
     - Poor %(name)s was attacked while resting and didn't survive.
     - "%(monster_name)s sneaks up on %(name)s while resting and kills the hero."
     - "%(name)s is killed while resting by %(monster_name)s."
+  level_not_cleared:
+    - The level must be cleared before %(name)s can go deeper.
+    - "%(name)s can't go deeper until all monsters on the level have been killed."
+    - There are still monsters that need to be slayed on this level.
+    - "%(name)s refuses to go deeper since there are still monsters on this level."
+
