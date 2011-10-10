@@ -101,6 +101,10 @@ class WebHandler(PageHandler):
         # Create game instance.
         gamekey = self.get_gamekey()
 
+        if gamekey not in GoldFrame.get_games():
+            self.response.set_status(404)
+            return
+
         game = GoldFrame.create_game(gamekey, memcache.Client())
 
         values = {
@@ -108,6 +112,7 @@ class WebHandler(PageHandler):
             'template_charsheet': game.template_charsheet(),
             'template_actionline': game.template_actionline(),
             'template_actionbutton': game.template_actionbutton(),
+            'template_extrainfo': game.template_extrainfo(),
             'actions': game.metadata['actions'],
         }
 

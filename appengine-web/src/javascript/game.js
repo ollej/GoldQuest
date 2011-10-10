@@ -27,7 +27,8 @@ $(document).ready(function() {
             templates = {
                 'actionline': getTemplate('actionline'),
                 'actionbutton': getTemplate('actionbutton'),
-                'charsheet': getTemplate('charsheet')
+                'charsheet': getTemplate('charsheet'),
+                'extrainfo': getTemplate('extrainfo')
             };
             //log('Read templates:', templates);
         }
@@ -125,7 +126,7 @@ $(document).ready(function() {
     }
 
     function getActionHtml(data) {
-        var line, cls, info = '', extraInfo = '', extraCls = '';
+        var line, cls, info = '', extraInfo = '', extraCls = '', extraInfoTmpl = '';
         cls = getActionClass(data['command']);
         if (!data['channel_message']) {
             cls += ' ownAction';
@@ -133,25 +134,21 @@ $(document).ready(function() {
         log('data', data);
 
         // Gather extra info.
-        // FIXME: Need to be dynamic per game.
-        if (data && data['data'] && data['data']['hurt_in_fight']) {
-            extraInfo = 'Hurt: -' + data['data']['hurt_in_fight'];
-            extraCls = 'hurtInfo';
-        } else if (data && data['data'] && data['data']['hurt_by_trap']) {
-            extraInfo = 'Hurt: -' + data['data']['hurt_by_trap'];
-            extraCls = 'hurtInfo';
-        } else if (data && data['data'] && data['data']['rested']) {
-            extraInfo = 'Rest: +' + data['data']['rested'];
-            extraCls = 'restInfo';
-        } else if (data && data['data'] && data['data']['loot']) {
-            extraInfo = 'Loot: ' + data['data']['loot']
-            extraCls = 'lootInfo';
-        } else if (data && data['data'] && data['data']['hero'] && data['data']['hero']['level']) {
-            extraInfo = 'Level: ' + data['data']['hero']['level']
-            extraCls = 'levelInfo';
-        }
-        if (extraInfo) {
-            extraInfo = '<span class="extraInfo ' + extraCls + '"> ' + extraInfo + '</span>';
+        //extraInfoTmpl = '<span class="extraInfo [[ cls ]]"[[ style ]]> [[ name ]]: [[ value ]]</span>';
+        if (data && data['data'] && data['data']['extra_info']) {
+            $.each(data['data']['extra_info'], function(k, v) {
+                var extraInfoMetadata, values = { 'value': v, cls: '' };
+                if (v && metadata['extra_info'] && metadata['extra_info'][k]) {
+                    values = $.extend(values, metadata['extra_info'][k]);
+                    /*
+                    if (values['style']) {
+                        values['style'] = ' style="' + values['style'] + '"';
+                    }
+                    */
+                    log('extrainfo template:', getTemplates().extrainfo, values);
+                    extraInfo += $.tache(getTemplates().extrainfo, values);
+                }
+            });
         }
 
         // Create html

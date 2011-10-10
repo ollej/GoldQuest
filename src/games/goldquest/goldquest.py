@@ -164,6 +164,32 @@ class Game(GoldFrame.GamePlugin):
                 'description': '',
             },
         ],
+        'extra_info': {
+            'hurt_in_fight': {
+                'name': 'Hurt',
+                'cls': 'hurtInfo',
+            },
+            'hurt_by_trap': {
+                'name': 'Hurt',
+                'cls': 'hurtInfo',
+            },
+            'rested': {
+                'name': 'Rested',
+                'cls': 'restInfo',
+            },
+            'loot': {
+                'name': 'Loot',
+                'cls': 'lootInfo',
+            },
+            'level': {
+                'name': 'Level',
+                'cls': 'levelInfo',
+            },
+            'dinged': {
+                'name': 'Dinged',
+                'style': 'color: teal',
+            },
+        },
     }
 
     def setup(self):
@@ -327,7 +353,9 @@ class Game(GoldFrame.GamePlugin):
         response = {
             'message': msg,
             'data': {
-                'loot': loot,
+                'extra_info': {
+                    'loot': loot,
+                },
                 'hero': {
                 }
             }
@@ -339,7 +367,7 @@ class Game(GoldFrame.GamePlugin):
                 msg = self.get_text('foundloot')
                 # Should be a method on Hero
                 self.hero.gold = self.hero.gold + loot
-                response['data']['loot'] = loot
+                response['data']['extra_info']['loot'] = loot
                 attribs['loot'] = loot
                 attribs['gold'] = self.hero.gold
                 response['data']['hero']['gold'] = self.hero.gold
@@ -347,7 +375,7 @@ class Game(GoldFrame.GamePlugin):
                 attribs['hurt_by_trap'] = abs(loot)
                 self.hero.injure(attribs['hurt_by_trap'])
                 msg = self.get_text('foundtrap')
-                response['data']['hurt_by_trap'] = attribs['hurt_by_trap']
+                response['data']['extra_info']['hurt_by_trap'] = attribs['hurt_by_trap']
                 response['data']['hero']['hurt'] = self.hero.hurt
                 response['data']['hero']['health'] = self.hero.health
             else:
@@ -381,8 +409,10 @@ class Game(GoldFrame.GamePlugin):
                     'message': msg,
                     'success': 0,
                     'data': {
-                        'hurt_in_fight': hurt_in_fight,
-                        'rested': 0,
+                        'extra_info': {
+                            'hurt_in_fight': hurt_in_fight,
+                            'rested': 0,
+                        },
                         'hero': {
                             'hurt': attribs['hurt'],
                             'health': attribs['health'],
@@ -421,7 +451,9 @@ class Game(GoldFrame.GamePlugin):
         response = {
             'message': msg,
             'data': {
-                'rested': attribs['rested'],
+                'extra_info': {
+                    'rested': attribs['rested'],
+                },
                 'hero': {
                     'health': attribs['health'],
                     'hurt': attribs['hurt'],
@@ -452,6 +484,9 @@ class Game(GoldFrame.GamePlugin):
         response = {
             'message': msg,
             'data': {
+                'extra_info': {
+                    'level': attribs['level'],
+                },
                 'hero': {
                     'level': attribs['level'],
                 }
@@ -485,7 +520,9 @@ class Game(GoldFrame.GamePlugin):
         response = {
             'message': msg,
             'data': {
-                'hurt_in_fight': hurt_in_fight,
+                'extra_info': {
+                    'hurt_in_fight': hurt_in_fight,
+                },
                 'hero': {
                     'health': attribs['health'],
                     'hurt': attribs['hurt'],

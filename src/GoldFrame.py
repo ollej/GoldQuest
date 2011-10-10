@@ -140,6 +140,14 @@ class GamePlugin(object):
     <div id="[[ key ]]Div" class="taskDiv [[ button ]]State"><button id="[[ key ]]Btn" name="[[ key ]]" class="commandBtn" style="background: url([[ img ]]) no-repeat center center"><a href="#[[ key ]]Task" class="taskHover"><img src="/images/icon-hover.png" width="32" height="32" alt="[[ name ]]" title="[[ description ]]" style="visibility: hidden" /></a></button></div>
         """
 
+    def template_extrainfo(self):
+        """
+        Override this method and return the html to display extraInfo values after the action line message.
+        """
+        return """
+        <span class="extraInfo [[ cls ]]" style="[[ style ]]"> [[ name ]]: [[ value ]]</span>
+        """
+
     def get_metadata(self):
         """
         Returns the game metadata.

@@ -234,6 +234,44 @@ class Game(GoldFrame.GamePlugin):
                 'description': '',
             },
         ],
+        'extra_info': {
+            'hurt_in_fight': {
+                'name': 'Hurt',
+                'cls': 'hurtInfo',
+            },
+            'hurt_by_action': {
+                'name': 'Hurt',
+                'cls': 'hurtInfo',
+            },
+            'healed': {
+                'name': 'Healed',
+                'cls': 'restInfo',
+            },
+            'gold': {
+                'name': 'Gold',
+                'cls': 'lootInfo',
+            },
+            'towers': {
+                'name': 'Towers',
+                'style': 'color: #351E00',
+            },
+            'feathers': {
+                'name': 'Feathers',
+                'style': 'color: #666',
+            },
+            'dinged': {
+                'name': 'Dinged',
+                'style': 'color: teal',
+            },
+            'item': {
+                'name': 'Item',
+                'style': 'color: green',
+            },
+            'total_price': {
+                'name': 'Price',
+                'style': 'color: mediumorchid',
+            },
+        },
     }
     _items = {
         'Potion': { 'key': 'potions', 'price': 10 },
@@ -244,7 +282,6 @@ class Game(GoldFrame.GamePlugin):
 
     def template_charsheet(self):
         return """
-        <img src="/images/icon-stats.png" class="statsImage" style="float: left" width="32" height="32" alt="Stats" title="Stats" />
         <h1 id="nameValue" class="nameValue">[[ name ]]</h1>
         <ul class="charsheetList">
           <li class="statItem" id="strengthStatDiv"><img src="/images/tiny-icon-strength.png" width="16" height="16" alt="Strength" title="Strength" /><span class="statValue" id="strengthValue">[[ strength ]]</span></li>
@@ -253,6 +290,7 @@ class Game(GoldFrame.GamePlugin):
           <li class="statItem" id="assassinationsStatDiv"><img src="/images/tiny-icon-assassinations.png" width="16" height="16" alt="Assassinations" title="Assassinations" /><span class="statValue" id="assassinationsValue">[[ assassinations ]]</span></li>
           <li class="statItem" id="killsStatDiv"><img src="/images/tiny-icon-kills.png" width="16" height="16" alt="Kills" title="Kills" /><span class="statValue" id="killsValue">[[ kills ]]</span></li>
           <li class="statItem" id="feathersStatDiv"><img src="/images/tiny-icon-feathers.png" width="16" height="16" alt="Feathers" title="Feathers" /><span class="statValue" id="feathersValue">[[ feathers ]]</span></li>
+          <li class="statItem" id="goldStatDiv"><img src="/images/tiny-icon-gold.png" width="16" height="16" alt="Gold" title="Gold" /><span class="statValue" id="lootValue">[[ gold ]]</span></li>
         </ul>
         """
 
@@ -433,8 +471,10 @@ class Game(GoldFrame.GamePlugin):
         if luck > 8:
             msg = self.get_text('foundfeathers')
             # Should be a method on assassin
-            response['data']['hero']['feathers'] = self.assassin.collect()
-            response['data']['extra_info']['feathers'] = 1
+            feathers = self.assassin.collect()
+            response['data']['hero']['feathers'] = feathers
+            response['data']['extra_info']['feathers'] = feathers
+            response['data']['extra_info']['collected'] = 1
             attribs['feathers'] = 1
         elif luck > 3:
             msg = self.get_text('nofeathers')
@@ -494,6 +534,7 @@ class Game(GoldFrame.GamePlugin):
             'data': {
                 'extra_info': {
                     'climbed': climbed,
+                    'towers': attribs['towers'],
                     'hurt_by_action': hurt_by_action,
                 },
                 'hero': {
