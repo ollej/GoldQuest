@@ -19,12 +19,33 @@ handlers:
 - url: /favicon\.ico
   static_files: images/favicon.ico
   upload: images/favicon\.ico
-- url: /stylesheets
-  static_dir: stylesheets
-- url: /javascript
-  static_dir: javascript
-- url: /images
-  static_dir: images
+- url: /images/goldframe/(.+)
+  static_files: images/\1
+  upload: images/.+
+- url: /stylesheets/goldframe/(.+)
+  static_files: stylesheets/\1
+  upload: stylesheets/.+
+- url: /javascript/goldframe/(.+)
+  static_files: javascript/\1
+  upload: javascript/.+
+- url: /stylesheets/(.+)/(.+)
+  static_files: GoldFrame/games/\1/stylesheets/\2
+  upload: GoldFrame/games/.+/stylesheets/.+\.css
+- url: /javascript/(.+)/(.+)
+  static_files: GoldFrame/games/\1/javascript/\2
+  upload: GoldFrame/games/.+/javascript/.+\.js
+- url: /images/(.+)/(.+)
+  static_files: GoldFrame/games/\1/images/\2
+  upload: GoldFrame/games/.+/images/.+
+- url: /stylesheets/(.+)
+  static_files: stylesheets/\1
+  upload: stylesheets/.+
+- url: /javascript/(.+)
+  static_files: javascript/\1
+  upload: javascript/.+
+- url: /images/(.+)
+  static_files: images/\1
+  upload: images/.+
 - url: /api/.*
   script: main.py
 - url: /game/goldquest/.*
