@@ -89,8 +89,8 @@ class Game(GoldFrame.GamePlugin):
                 'key': 'click',
                 'name': 'Click goat',
                 'description': 'Click goat',
-                'img': 'images/icon-goat.png',
-                'tinyimg': 'images/icon-goat.png',
+                'img': 'images/goatclicker/icon-goat.png',
+                'tinyimg': 'images/goatclicker/icon-goat.png',
                 'color': '#C30017',
             },
             {
@@ -104,7 +104,7 @@ class Game(GoldFrame.GamePlugin):
                 'description': 'Happy goats',
             },
         ],
-        'stats_img': 'images/icon-goat.png',
+        'stats_img': 'images/goatclicker/icon-goatclicker.png',
         'stats': [
             {
                 'key': 'name',

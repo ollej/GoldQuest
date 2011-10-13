@@ -137,7 +137,7 @@ class GamePlugin(object):
         Override this method and return the html to use to display an action button.
         """
         return """
-    <div id="[[ key ]]Div" class="taskDiv [[ button ]]State"><button id="[[ key ]]Btn" name="[[ key ]]" class="commandBtn" style="background: url([[ img ]]) no-repeat center center"><a href="#[[ key ]]Task" class="taskHover"><img src="/images/icon-hover.png" width="32" height="32" alt="[[ name ]]" title="[[ description ]]" style="visibility: hidden" /></a></button></div>
+    <div id="[[ key ]]Div" class="taskDiv [[ button ]]State"><button id="[[ key ]]Btn" name="[[ key ]]" class="commandBtn" style="background: url([[ img ]]) no-repeat center center"><a href="#[[ key ]]Task" class="taskHover"><img src="/images/goldframe/icon-hover.png" width="32" height="32" alt="[[ name ]]" title="[[ description ]]" style="visibility: hidden" /></a></button></div>
         """
 
     def template_extrainfo(self):

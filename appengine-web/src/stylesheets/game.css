@@ -80,23 +80,23 @@ html, body {
 }
 
 #actionList li.actionFight {
-  list-style: none inside url(../images/tiny-icon-fight.png);
+  list-style: none inside url(../images/goldquest/tiny-icon-fight.png);
 }
 
 #actionList li.actionLoot {
-  list-style: none inside url(../images/tiny-icon-gold.png);
+  list-style: none inside url(../images/goldquest/tiny-icon-gold.png);
 }
 
 #actionList li.actionDeeper {
-  list-style: none inside url(../images/tiny-icon-level.png);
+  list-style: none inside url(../images/goldquest/tiny-icon-level.png);
 }
 
 #actionList li.actionRest {
-  list-style: none inside url(../images/tiny-icon-health.png);
+  list-style: none inside url(../images/goldquest/tiny-icon-health.png);
 }
 
 #actionList li.actionReroll {
-  list-style: none inside url(../images/tiny-icon-reroll.png);
+  list-style: none inside url(../images/goldquest/tiny-icon-reroll.png);
 }
 
 #actionList li.ownAction {
@@ -164,7 +164,7 @@ html, body {
 }
 
 .taskHover:hover {
-  background: url(/images/icon-hover.png) no-repeat center center;
+  background: url(/images/goldframe/icon-hover.png) no-repeat center center;
 }
 
 .argumentDialog {

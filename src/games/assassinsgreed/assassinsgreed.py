@@ -62,8 +62,8 @@ class Game(GoldFrame.GamePlugin):
                 'key': 'assassinate',
                 'name': 'Assassinate',
                 'description': 'Find a villain to assassinate.',
-                'img': '/images/icon-assassinate.png',
-                'tinyimg': '/images/tiny-icon-assassination.png',
+                'img': '/images/assassinsgreed/icon-assassinate.png',
+                'tinyimg': '/images/assassinsgreed/tiny-icon-assassination.png',
                 'color': '#C30017',
                 'button': 'active',
             },
@@ -71,8 +71,8 @@ class Game(GoldFrame.GamePlugin):
                 'key': 'fight',
                 'name': 'Fight',
                 'description': 'Find a villain to assassinate.',
-                'img': '/images/icon-fight.png',
-                'tinyimg': '/images/tiny-icon-fight.png',
+                'img': '/images/assassinsgreed/icon-fight.png',
+                'tinyimg': '/images/assassinsgreed/tiny-icon-fight.png',
                 'color': '#C30017',
                 'button': 'active',
             },
@@ -80,8 +80,8 @@ class Game(GoldFrame.GamePlugin):
                 'key': 'heal',
                 'name': 'Heal',
                 'description': 'Heal to regain some health.',
-                'img': '/images/icon-rest.png',
-                'tinyimg': '/images/tiny-icon-health.png',
+                'img': '/images/assassinsgreed/icon-rest.png',
+                'tinyimg': '/images/assassinsgreed/tiny-icon-health.png',
                 'color': '#004C7B',
                 'button': 'active',
             },
@@ -89,8 +89,8 @@ class Game(GoldFrame.GamePlugin):
                 'key': 'buy',
                 'name': 'Buy',
                 'description': 'Buy items from a local merchant.',
-                'img': '/images/icon-buy.png',
-                'tinyimg': '/images/tiny-icon-buy.png',
+                'img': '/images/assassinsgreed/icon-buy.png',
+                'tinyimg': '/images/assassinsgreed/tiny-icon-buy.png',
                 'color': '#C30017',
                 'button': 'active',
                 'arguments': [
@@ -113,8 +113,8 @@ class Game(GoldFrame.GamePlugin):
                 'key': 'collect',
                 'name': 'Collect Feathers',
                 'description': 'Search for feathers.',
-                'img': '/images/icon-collect.png',
-                'tinyimg': '/images/tiny-icon-feathers.png',
+                'img': '/images/assassinsgreed/icon-collect.png',
+                'tinyimg': '/images/assassinsgreed/tiny-icon-feathers.png',
                 'color': '#E9B700',
                 'button': 'active',
             },
@@ -122,8 +122,8 @@ class Game(GoldFrame.GamePlugin):
                 'key': 'climb',
                 'name': 'Climb',
                 'description': 'Climb a tower in the city.',
-                'img': '/images/icon-climb.png',
-                'tinyimg': '/images/tiny-icon-towers.png',
+                'img': '/images/assassinsgreed/icon-climb.png',
+                'tinyimg': '/images/assassinsgreed/tiny-icon-towers.png',
                 'color': '#351E00',
                 'button': 'active',
             },
@@ -131,8 +131,8 @@ class Game(GoldFrame.GamePlugin):
                 'key': 'reroll',
                 'name': 'Reroll',
                 'description': 'Reroll a new assassin if the current is dead.',
-                'img': '/images/icon-reroll.png',
-                'tinyimg': '/images/tiny-icon-reroll.png',
+                'img': '/images/assassinsgreed/icon-reroll.png',
+                'tinyimg': '/images/assassinsgreed/tiny-icon-reroll.png',
                 'button': 'button',
             },
             {
@@ -142,7 +142,7 @@ class Game(GoldFrame.GamePlugin):
                 'button': 'hidden',
             },
         ],
-        'stats_img': '/images/icon-stats.png',
+        'stats_img': '/images/assassinsgreed/icon-stats.png',
         'stats': [
             {
                 'key': 'name',
@@ -155,77 +155,77 @@ class Game(GoldFrame.GamePlugin):
                 'name': 'Strength',
                 'description': '',
                 'type': 'integer',
-                'img': '/images/tiny-icon-strength.png',
+                'img': '/images/assassinsgreed/tiny-icon-strength.png',
             },
             {
                 'key': 'health',
                 'name': 'Health',
                 'description': '',
                 'type': 'integer',
-                'img': '/images/tiny-icon-health.png',
+                'img': '/images/assassinsgreed/tiny-icon-health.png',
             },
             {
                 'key': 'hurt',
                 'name': 'Hurt',
                 'description': '',
                 'type': 'integer',
-                'img': '/images/tiny-icon-hurt.png',
+                'img': '/images/assassinsgreed/tiny-icon-hurt.png',
             },
             {
                 'key': 'towers',
                 'name': 'Towers',
                 'description': '',
                 'type': 'integer',
-                'img': '/images/tiny-icon-towers.png',
+                'img': '/images/assassinsgreed/tiny-icon-towers.png',
             },
             {
                 'key': 'kills',
                 'name': 'Kills',
                 'description': '',
                 'type': 'integer',
-                'img': '/images/tiny-icon-kills.png',
+                'img': '/images/assassinsgreed/tiny-icon-kills.png',
             },
             {
                 'key': 'assassinations',
                 'name': 'Assassinations',
                 'description': '',
                 'type': 'integer',
-                'img': '/images/tiny-icon-assassinations.png',
+                'img': '/images/assassinsgreed/tiny-icon-assassinations.png',
             },
             {
                 'key': 'feathers',
                 'name': 'Feathers',
                 'description': '',
                 'type': 'integer',
-                'img': '/images/tiny-icon-feathers.png',
+                'img': '/images/assassinsgreed/tiny-icon-feathers.png',
             },
             {
                 'key': 'potions',
                 'name': 'Potions',
                 'description': 'Health potions.',
                 'type': 'integer',
-                'img': '/images/tiny-icon-potions.png',
+                'img': '/images/assassinsgreed/tiny-icon-potions.png',
             },
             {
                 'key': 'smokebombs',
                 'name': 'Smokebombs',
                 'description': 'Smokebombs',
                 'type': 'integer',
-                'img': '/images/tiny-icon-smokebombs.png',
+                'img': '/images/assassinsgreed/tiny-icon-smokebombs.png',
             },
             {
                 'key': 'splinterbombs',
                 'name': 'Splinterbombs',
                 'description': 'Splinterbombs',
                 'type': 'integer',
-                'img': '/images/tiny-icon-splinterbombs.png',
+                'img': '/images/assassinsgreed/tiny-icon-splinterbombs.png',
             },
             {
                 'key': 'daggers',
                 'name': 'Daggers',
                 'description': 'Daggers',
                 'type': 'integer',
-                'img': '/images/tiny-icon-daggers.png',
+                'img': '/images/assassinsgreed/tiny-icon-daggers.png',
             },
             {
                 'key': 'alive',
@@ -284,13 +284,13 @@ class Game(GoldFrame.GamePlugin):
         return """
         <h1 id="nameValue" class="nameValue">[[ name ]]</h1>
         <ul class="charsheetList">
-          <li class="statItem" id="strengthStatDiv"><img src="/images/tiny-icon-strength.png" width="16" height="16" alt="Strength" title="Strength" /><span class="statValue" id="strengthValue">[[ strength ]]</span></li>
-          <li class="statItem" id="healthStatDiv"><img src="/images/tiny-icon-health.png" width="16" height="16" alt="Health" title="Health" /><span class="statValue" id="hurthealthValue">[[ current_health ]]/[[ health ]]</span></li>
-          <li class="statItem" id="towersStatDiv"><img src="/images/tiny-icon-towers.png" width="16" height="16" alt="Towers" title="Towers" /><span class="statValue" id="towersValue">[[ towers ]]</span></li>
-          <li class="statItem" id="assassinationsStatDiv"><img src="/images/tiny-icon-assassinations.png" width="16" height="16" alt="Assassinations" title="Assassinations" /><span class="statValue" id="assassinationsValue">[[ assassinations ]]</span></li>
-          <li class="statItem" id="killsStatDiv"><img src="/images/tiny-icon-kills.png" width="16" height="16" alt="Kills" title="Kills" /><span class="statValue" id="killsValue">[[ kills ]]</span></li>
-          <li class="statItem" id="feathersStatDiv"><img src="/images/tiny-icon-feathers.png" width="16" height="16" alt="Feathers" title="Feathers" /><span class="statValue" id="feathersValue">[[ feathers ]]</span></li>
-          <li class="statItem" id="goldStatDiv"><img src="/images/tiny-icon-gold.png" width="16" height="16" alt="Gold" title="Gold" /><span class="statValue" id="lootValue">[[ gold ]]</span></li>
+          <li class="statItem" id="strengthStatDiv"><img src="/images/assassinsgreed/tiny-icon-strength.png" width="16" height="16" alt="Strength" title="Strength" /><span class="statValue" id="strengthValue">[[ strength ]]</span></li>
+          <li class="statItem" id="healthStatDiv"><img src="/images/assassinsgreed/tiny-icon-health.png" width="16" height="16" alt="Health" title="Health" /><span class="statValue" id="hurthealthValue">[[ current_health ]]/[[ health ]]</span></li>
+          <li class="statItem" id="towersStatDiv"><img src="/images/assassinsgreed/tiny-icon-towers.png" width="16" height="16" alt="Towers" title="Towers" /><span class="statValue" id="towersValue">[[ towers ]]</span></li>
+          <li class="statItem" id="assassinationsStatDiv"><img src="/images/assassinsgreed/tiny-icon-assassinations.png" width="16" height="16" alt="Assassinations" title="Assassinations" /><span class="statValue" id="assassinationsValue">[[ assassinations ]]</span></li>
+          <li class="statItem" id="killsStatDiv"><img src="/images/assassinsgreed/tiny-icon-kills.png" width="16" height="16" alt="Kills" title="Kills" /><span class="statValue" id="killsValue">[[ kills ]]</span></li>
+          <li class="statItem" id="feathersStatDiv"><img src="/images/assassinsgreed/tiny-icon-feathers.png" width="16" height="16" alt="Feathers" title="Feathers" /><span class="statValue" id="feathersValue">[[ feathers ]]</span></li>
+          <li class="statItem" id="goldStatDiv"><img src="/images/assassinsgreed/tiny-icon-gold.png" width="16" height="16" alt="Gold" title="Gold" /><span class="statValue" id="lootValue">[[ gold ]]</span></li>
         </ul>
         """
 

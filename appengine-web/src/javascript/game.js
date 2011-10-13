@@ -134,17 +134,11 @@ $(document).ready(function() {
         log('data', data);
 
         // Gather extra info.
-        //extraInfoTmpl = '<span class="extraInfo [[ cls ]]"[[ style ]]> [[ name ]]: [[ value ]]</span>';
         if (data && data['data'] && data['data']['extra_info']) {
             $.each(data['data']['extra_info'], function(k, v) {
                 var extraInfoMetadata, values = { 'value': v, cls: '' };
                 if (v && metadata['extra_info'] && metadata['extra_info'][k]) {
                     values = $.extend(values, metadata['extra_info'][k]);
-                    /*
-                    if (values['style']) {
-                        values['style'] = ' style="' + values['style'] + '"';
-                    }
-                    */
                     log('extrainfo template:', getTemplates().extrainfo, values);
                     extraInfo += $.tache(getTemplates().extrainfo, values);
                 }

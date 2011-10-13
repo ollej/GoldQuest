@@ -60,8 +60,8 @@ class Game(GoldFrame.GamePlugin):
                 'key': 'fight',
                 'name': 'Fight',
                 'description': 'Find a monster and fight it.',
-                'img': 'images/icon-fight.png',
-                'tinyimg': 'images/tiny-icon-fight.png',
+                'img': 'images/goldquest/icon-fight.png',
+                'tinyimg': 'images/goldquest/tiny-icon-fight.png',
                 'color': '#C30017',
                 'button': 'active',
             },
@@ -69,8 +69,8 @@ class Game(GoldFrame.GamePlugin):
                 'key': 'rest',
                 'name': 'Rest',
                 'description': 'Rest to regain some health.',
-                'img': 'images/icon-rest.png',
-                'tinyimg': 'images/tiny-icon-health.png',
+                'img': 'images/goldquest/icon-rest.png',
+                'tinyimg': 'images/goldquest/tiny-icon-health.png',
                 'color': '#004C7B',
                 'button': 'active',
             },
@@ -78,8 +78,8 @@ class Game(GoldFrame.GamePlugin):
                 'key': 'loot',
                 'name': 'Loot',
                 'description': 'Search for gold.',
-                'img': 'images/icon-loot.png',
-                'tinyimg': 'images/tiny-icon-gold.png',
+                'img': 'images/goldquest/icon-loot.png',
+                'tinyimg': 'images/goldquest/tiny-icon-gold.png',
                 'color': '#E9B700',
                 'button': 'active',
             },
@@ -87,8 +87,8 @@ class Game(GoldFrame.GamePlugin):
                 'key': 'deeper',
                 'name': 'Deeper',
                 'description': 'Descend deeper into the dungeon.',
-                'img': 'images/icon-deeper.png',
-                'tinyimg': 'images/tiny-icon-level.png',
+                'img': 'images/goldquest/icon-deeper.png',
+                'tinyimg': 'images/goldquest/tiny-icon-level.png',
                 'color': '#351E00',
                 'button': 'active',
             },
@@ -96,8 +96,8 @@ class Game(GoldFrame.GamePlugin):
                 'key': 'reroll',
                 'name': 'Reroll',
                 'description': 'Reroll a new hero if the current is dead..',
-                'img': 'images/icon-reroll.png',
-                'tinyimg': 'images/tiny-icon-reroll.png',
+                'img': 'images/goldquest/icon-reroll.png',
+                'tinyimg': 'images/goldquest/tiny-icon-reroll.png',
                 'button': 'hidden',
             },
             {
@@ -107,7 +107,7 @@ class Game(GoldFrame.GamePlugin):
                 'button': 'hidden',
             },
         ],
-        'stats_img': 'images/icon-stats.png',
+        'stats_img': 'images/goldquest/icon-stats.png',
         'stats': [
             {
                 'key': 'name',
@@ -120,42 +120,42 @@ class Game(GoldFrame.GamePlugin):
                 'name': 'Strength',
                 'description': '',
                 'type': 'integer',
-                'img': 'images/tiny-icon-strength.png',
+                'img': 'images/goldquest/tiny-icon-strength.png',
             },
             {
                 'key': 'health',
                 'name': 'Health',
                 'description': '',
                 'type': 'integer',
-                'img': 'images/tiny-icon-health.png',
+                'img': 'images/goldquest/tiny-icon-health.png',
             },
             {
                 'key': 'hurt',
                 'name': 'Hurt',
                 'description': '',
                 'type': 'integer',
-                'img': 'images/tiny-icon-hurt.png',
+                'img': 'images/goldquest/tiny-icon-hurt.png',
             },
             {
                 'key': 'level',
                 'name': 'Level',
                 'description': '',
                 'type': 'integer',
-                'img': 'images/tiny-icon-level.png',
+                'img': 'images/goldquest/tiny-icon-level.png',
             },
             {
                 'key': 'kills',
                 'name': 'Kills',
                 'description': '',
                 'type': 'integer',
-                'img': 'images/tiny-icon-kills.png',
+                'img': 'images/goldquest/tiny-icon-kills.png',
             },
             {
                 'key': 'gold',
                 'name': 'Gold',
                 'description': '',
                 'type': 'integer',
-                'img': 'images/tiny-icon-gold.png',
+                'img': 'images/goldquest/tiny-icon-gold.png',
             },
             {
                 'key': 'alive',
@@ -203,14 +203,14 @@ class Game(GoldFrame.GamePlugin):
         #path = os.path.join(os.path.dirname(__file__), 'extras', 'goldquest_template_charsheet.html')
         #return file(path,'r').read()
         return """
-        <img src="images/icon-stats.png" class="statsImage" style="float: left" width="32" height="32" alt="Stats" title="Stats" />
+        <img src="images/goldquest/icon-stats.png" class="statsImage" style="float: left" width="32" height="32" alt="Stats" title="Stats" />
         <h1 id="nameValue" class="nameValue">[[ name ]]</h1>
         <ul class="charsheetList">
-          <li class="statItem" id="strengthStatDiv"><img src="images/tiny-icon-strength.png" width="16" height="16" alt="Strength" title="Strength" /><span class="statValue" id="strengthValue">[[ strength ]]</span></li>
-          <li class="statItem" id="healthStatDiv"><img src="images/tiny-icon-health.png" width="16" height="16" alt="Health" title="Health" /><span class="statValue" id="hurthealthValue">[[ current_health ]]/[[ health ]]</span></li>
-          <li class="statItem" id="levelStatDiv"><img src="images/tiny-icon-level.png" width="16" height="16" alt="Level" title="Level" /><span class="statValue" id="levelValue">[[ level ]]</span></li>
-          <li class="statItem" id="killsStatDiv"><img src="images/tiny-icon-kills.png" width="16" height="16" alt="Kills" title="Kills" /><span class="statValue" id="killsValue">[[ kills ]]</span></li>
-          <li class="statItem" id="goldStatDiv"><img src="images/tiny-icon-gold.png" width="16" height="16" alt="Gold" title="Gold" /><span class="statValue" id="goldValue">[[ gold ]]</span></li>
+          <li class="statItem" id="strengthStatDiv"><img src="images/goldquest/tiny-icon-strength.png" width="16" height="16" alt="Strength" title="Strength" /><span class="statValue" id="strengthValue">[[ strength ]]</span></li>
+          <li class="statItem" id="healthStatDiv"><img src="images/goldquest/tiny-icon-health.png" width="16" height="16" alt="Health" title="Health" /><span class="statValue" id="hurthealthValue">[[ current_health ]]/[[ health ]]</span></li>
+          <li class="statItem" id="levelStatDiv"><img src="images/goldquest/tiny-icon-level.png" width="16" height="16" alt="Level" title="Level" /><span class="statValue" id="levelValue">[[ level ]]</span></li>
+          <li class="statItem" id="killsStatDiv"><img src="images/goldquest/tiny-icon-kills.png" width="16" height="16" alt="Kills" title="Kills" /><span class="statValue" id="killsValue">[[ kills ]]</span></li>
+          <li class="statItem" id="goldStatDiv"><img src="images/goldquest/tiny-icon-gold.png" width="16" height="16" alt="Gold" title="Gold" /><span class="statValue" id="goldValue">[[ gold ]]</span></li>
         </ul>
         """
 

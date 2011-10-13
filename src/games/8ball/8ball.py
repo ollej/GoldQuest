@@ -43,12 +43,12 @@ class Game(GoldFrame.GamePlugin):
                 'key': 'ask',
                 'name': 'Ask',
                 'description': 'Ask the magic 8-ball',
-                'img': 'images/icon-8ball.png',
-                'tinyimg': 'images/icon-8ball.png',
+                'img': 'images/8ball/icon-8ball.png',
+                'tinyimg': 'images/8ball/icon-8ball.png',
                 'color': '#C30017',
             },
         ],
-        'stats_img': 'images/icon-8ball.png',
+        'stats_img': 'images/8ball/icon-8ball.png',
         'stats': [
             {
                 'key': 'predictions',

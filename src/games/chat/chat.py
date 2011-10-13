@@ -43,8 +43,8 @@ class Game(GoldFrame.GamePlugin):
                 'key': 'chat',
                 'name': 'Chat',
                 'description': 'Send a chat message.',
-                'img': 'images/icon-chat.png',
-                'tinyimg': 'images/icon-chat.png',
+                'img': 'images/chat/icon-chat.png',
+                'tinyimg': 'images/chat/icon-chat.png',
                 'color': '#C30017',
                 'arguments': [
                     {
@@ -56,7 +56,7 @@ class Game(GoldFrame.GamePlugin):
                 ],
             },
         ],
-        'stats_img': 'images/icon-chat.png',
+        'stats_img': 'images/chat/icon-chat.png',
         'stats': [
             {
                 'key': 'users',
