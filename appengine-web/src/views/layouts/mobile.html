@@ -2,7 +2,7 @@
 <html>
     <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Gold Quest</title>
+    <title>{% block title %}Gold Frame{% endblock %}</title>
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="format-detection" content="telephone=no" />
@@ -14,6 +14,7 @@
     <script type="text/javascript" src="/javascript/jquery.tache.js"></script>
     <script type="text/javascript" src="/_ah/channel/jsapi"></script>
     <script type="text/javascript" src="/javascript/game.js"></script>
+{% block head_includes %}{% endblock %}
     </head>
 <body onload="init()">
 <div id="loading" style="position:absolute; width:100%; text-align:center; top:220px;">
@@ -36,7 +37,11 @@ else if (ns6||ie4) ld.display="none";
 }
 </script>
 <!--Your content goes below here-->
-{{ content }}
+{% block header %}
+{% endblock %}
+{% block content %}{% endblock %}
+{% block footer %}
+{% endblock %}
 <!--But above here-->
 </body>
 <!--Mobile Page Formatted by Brandon Anzaldi http://www.freebie-zone.co.cc/-->

@@ -25,7 +25,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-#import setup_django_version
+import setup_django_version
 
 import os
 import logging
@@ -34,6 +34,7 @@ import Py2XML
 import httpheader
 from httpheader import ParseError
 
+from django.conf import settings
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from django.template import TemplateDoesNotExist
@@ -60,11 +61,15 @@ class PageHandler(webapp.RequestHandler):
             path = os.path.join(basepath, 'views', page)
         if not basepath or not os.path.exists(path):
             path = os.path.join(self._basepath, 'views', page)
-        logging.debug('template pathname: %s' % path)
-        content = template.render(path, values)
         if layout:
-            path = os.path.join(self._basepath, 'views', 'layouts', '%s.html' % layout)
-            content = template.render(path, { 'content': content })
+            layout = os.path.join('layouts', '%s.html' % layout)
+            values['layout'] = layout
+        logging.info('template pathname: %s layout: %s', path, layout)
+        template_file = open(path) 
+        # TODO: cache compiled template
+        compiled_template = template.Template(template_file.read()) 
+        template_file.close() 
+        content = compiled_template.render(template.Context(values))
         return content
 
     def parse_pagename(self, page):

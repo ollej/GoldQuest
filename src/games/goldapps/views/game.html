@@ -1,3 +1,8 @@
+{% extends layout %}
+
+{% block title %}Gold Apps{% endblock %}
+
+{% block head_includes %}
 <script type="text/javascript">
 $(document).ready(function() {
     var appIconTmpl = $('#appiconTemplate').html();
@@ -68,6 +73,9 @@ div.appIconDiv {
   -ms-text-overflow: ellipsis;
 }
 </style>
+{% endblock %}
+
+{% block content %}
   <div id="mainDiv">
     <div id="heroDiv" class="heroEl">
       <h1>Gold Apps</h1>
@@ -87,6 +95,9 @@ div.appIconDiv {
       </div>
     </div>
   </div>
+{% endblock %}
+
+{% block footer %}
 {% autoescape off %}
   <div id="charsheetTemplate" style="display: none">
 {{ template_charsheet }}
@@ -112,3 +123,4 @@ div.appIconDiv {
 {% include "broadcast_values_js.html" %}
 {% endif %}
 </script>
+{% endblock %}

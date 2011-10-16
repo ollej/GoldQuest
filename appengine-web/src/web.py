@@ -25,7 +25,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-#import setup_django_version
+import setup_django_version
 
 import os
 import logging
@@ -77,7 +77,10 @@ class WebHandler(PageHandler):
         template_values = {}
         (pagename, ext) = self.parse_pagename(page)
         if not pagename or pagename == 'index':
-            template_values = { 'game': self.get_gamekey() }
+            template_values = {
+                'game': self.get_gamekey(),
+                'title': self.get_gamekey(),
+            }
             self.show_page('index', template_values)
         else:
             func_name = 'page_%s' % pagename
@@ -109,6 +112,7 @@ class WebHandler(PageHandler):
 
         values = {
             'gamekey': gamekey,
+            'metadata': game.metadata,
             'template_charsheet': game.template_charsheet(),
             'template_actionline': game.template_actionline(),
             'template_actionbutton': game.template_actionbutton(),

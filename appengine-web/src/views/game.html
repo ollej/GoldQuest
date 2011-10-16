@@ -1,3 +1,8 @@
+{% extends layout %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
   <div id="mainDiv">
     <div id="heroDiv" class="heroEl">
     </div>
@@ -13,6 +18,9 @@
       </div>
     </div>
   </div>
+{% endblock %}
+
+{% block footer %}
 {% autoescape off %}
   <div id="charsheetTemplate" style="display: none">
 {{ template_charsheet }}
@@ -33,3 +41,4 @@
 {% include "broadcast_values_js.html" %}
 {% endif %}
 </script>
+{% endblock %}

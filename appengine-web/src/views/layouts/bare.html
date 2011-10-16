@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Gold Quest</title>
+    <title>{% block title %}Gold Frame{% endblock %}</title>
     <link type="text/css" rel="stylesheet" href="/stylesheets/game.css" />
     <link type="text/css" rel="stylesheet" href="/stylesheets/hero.css" />
     <link type="text/css" rel="stylesheet" href="/stylesheets/jquery-ui-1.8.16.smoothness.css" />
@@ -11,10 +11,15 @@
     <script type="text/javascript" src="/javascript/jquery.tache.js"></script>
     <script type="text/javascript" src="/_ah/channel/jsapi"></script>
     <script type="text/javascript" src="/javascript/game.js"></script>
+{% block head_includes %}{% endblock %}
 </head>
 <body>
+{% block header %}
+{% endblock %}
     <div class="gamewrapperDiv">
-{{ content }}
+{% block content %}{% endblock %}
     </div>
+{% block footer %}
+{% endblock %}
 </body>
 </html>
