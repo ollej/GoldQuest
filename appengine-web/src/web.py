@@ -120,6 +120,13 @@ class WebHandler(PageHandler):
             'actions': game.metadata['actions'],
         }
 
+        gamepath = os.path.realpath(game._basepath)
+        # TODO: Automatically generate config files with these lists.
+        if gamekey in ['goldapps']:
+            values['gamecss'] = '/stylesheets/' + gamekey + '/game.css'
+        if gamekey in ['goldapps']:
+            values['gamejs'] = '/javascript/' + gamekey + '/game.js'
+
         # Setup channel if game uses broadcast.
         if game.metadata['broadcast_actions']:
             channel_values = self.create_channel(None, gamekey)

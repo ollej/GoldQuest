@@ -1,0 +1,34 @@
+#heroDiv h1 {
+  padding-top: 10px;
+  text-align: center;
+}
+div.appIconDiv {
+  float: left;
+  width: 68px;
+  height: 48px;
+  margin: 5px 1px 10px 1px;
+  text-align: center;
+  cursor: pointer;
+}
+.appIconDiv a {
+  text-decoration: none;
+}
+.appIconDiv img {
+  width: 32px;
+  height: 32px;
+}
+.appIconDiv:hover {
+}
+.appIconText {
+  width: 64px;
+  margin: 2px 2px;
+  font-family: Arial,"Helvetica Neue",sans-serif; font-size: 9px; line-height: 9px; color: #444;
+  text-transform: uppercase;
+  text-shadow: 0 1px 1px #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -o-text-overflow: ellipsis;
+  -ms-text-overflow: ellipsis;
+}
+

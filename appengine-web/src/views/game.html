@@ -2,6 +2,15 @@
 
 {% block title %}{{ title }}{% endblock %}
 
+{% block head_includes %}
+<script type="text/javascript">
+    var gameKey = '{{ gamekey }}';
+{% if channel_client_id %}
+{% include "broadcast_values_js.html" %}
+{% endif %}
+</script>
+{% endblock %}
+
 {% block content %}
   <div id="mainDiv">
     <div id="heroDiv" class="heroEl">
@@ -35,10 +44,4 @@
 {{ template_extrainfo }}
   </div>
 {% endautoescape %}
-<script type="text/javascript">
-    var gameKey = '{{ gamekey }}';
-{% if channel_client_id %}
-{% include "broadcast_values_js.html" %}
-{% endif %}
-</script>
 {% endblock %}

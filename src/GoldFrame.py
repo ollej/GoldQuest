@@ -202,8 +202,8 @@ class GamePlugin(object):
         if not texts or not texts_mtime or mtime > texts_mtime:
             #logging.info('Updating data file.')
             texts = self.load_file(file)
-            self._memcache.set('goldquest_data', texts)
-            self._memcache.set('goldquest_data_mtime', mtime)
+            self._memcache.set('gamedata', texts, namespace=self.metadata['gamekey'])
+            self._memcache.set('gamedata_mtime', mtime, namespace=self.metadata['gamekey'])
         return texts
 
     def load_file(self, file):
@@ -278,8 +278,6 @@ def get_games():
             games.append(filename)
     return games
 
-
-# TODO: Make this dynamic.
 def create_game(game, memcache=None, userid=None):
     # Find all games
     games = get_games()

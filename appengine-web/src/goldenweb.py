@@ -57,6 +57,8 @@ class PageHandler(webapp.RequestHandler):
         """
         page = "%s.html" % page
         path = ''
+        if not values:
+            values = {}
         if basepath:
             path = os.path.join(basepath, 'views', page)
         if not basepath or not os.path.exists(path):
