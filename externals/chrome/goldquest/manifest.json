@@ -1,0 +1,16 @@
+{
+  "name": "Gold Quest",
+  "description": "A simple multi-user co-op text based dungeon quest game.",
+  "version": "1.0",
+  "icons": {
+    "128": "coinstack-128x128.png"
+  },
+  "app": {
+    "urls": [
+      "http://gold-quest.appspot.com/"
+    ],
+    "launch": {
+      "web_url": "http://gold-quest.appspot.com/game.html?game=goldquest"
+    }
+  }
+}
