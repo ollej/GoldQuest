@@ -1,0 +1,92 @@
+#!/usr/bin/perl
+
+use v5.10;
+use warnings;
+use strict;
+
+use File::Slurp;
+use File::Slurp qw( edit_file ) ;
+
+# (1) quit unless we have the correct number of command-line args
+my $num_args = $#ARGV + 1;
+if ($num_args != 1) {
+    print "\nUsage: $ARGV[0] <Game Name>\n";
+    exit;
+}
+
+my $GFPATH = "/Users/olle/Documents/Development/Java/workspace";
+my $TMPLGAME = 'Gold Quest';
+my $TMPLNAME = 'GoldQuest';
+my $TMPLKEY = 'goldquest';
+my $TMPLURL = 'http://gold-quest.appspot.com/mobile.html?game=';
+my $TMPLAPPPATH = '/Users/olle/Documents/Development/appengine/gold-quest';
+
+my $GAME = $ARGV[0];
+$GAME =~ s/'/\\'/g;
+my $GAMENAME = clean_name($GAME);
+my $GAMEKEY = clean_key($GAMENAME);
+my $GAMEPATH = "$GFPATH/$GAMEKEY";
+
+sub clean_name
+{
+    my ($str) = @_;
+    return '' unless $str;
+    $str =~ s/\W//g;
+    return $str;
+}
+
+sub clean_key
+{
+    my ($str) = @_;
+    return '' unless $str;
+    $str = clean_name($str);
+    return lc($str);
+}
+
+sub create_android_project
+{
+    my ($name, $key) = @_;
+    say "Creating project for game: $name";
+    system('cp', '-pR', "$GFPATH/$TMPLNAME", "$GFPATH/$name");
+    system('mv', "$GFPATH/$name/src/com/jxdevelopment/$TMPLKEY",
+        "$GFPATH/$name/src/com/jxdevelopment/$key");
+    system('mv', "$GFPATH/$name/src/com/jxdevelopment/$key/View$TMPLNAME.java",
+        "$GFPATH/$name/src/com/jxdevelopment/$key/View${name}.java");
+    system('cp', '-p', "$TMPLAPPPATH/images/icon-${key}.png", "$GFPATH/$name/res/drawable-ldpi/icon.png");
+    system('cp', '-p', "$TMPLAPPPATH/images/icon-${key}.png", "$GFPATH/$name/res/drawable-mdpi/icon.png");
+    system('cp', '-p', "$TMPLAPPPATH/images/icon-${key}.png", "$GFPATH/$name/res/drawable-hdpi/icon.png");
+    system('rm', '-rf', "$GFPATH/$name/bin/GoldQuest.apk");
+    system('rm', '-rf', "$GFPATH/$name/bin/classes");
+    system('rm', '-rf', "$GFPATH/$name/bin/com");
+    system('rm', '-rf', "$GFPATH/$name/bin/*");
+    system('rm', '-rf', "$GFPATH/$name/gen");
+    system('rm', '-rf', "$GFPATH/$name/build.xml");
+    system('android', 'update', 'project', '--path', "$GFPATH/$name");
+}
+
+sub update_android_values
+{
+    my ($game, $name, $key) = @_;
+    update_file("$GFPATH/$name/src/com/jxdevelopment/$key/View${name}.java", $game, $name, $key);
+    update_file("$GFPATH/$name/AndroidManifest.xml", $game, $name, $key);
+    update_file("$GFPATH/$name/build.xml", $game, $name, $key);
+    update_file("$GFPATH/$name/res/values/strings.xml", $game, $name, $key);
+}
+
+sub update_file
+{
+    my ($filename, $game, $name, $key) = @_;
+    edit_file {
+        s/$TMPLGAME/$game/g;
+        s/$TMPLNAME/$name/g;
+        s/$TMPLKEY/$key/g;
+        s/${TMPLURL}${TMPLKEY}/${TMPLURL}${key}/g;
+        s/android:versionCode="2"/android:versionCode="1"/g;
+        s/android:versionName="1\.1"/android:versionName="1.0"/g;
+    } $filename;
+    return;
+}
+
+create_android_project($GAMENAME, $GAMEKEY);
+update_android_values($GAME, $GAMENAME, $GAMEKEY);
+
