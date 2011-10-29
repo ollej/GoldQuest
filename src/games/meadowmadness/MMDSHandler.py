@@ -31,7 +31,7 @@ import logging
 
 from GoldFrame.DataStoreDataHandler import DataStoreDataHandler
 
-class GQDSHandler(DataStoreDataHandler):
+class MMDSHandler(DataStoreDataHandler):
     def save_data(self, hero, level):
         return;
 

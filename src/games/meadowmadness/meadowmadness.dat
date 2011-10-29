@@ -1,0 +1,16 @@
+rooms:
+    - key: meadow
+      description: You are in a meadow.
+      items:
+        - key: crate
+          description: A crate in the grass.
+          visible: yes
+        - key: gate
+          description: A gate in the fence.
+          visible: yes
+        - key: grater
+          description: A cheese grater.
+          visible: no
+    - key: forest
+      description: You are in a forest.
+

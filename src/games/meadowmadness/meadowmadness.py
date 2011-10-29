@@ -40,7 +40,7 @@ class Game(GoldFrame.GamePlugin):
         'name': 'Meadow Madness',
         'gamekey': 'meadowmadness',
         'personal_hero': True,
-        'broadcast_actions': ['go', 'use', 'look'],
+        'broadcast_actions': ['go', 'use', 'examine', 'grab'],
         'actions': [
             {
                 'key': 'go',
@@ -120,13 +120,16 @@ class Game(GoldFrame.GamePlugin):
         """
         Sets up either a sqlite database or a GAE DataStore depending on configuration.
         """
-        datahandler = self._cfg.get('LOCAL', 'datahandler')
+        if self._cfg:
+            datahandler = self._cfg.get('LOCAL', 'datahandler')
+        else:
+            datahandler = 'datastore'
         if datahandler == 'sqlite':
             from SqlDataHandler import SqlDataHandler
             self._dh = SqlDataHandler(self._debug)
         elif datahandler == 'datastore':
-            from MMDSHandler import GQDSHandler
-            self._dh = GQDSHandler(self._debug)
+            from MMDSHandler import MMDSHandler
+            self._dh = MMDSHandler(self._debug)
         else:
             raise GoldFrameConfigException, "Unknown datahandler: %s" % datahandler
 
@@ -146,5 +149,16 @@ class Game(GoldFrame.GamePlugin):
         }
         return response
 
+    def action_go(self, arguments):
+        pass
+
+    def action_use(self, arguments):
+        pass
+
+    def action_examine(self, arguments):
+        pass
+
+    def action_grab(self, arguments):
+        pass
 
 
