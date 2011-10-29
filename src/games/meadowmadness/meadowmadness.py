@@ -172,7 +172,6 @@ class Game(GoldFrame.GamePlugin):
     def action_grab(self, arguments):
         pass
 
-
     def get_a_room(self, key):
         logging.info('key: %s', key)
         return self._gamedata['rooms'][key]
