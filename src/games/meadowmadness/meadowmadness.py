@@ -126,7 +126,7 @@ class Game(GoldFrame.GamePlugin):
             self._dh = SqlDataHandler(self._debug)
         elif datahandler == 'datastore':
             from MMDSHandler import GQDSHandler
-            self._dh = MMDSHandler(self._debug)
+            self._dh = GQDSHandler(self._debug)
         else:
             raise GoldFrameConfigException, "Unknown datahandler: %s" % datahandler
 
