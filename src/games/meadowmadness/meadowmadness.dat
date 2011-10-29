@@ -1,5 +1,5 @@
 rooms:
-    - key: meadow
+    meadow:
       description: You are in a meadow.
       items:
         - key: crate
@@ -11,6 +11,6 @@ rooms:
         - key: grater
           description: A cheese grater.
           visible: no
-    - key: forest
+    forest:
       description: You are in a forest.
 

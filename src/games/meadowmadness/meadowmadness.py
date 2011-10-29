@@ -34,7 +34,7 @@ from decorators import *
 class Game(GoldFrame.GamePlugin):
     _cfg = None
     hero = None
-    level = None
+    room = "meadow"
     _datafile = 'meadowmadness.dat'
     metadata = {
         'name': 'Meadow Madness',
@@ -100,6 +100,8 @@ class Game(GoldFrame.GamePlugin):
         # Configure datahandler backend.
         #self.setup_database()
 
+        # read room
+
         # Read saved hero.
         self.get_hero()
 
@@ -137,20 +139,29 @@ class Game(GoldFrame.GamePlugin):
     def get_hero(self):
         self.hero = self._dh.get_alive_hero()
 
-    def action_stats(self):
+    def action_stats(self, arguments):
         msg = self.get_text('charsheet')
-        attribs = self.hero.get_attributes()
-        msg = msg % attribs
         response = {
             'message': msg,
             'data': {
-                'hero': attribs,
             }
         }
         return response
 
     def action_go(self, arguments):
-        pass
+        room = self.room
+        try:
+            room = arguments['room']
+        except KeyError:
+            pass
+        roomdata = self.get_a_room(room)
+        msg = roomdata['description']
+        response = {
+            'message': msg,
+            'data': {
+            }
+        }
+        return response
 
     def action_use(self, arguments):
         pass
@@ -161,4 +172,8 @@ class Game(GoldFrame.GamePlugin):
     def action_grab(self, arguments):
         pass
 
+
+    def get_a_room(self, key):
+        logging.info('key: %s', key)
+        return self._gamedata['rooms'][key]
 
