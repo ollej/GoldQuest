@@ -258,6 +258,8 @@ def load_game(game, memcache, userid):
 
     # Load game config
     cfg = ConfigParser.ConfigParser()
+    config_path = os.path.join(basepath, 'config.ini')
+    cfg.read(config_path)
     config_path = os.path.join(gamepath, 'config.ini')
     cfg.read(config_path)
 
