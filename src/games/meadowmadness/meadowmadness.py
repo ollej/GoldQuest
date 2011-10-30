@@ -165,7 +165,8 @@ class Game(GoldFrame.GamePlugin):
                     'items': self.room['paths'], #[.keys()]
                     }, ]);
 
-        msg = self.room['description']
+        msg = self.describe_room(self.room, True)
+
         response = {
             'message': msg,
             'metadata': self._updated_metadata,
@@ -182,6 +183,15 @@ class Game(GoldFrame.GamePlugin):
 
     def action_grab(self, arguments):
         pass
+
+    def describe_room(self, room, include_items):
+        text = room['description']
+        if include_items and 'items' in room:
+            items = [item for item in room['items'] if item['visible']]
+            if len(items):
+                text += " You see:<br/>"
+                text += "<br/>".join(item['description'] for item in items)
+        return text
 
     def get_a_room(self, key):
         logging.info('key: %s', key)
