@@ -101,7 +101,7 @@ class Game(GoldFrame.GamePlugin):
         #self.setup_database()
 
         # read room
-        self.action_go({'room' : 'meadow'})
+        self.room = self.get_a_room("meadow")
 
         # Read saved hero.
         self.get_hero()
@@ -144,7 +144,6 @@ class Game(GoldFrame.GamePlugin):
         msg = self.get_text('charsheet')
         response = {
             'message': msg,
-            'metadata': self._updated_metadata,
             'data': {
             }
         }
@@ -155,17 +154,16 @@ class Game(GoldFrame.GamePlugin):
             next_room = arguments['room']
             roomdata = self.get_a_room(next_room)
             if roomdata: self.room = roomdata
-
-            self.change_action('go', 'arguments', [ {
-                        'type': 'list',
-                        'key': 'room',
-                        'name': 'Go',
-                        'description': 'Go Where?',
-                        'items': self.room['paths'], #[.keys()]
-                        }, ]);
-
         except KeyError:
             pass
+
+        self.change_action('go', 'arguments', [ {
+                    'type': 'list',
+                    'key': 'room',
+                    'name': 'Go',
+                    'description': 'Go Where?',
+                    'items': self.room['paths'], #[.keys()]
+                    }, ]);
 
         msg = self.room['description']
         response = {
