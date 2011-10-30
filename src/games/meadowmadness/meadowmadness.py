@@ -34,7 +34,7 @@ from decorators import *
 class Game(GoldFrame.GamePlugin):
     _cfg = None
     hero = None
-    room = "meadow"
+    room = None
     _datafile = 'meadowmadness.dat'
     metadata = {
         'name': 'Meadow Madness',
@@ -101,6 +101,7 @@ class Game(GoldFrame.GamePlugin):
         #self.setup_database()
 
         # read room
+        self.action_go({'room' : 'meadow'})
 
         # Read saved hero.
         self.get_hero()
@@ -143,21 +144,33 @@ class Game(GoldFrame.GamePlugin):
         msg = self.get_text('charsheet')
         response = {
             'message': msg,
+            'metadata': self._updated_metadata,
             'data': {
             }
         }
         return response
 
     def action_go(self, arguments):
-        room = self.room
         try:
-            room = arguments['room']
+            next_room = arguments['room']
+            roomdata = self.get_a_room(next_room)
+            if roomdata: self.room = roomdata
+
+            self.change_action('go', 'arguments', [ {
+                        'type': 'list',
+                        'key': 'room',
+                        'name': 'Go',
+                        'description': 'Go Where?',
+                        'items': self.room['paths'], #[.keys()]
+                        }, ]);
+
         except KeyError:
             pass
-        roomdata = self.get_a_room(room)
-        msg = roomdata['description']
+
+        msg = self.room['description']
         response = {
             'message': msg,
+            'metadata': self._updated_metadata,
             'data': {
             }
         }
@@ -174,5 +187,8 @@ class Game(GoldFrame.GamePlugin):
 
     def get_a_room(self, key):
         logging.info('key: %s', key)
-        return self._gamedata['rooms'][key]
+        room = self._gamedata['rooms'][key]
+        #paths = self._dh.get_paths(room)
+        #if paths: room['paths'] = paths
+        return room
 

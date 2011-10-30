@@ -11,8 +11,12 @@ rooms:
     - key: grater
       description: A cheese grater.
       visible: no
+    paths:
+    - forest
   forest:
     description: You are in a forest.
+    paths:
+    - meadow
 
 texts:
   welcome: Welcome to Meadow Madness!
