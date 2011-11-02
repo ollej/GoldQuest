@@ -137,7 +137,7 @@ class Game(GoldFrame.GamePlugin):
 
     def action_go(self, arguments):
         try:
-            next_room = arguments['room']
+            next_room = arguments['item']
             roomdata = self.get_a_room(next_room)
             if roomdata: self.room = roomdata
         except KeyError:
@@ -212,10 +212,12 @@ class Game(GoldFrame.GamePlugin):
         room = self._gamedata['rooms'][key]
         #paths = self._dh.get_paths(room)
         #if paths: room['paths'] = paths
+        #items = self._dh.get_items(room)
+        #if items: room['items'] = items
         return room
 
     def get_items(self, room, filters):
-        items = room['items']
+        items = room['items'] if 'items' in room else None
         if items:
             for filter in filters:
                 items = [item for item in items if item[filter]]
