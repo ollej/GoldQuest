@@ -40,7 +40,7 @@ class Game(GoldFrame.GamePlugin):
         'name': 'Meadow Madness',
         'gamekey': 'meadowmadness',
         'personal_hero': True,
-        'broadcast_actions': ['go', 'use', 'examine', 'grab'],
+        'broadcast_actions': [],
         'actions': [
             {
                 'key': 'go',
@@ -63,7 +63,7 @@ class Game(GoldFrame.GamePlugin):
             {
                 'key': 'examine',
                 'name': 'Examine',
-                'description': 'Search current area.',
+                'description': 'Examine an item',
                 'img': 'images/meadowmadness/icon-examine.png',
                 'tinyimg': 'images/meadowmadness/tiny-icon-examine.png',
                 'color': '#E9B700',
@@ -81,18 +81,8 @@ class Game(GoldFrame.GamePlugin):
         ],
         'stats_img': 'images/meadowmadness/icon-stats.png',
         'stats': [
-            {
-                'key': 'name',
-                'name': 'Name',
-                'description': '',
-                'type': 'string',
-            },
         ],
         'extra_info': {
-            'look': {
-                'name': 'look',
-                'style': 'color: teal',
-            },
         },
     }
 
@@ -108,11 +98,7 @@ class Game(GoldFrame.GamePlugin):
 
     def template_charsheet(self):
         return """
-        <img src="images/meadowmadness/icon-stats.png" class="statsImage" style="float: left" width="32" height="32" alt="Stats" title="Stats" />
-        <h1 id="nameValue" class="nameValue">[[ name ]]</h1>
-        <ul class="charsheetList">
-          <li class="statItem" id="goldStatDiv"><img src="images/meadowmadness/tiny-icon-gold.png" width="16" height="16" alt="Gold" title="Gold" /><span class="statValue" id="goldValue">[[ gold ]]</span></li>
-        </ul>
+        <h1 class="nameValue">Meadow Madness</h1>
         """
 
     def template_actionline(self):
@@ -157,13 +143,11 @@ class Game(GoldFrame.GamePlugin):
         except KeyError:
             pass
 
-        self.change_action('go', 'arguments', [ {
-                    'type': 'list',
-                    'key': 'room',
-                    'name': 'Go',
-                    'description': 'Go Where?',
-                    'items': self.room['paths'], #[.keys()]
-                    }, ]);
+        self.change_action_arguments('go', self.room['paths'], 'Go', 'Where do you want to go?')
+        examine_items = self.get_items(self.room, ['visible'])
+        self.change_action_arguments('examine', examine_items, 'Examine', 'What do you want to examine?')
+        grab_items = self.get_items(self.room, ['grabbable', 'visible'])
+        self.change_action_arguments('grab', grab_items, 'Grab', 'What do you want to grab?')
 
         msg = self.describe_room(self.room, True)
 
@@ -179,24 +163,81 @@ class Game(GoldFrame.GamePlugin):
         pass
 
     def action_examine(self, arguments):
-        pass
+        logging.info('action examine')
+        logging.info(arguments)
+        try:
+            item = self.get_item(self.room, arguments['item'])
+        except KeyError:
+            pass
+        logging.info(item)
+        if item and item['visible']:
+            # TODO: modify world, make items visible/grabbable
+            response = {
+                'message': item['description'],
+                'metadata': self._updated_metadata,
+                'data': {
+                }
+            }
+            return response
 
     def action_grab(self, arguments):
-        pass
+        try:
+            item = self.get_item(self.room, arguments['item'])
+        except KeyError:
+            pass
+        if item and item['grabbable'] and item['visible']:
+            # TODO: Save item in hero
+            # TODO: Remove item from world
+            # TODO: Metadata and data should be added automatically for all actions.
+            msg = self.get_text('grabbed_item') % item
+            response = {
+                'message': msg,
+                'metadata': self._updated_metadata,
+                'data': {
+                }
+            }
+            return response
 
     def describe_room(self, room, include_items):
         text = room['description']
         if include_items and 'items' in room:
-            items = [item for item in room['items'] if item['visible']]
-            if len(items):
+            items = self.get_items(room, ['visible'])
+            if items:
                 text += " You see:<br/>"
-                text += "<br/>".join(item['description'] for item in items)
+                text += "<br/>".join(item['name'] for item in items)
         return text
 
     def get_a_room(self, key):
-        logging.info('key: %s', key)
+        logging.info('get_a_room: %s', key)
         room = self._gamedata['rooms'][key]
         #paths = self._dh.get_paths(room)
         #if paths: room['paths'] = paths
         return room
+
+    def get_items(self, room, filters):
+        items = room['items']
+        if items:
+            for filter in filters:
+                items = [item for item in items if item[filter]]
+        return items
+
+    def get_item(self, room, key):
+        logging.info('get_item: %s', key)
+        for itm in room['items']:
+            if itm['key'] == key:
+                return itm
+
+    def change_action_arguments(self, action, items, title, desc):
+        if items:
+            self.change_action(action, 'arguments', [ {
+                'type': 'list',
+                'key': 'item',
+                'name': title,
+                'description': desc,
+                'items': items
+                }, ]);
+            self.change_action(action, 'button', 'active')
+        else:
+            self.change_action(action, 'arguments', [])
+            self.change_action(action, 'button', 'disabled')
 

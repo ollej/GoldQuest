@@ -131,7 +131,7 @@ class GamePlugin(object):
         Surround field names with "[[ ]]" to output the value of that field.
         """
         return "<li class='actionLine [[ cls ]]' id='action_[[ id ]]'>[[ line ]][[ extraInfo ]]</li>"
-    
+
     def template_actionbutton(self):
         """
         Override this method and return the html to use to display an action button.
@@ -231,6 +231,8 @@ class GamePlugin(object):
         return actionlist
 
     def return_response(self, response, asdict=False, change_buttons=None):
+        if not response:
+            response = { 'message': '', 'success': 0 }
         if asdict:
             if isinstance(response, basestring):
                 response = { 'message': response }

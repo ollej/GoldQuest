@@ -3,13 +3,19 @@ rooms:
     description: You are in a meadow.
     items:
     - key: crate
-      description: A crate in the grass.
+      name: Crate
+      description: There is a crate lying in the grass.
+      grabbable: no
       visible: yes
     - key: gate
-      description: A gate in the fence.
+      name: Gate
+      description: You see a gate in the fence.
+      grabbable: no
       visible: yes
     - key: grater
+      name: Grater
       description: A cheese grater.
+      grabbable: yes
       visible: no
     paths:
     - forest
@@ -20,6 +26,6 @@ rooms:
 
 texts:
   welcome: Welcome to Meadow Madness!
-  charsheet:
-    - "Name: %(name)s"
+  charsheet: "Name: %(name)s"
+  grabbed_item: "The %(name)s slips through your fingers as you try to grab it."
 
