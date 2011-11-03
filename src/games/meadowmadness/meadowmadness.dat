@@ -8,7 +8,8 @@ rooms:
       visible: yes
       actions:
         examine:
-        - say: You open the crate.
+        - say: 'You open the crate and discover:'
+        - list: grater
         - show: grater
         - disable: crate
         - hide: crate
@@ -29,6 +30,8 @@ rooms:
         - say: A cheese grater.
         grab:
         - take: grater
+        use:
+        - say: You lack cheese.
   forest:
     description: You are in a forest.
     items:

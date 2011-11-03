@@ -137,28 +137,33 @@ class Game(GoldFrame.GamePlugin):
         }
         return response
 
-    def trigger_room(self, roomName):
+    def trigger_room(self, roomName, result):
         next_room = roomName
         roomdata = self.get_a_room(next_room)
         if roomdata: self.room = roomdata
 
-    def trigger_say(self, text):
-        pass
+    def trigger_say(self, text, result):
+        result.append(text)
 
-    def trigger_show(self, itemName):
+    def trigger_list(self, itemName, result):
+        item = self.get_item(self.room, itemName)
+        if item:
+            result.append(item['description'])
+
+    def trigger_show(self, itemName, result):
         item = self.get_item(self.room, itemName)
         if item:
             item['visible'] = True
 
-    def trigger_hide(self, itemName):
+    def trigger_hide(self, itemName, result):
         item = self.get_item(self.room, itemName)
         if item:
             item['visible'] = False
 
-    def trigger_take(self, itemName):
+    def trigger_take(self, itemName, result):
         pass
 
-    def trigger_disable(self, itemName):
+    def trigger_disable(self, itemName, result):
         item = self.get_item(self.room, itemName)
         if item:
             item['actions'] = []
@@ -179,16 +184,17 @@ class Game(GoldFrame.GamePlugin):
         triggers = item['actions'][actionName]
         for trigger in triggers:
             # FIXME: Cleaner dispatch.
-            if 'room' in trigger:    result.append(self.trigger_room(trigger['room'])) # 'room' must be the action's last trigger
-            if 'say' in trigger:     result.append(self.trigger_say(trigger['say']))
-            if 'show' in trigger:    result.append(self.trigger_show(trigger['show']))
-            if 'hide' in trigger:    result.append(self.trigger_hide(trigger['hide']))
-            if 'take' in trigger:    result.append(self.trigger_take(trigger['take']))
-            if 'disable' in trigger: result.append(self.trigger_disable(trigger['disable']))
+            if 'room' in trigger:    self.trigger_room(trigger['room'], result) # 'room' must be the action's last trigger
+            if 'say' in trigger:     self.trigger_say(trigger['say'], result)
+            if 'list' in trigger:    self.trigger_list(trigger['list'], result)
+            if 'show' in trigger:    self.trigger_show(trigger['show'], result)
+            if 'hide' in trigger:    self.trigger_hide(trigger['hide'], result)
+            if 'take' in trigger:    self.trigger_take(trigger['take'], result)
+            if 'disable' in trigger: self.trigger_disable(trigger['disable'], result)
 
         changed_items[old_room['key']] = old_room['items'] # FIXME: Store properly.
 
-        return result
+        return "<br/>".join(result)
 
     def change_all_action_arguments(self):
         go_items = self.get_items(self.room, ['visible'], ['go'])
@@ -204,12 +210,17 @@ class Game(GoldFrame.GamePlugin):
         self.change_action_arguments('use', grab_items, 'Use', 'What do you want to use?')
 
     def action_go(self, arguments):
+        msg = ''
         if 'item' in arguments:
-            self.trigger_item('go', arguments['item'])
+            msg = self.trigger_item('go', arguments['item'])
 
         self.change_all_action_arguments()
 
-        msg = self.describe_room(self.room, True)
+        desc = self.describe_room(self.room, True)
+
+        if msg == None or msg == '': msg = desc
+        else:
+            msg = msg + '<br>' + desc
 
         response = {
             'message': msg,
@@ -220,12 +231,15 @@ class Game(GoldFrame.GamePlugin):
         return response
 
     def action_use(self, arguments):
+        msg = ''
         if 'item' in arguments:
-            self.trigger_item('use', arguments['item'])
+            msg = self.trigger_item('use', arguments['item'])
             self.change_all_action_arguments()
 
+        if msg == None or msg == '': msg = 'You attempt to use the item.'
+
         response = {
-            'message': 'used', #item['description'],
+            'message': msg, #item['description'],
             'metadata': self._updated_metadata,
             'data': {
             }
@@ -236,12 +250,15 @@ class Game(GoldFrame.GamePlugin):
         logging.info('action examine')
         logging.info(arguments)
 
+        msg = ''
         if 'item' in arguments:
-            self.trigger_item('examine', arguments['item'])
+            msg = self.trigger_item('examine', arguments['item'])
             self.change_all_action_arguments()
 
+        if msg == None or msg == '': msg = 'You examine the item.'
+
         response = {
-            'message': 'examined', #item['description'],
+            'message': msg, #item['description'],
             'metadata': self._updated_metadata,
             'data': {
             }
@@ -249,13 +266,16 @@ class Game(GoldFrame.GamePlugin):
         return response
 
     def action_grab(self, arguments):
+        msg = ''
         if 'item' in arguments:
-            self.trigger_item('grab', arguments['item'])
+            msg = self.trigger_item('grab', arguments['item'])
             self.change_all_action_arguments()
+
+        if msg == None or msg == '': msg = 'You reach for the item.'
 
         #    msg = self.get_text('grabbed_item') % item
         response = {
-            'message': 'grabbed',#msg,
+            'message': msg,
             'metadata': self._updated_metadata,
             'data': {
             }
