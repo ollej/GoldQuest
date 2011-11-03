@@ -5,24 +5,40 @@ rooms:
     - key: crate
       name: Crate
       description: There is a crate lying in the grass.
-      grabbable: no
       visible: yes
+      actions:
+        examine:
+        - say: You open the crate.
+        - show: grater
+        - disable: crate
+        - hide: crate
     - key: gate
       name: Gate
       description: You see a gate in the fence.
       grabbable: no
       visible: yes
+      actions:
+        go:
+        - room: forest
     - key: grater
       name: Grater
       description: A cheese grater.
-      grabbable: yes
       visible: no
-    paths:
-    - forest
+      actions:
+        examine:
+        - say: A cheese grater.
+        grab:
+        - take: grater
   forest:
     description: You are in a forest.
-    paths:
-    - meadow
+    items:
+    - key: north
+      name: A path to the north.
+      description: You see a path leading to the north.
+      visible: yes
+      actions:
+        go:
+        - room: meadow
 
 texts:
   welcome: Welcome to Meadow Madness!
