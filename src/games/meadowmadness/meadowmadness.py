@@ -167,7 +167,9 @@ class Game(GoldFrame.GamePlugin):
         items = self.get_items(self.room, ['visible'], [actionName])
         if not items: return None
 
-        item = next((item for item in items if item['key'] == itemName), None)
+        item = None
+        for i in items:
+            if i['key'] == itemName: item = i
         if not item: return None
 
         old_room = self.room
