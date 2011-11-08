@@ -31,12 +31,14 @@ import logging
 from GoldFrame import GoldFrame
 from decorators import *
 
+# FIXME: Use persistent storage.
 changed_items = {}
+heroes = {}
 
 class Game(GoldFrame.GamePlugin):
     _cfg = None
-    hero = None
     room = None
+    inv = None
     _datafile = 'meadowmadness.dat'
     metadata = {
         'name': 'Meadow Madness',
@@ -91,12 +93,7 @@ class Game(GoldFrame.GamePlugin):
     def setup(self):
         # Configure datahandler backend.
         #self.setup_database()
-
-        # read room
-        self.room = self.get_a_room("meadow")
-
-        # Read saved hero.
-        self.get_hero()
+        pass
 
     def template_charsheet(self):
         return """
@@ -123,10 +120,6 @@ class Game(GoldFrame.GamePlugin):
             self._dh = MMDSHandler(self._debug)
         else:
             raise GoldFrameConfigException, "Unknown datahandler: %s" % datahandler
-
-    @LogUsageCPU
-    def get_hero(self):
-        self.hero = self._dh.get_alive_hero()
 
     def action_stats(self, arguments):
         msg = self.get_text('charsheet')
@@ -161,7 +154,26 @@ class Game(GoldFrame.GamePlugin):
             item['visible'] = False
 
     def trigger_take(self, itemName, result):
-        pass
+        index = None
+        for i in range(0, len(self.room['items'])):
+            if self.room['items'][i]['key'] == itemName:
+                index = i
+                break
+
+        if index != None:
+            self.inv.append(self.room['items'][index])
+            #self.inv[itemName] = self.room['items'][index]
+            del self.room['items'][index]
+
+    def trigger_drop(self, itemName, result):
+        index = None
+        for i in range(0, len(self.inv)):
+            if self.inv[i]['key'] == itemName:
+                index = i
+                break
+
+        if index != None:
+            del self.inv[index]
 
     def trigger_disable(self, itemName, result):
         item = self.get_item(self.room, itemName)
@@ -169,7 +181,7 @@ class Game(GoldFrame.GamePlugin):
             item['actions'] = []
 
     def trigger_item(self, actionName, itemName):
-        items = self.get_items(self.room, ['visible'], [actionName])
+        items = self.get_items(self.room['items'] + self.inv, ['visible'], [actionName])
         if not items: return None
 
         item = None
@@ -181,7 +193,7 @@ class Game(GoldFrame.GamePlugin):
 
         result = []
 
-        triggers = item['actions'][actionName]
+        triggers = self.get_action(item, actionName) #item['actions'][actionName]
         for trigger in triggers:
             # FIXME: Cleaner dispatch.
             if 'room' in trigger:    self.trigger_room(trigger['room'], result) # 'room' must be the action's last trigger
@@ -190,24 +202,54 @@ class Game(GoldFrame.GamePlugin):
             if 'show' in trigger:    self.trigger_show(trigger['show'], result)
             if 'hide' in trigger:    self.trigger_hide(trigger['hide'], result)
             if 'take' in trigger:    self.trigger_take(trigger['take'], result)
+            if 'drop' in trigger:    self.trigger_drop(trigger['drop'], result)
             if 'disable' in trigger: self.trigger_disable(trigger['disable'], result)
 
-        changed_items[old_room['key']] = old_room['items'] # FIXME: Store properly.
+        changed_items[self._userid][old_room['key']] = old_room['items'] # FIXME: Store properly.
+        changed_items[self._userid][''] = self.inv # FIXME: Store properly.
 
         return "<br/>".join(result)
 
     def change_all_action_arguments(self):
-        go_items = self.get_items(self.room, ['visible'], ['go'])
+        go_items = self.get_items(self.room['items'], ['visible'], ['go'])
         self.change_action_arguments('go', go_items, 'Go', 'Where do you want to go?')
 
-        examine_items = self.get_items(self.room, ['visible'], ['examine'])
+        examine_items = self.get_items(self.room['items'] + self.inv, ['visible'], ['examine'])
         self.change_action_arguments('examine', examine_items, 'Examine', 'What do you want to examine?')
 
-        grab_items = self.get_items(self.room, ['visible'], ['grab'])
+        grab_items = self.get_items(self.room['items'], ['visible'], ['grab'])
         self.change_action_arguments('grab', grab_items, 'Grab', 'What do you want to grab?')
 
-        grab_items = self.get_items(self.room, ['visible'], ['use'])
-        self.change_action_arguments('use', grab_items, 'Use', 'What do you want to use?')
+        use_items = self.get_items(self.room['items'] + self.inv, ['visible'], ['use'])
+        self.change_action_arguments('use', use_items, 'Use', 'What do you want to use?')
+
+    def play(self, command, asdict=False, arguments=None):
+
+        self.load()
+
+        response = GoldFrame.GamePlugin.play(self, command, asdict, arguments)
+
+        self.save()
+
+        response['metadata'] = self._updated_metadata
+
+        return self.return_response(response, asdict)
+
+    def load(self):
+        # read hero location
+        roomId = heroes[self._userid] if (self._userid and self._userid in heroes) else "meadow"
+
+        if not self._userid in changed_items: changed_items[self._userid] = {}
+
+        # read room
+        self.room = self.get_a_room(roomId)
+
+        # read inventory
+        self.inv = self.get_inventory()
+
+    def save(self):
+        if self._userid and self.room and'key' in self.room:
+            heroes[self._userid] = self.room['key']
 
     def action_go(self, arguments):
         msg = ''
@@ -224,7 +266,6 @@ class Game(GoldFrame.GamePlugin):
 
         response = {
             'message': msg,
-            'metadata': self._updated_metadata,
             'data': {
             }
         }
@@ -239,17 +280,13 @@ class Game(GoldFrame.GamePlugin):
         if msg == None or msg == '': msg = 'You attempt to use the item.'
 
         response = {
-            'message': msg, #item['description'],
-            'metadata': self._updated_metadata,
+            'message': msg,
             'data': {
             }
         }
         return response
 
     def action_examine(self, arguments):
-        logging.info('action examine')
-        logging.info(arguments)
-
         msg = ''
         if 'item' in arguments:
             msg = self.trigger_item('examine', arguments['item'])
@@ -258,8 +295,7 @@ class Game(GoldFrame.GamePlugin):
         if msg == None or msg == '': msg = 'You examine the item.'
 
         response = {
-            'message': msg, #item['description'],
-            'metadata': self._updated_metadata,
+            'message': msg,
             'data': {
             }
         }
@@ -276,7 +312,6 @@ class Game(GoldFrame.GamePlugin):
         #    msg = self.get_text('grabbed_item') % item
         response = {
             'message': msg,
-            'metadata': self._updated_metadata,
             'data': {
             }
         }
@@ -285,7 +320,7 @@ class Game(GoldFrame.GamePlugin):
     def describe_room(self, room, include_items):
         text = room['description']
         if include_items and 'items' in room:
-            items = self.get_items(room, ['visible'])
+            items = self.get_items(room['items'], ['visible'])
             if items:
                 text += " You see:<br/>"
                 text += "<br/>".join(item['name'] for item in items)
@@ -297,23 +332,50 @@ class Game(GoldFrame.GamePlugin):
         room['key'] = key
         # items = self._dh.get_items(room)
         # if items: room['items'] = items
-        if key in changed_items:
-            room['items'] = changed_items[key]
+        if key in changed_items[self._userid]:
+            room['items'] = changed_items[self._userid][key]
+        if not 'items' in room: room['items'] = [ ]
         return room
 
-    def get_items(self, room, filters, actions=None):
+    def get_inventory(self):
+        if '' in changed_items[self._userid]:
+            return changed_items[self._userid]['']
+        return []
+
+    def get_action(self, item, actionName):
+        if not 'actions' in item:
+            return None
+
+        for action in item['actions']:
+            #if not actionName in action: continue
+            ok = 1
+            if 'requires' in action:
+                for req in action['requires']:
+                    if not self.get_inv_item(req):
+                        ok = 0
+                        break
+            if ok == 1: return action[actionName] if actionName in action else None
+
+        return None
+
+    def get_items(self, roomItems, filters, actions=None):
         items = None
-        if 'items' in room:
-            for filter in filters:
-                items = [item for item in room['items'] if item[filter]]
-            if actions:
-                for trigger in actions:
-                    items = [item for item in items if trigger in item['actions']]
+        for filter in filters:
+            items = [item for item in roomItems if item[filter]]
+        if actions:
+            for action in actions:
+                items = [item for item in items if self.get_action(item, action)]
         return items
 
     def get_item(self, room, key):
         logging.info('get_item: %s', key)
         for itm in room['items']:
+            if itm['key'] == key:
+                return itm
+
+    def get_inv_item(self, key):
+        logging.info('get_inv_item: %s', key)
+        for itm in self.inv:
             if itm['key'] == key:
                 return itm
 

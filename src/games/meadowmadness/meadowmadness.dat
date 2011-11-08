@@ -7,31 +7,33 @@ rooms:
       description: There is a crate lying in the grass.
       visible: yes
       actions:
-        examine:
-        - say: 'You open the crate and discover:'
-        - list: grater
-        - show: grater
-        - disable: crate
-        - hide: crate
+        - examine:
+          - say: 'You open the crate and discover:'
+          - list: grater
+          - show: grater
+          - disable: crate
     - key: gate
       name: Gate
       description: You see a gate in the fence.
       grabbable: no
       visible: yes
       actions:
-        go:
-        - room: forest
+        - go:
+          - room: forest
     - key: grater
       name: Grater
       description: A cheese grater.
       visible: no
       actions:
-        examine:
-        - say: A cheese grater.
-        grab:
-        - take: grater
-        use:
-        - say: You lack cheese.
+        - requires:
+          - grater
+          use:
+          - say: You lack cheese.
+        - examine:
+          - say: A cheese grater.
+          grab:
+          - say: 'You are now the proud owner of a stainless-steel cheese grater shaped like a cow.'
+          - take: grater
   forest:
     description: You are in a forest.
     items:
@@ -40,8 +42,8 @@ rooms:
       description: You see a path leading to the north.
       visible: yes
       actions:
-        go:
-        - room: meadow
+        - go:
+          - room: meadow
 
 texts:
   welcome: Welcome to Meadow Madness!
