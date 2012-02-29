@@ -12,14 +12,74 @@ rooms:
           - list: grater
           - show: grater
           - disable: crate
-    - key: gate
-      name: Gate
-      description: You see a gate in the fence.
-      grabbable: no
+    - key: north
+      name: A path to the north.
+      description: You see a path leading to the north.
       visible: yes
       actions:
         - go:
-          - room: forest
+          - room: pond
+    - key: fence
+      name: Fence
+      description: There is a fence surrounding the meadow.
+      grabbable: no
+      visible: yes
+      actions:
+        - examine:
+          - say: 'You take a closer look at the fence and see:'
+          - list:
+            - lockedgate
+            - pieceofwood
+          - show:
+            - lockedgate
+            - pieceofwood
+          - disable: fence
+    - key: pieceofwood
+      name: Piece of wood
+      description: A loose piece of wood.
+      grabbable: yes
+      visible: no
+      actions:
+        - examine:
+          - say: There is a loose piece of wood sticking out of the fence.
+        - grab:
+          - say: You take hold of the piece of wood and wrench it out of the fence.
+          - show: woodwithnail
+          - take: woodwithnail
+          - hide: pieceofwood
+          - disable: pieceofwood
+    - key: woodwithnail
+      name: Piece of wood with a nail
+      description: There is a rusty nail sticking out of the end of the piece of wood.
+      grabbable: no
+      visible: no
+    - key: lockedgate
+      name: Gate
+      description: You see a gate in the fence.
+      grabbable: no
+      visible: no
+      actions:
+        - examine:
+          - say: The gate is locked.
+        - use:
+          - say: You need a key to unlock the gate.
+        - requires:
+          - key
+          use:
+            - say: You unlock the gate using the key.
+            - disable: lockedgate
+            - hide: lockedgate
+            - show: opengate
+    - key: opengate
+      name: Gate
+      description: You see an open gate in the fence.
+      grabbable: no
+      visible: no
+      actions:
+        - examine:
+          - say: The gate leads out of the park.
+        - go:
+          - room: sentrybox
     - key: grater
       name: Grater
       description: A cheese grater.
@@ -31,11 +91,444 @@ rooms:
           - say: You lack cheese.
         - examine:
           - say: A cheese grater.
-          grab:
+        - grab:
           - say: 'You are now the proud owner of a stainless-steel cheese grater shaped like a cow.'
           - take: grater
+    - key: buttercups
+      name: Buttercups
+      description: Yellow buttercups
+      grabbable: yes
+      visible: yes
+      actions:
+        - examine:
+          - say: There are yellow buttercups growing on the meadow.
+        - grab:
+          - say: You spend a few moments picking some of the beautiful buttercups growing in the meadow.
+          - take: buttercups
+    - key: tree
+      name: Tree
+      description: A majestic tree.
+      grabbable: no
+      visible: yes
+      actions:
+        - examine:
+          - say: There seems to be something unusual about the tree trunk.
+          - show:
+            - treetrunk
+            - orange
+          - disable: tree
+    - key: orange
+      name: Orange
+      description: An orange
+      grabbable: no
+      visible: no
+      actions:
+        - examine:
+          - say: A juicy orange.
+        - grab:
+          - say: Even though you are not hungry you decide to steal an orange from the tree.
+          - take: orange
+          - disable: orange
+    - key: treetrunk
+      name: Tree trunk
+      description: The trunk of the orange tree seems to be hollow.
+      grabbable: no
+      visible: no
+      actions:
+        - examine:
+          - say: 'You look inside the trunk and see:'
+          - list: underpants
+          - show: underpants
+          - disable: treetrunk
+    - key: underpants
+      name: Underpants
+      description: A stainy pair of underpants.
+      grabbable: yes
+      visible: no
+      actions:
+        - examine:
+          - say: Euugh! These underpants are smelly!
+        - grab:
+          - say: Profit! You pick up the underpants.
+          - take: underpants
+  pond:
+    description: There is a small pond here.
+    items:
+    - key: south
+      name: A path to the south.
+      description: You see a path leading to the south.
+      visible: yes
+      actions:
+        - go:
+          - room: meadow
+    - key: pathtobrook
+      name: Brook
+      description: A small brook flows away from the pond.
+      visible: yes
+      actions:
+        - go:
+          - say: You follow the brook west.
+          - room: brook
+    - key: duck
+      name: A duck
+      description: A quacking duck.
+      grabbable: no
+      visible: yes
+    - key: waterlily
+      name: A water lily
+      description: A floating water lily.
+      grabbable: no
+      visible: yes
+      actions:
+        - examine:
+          - say: There is a frog sitting on the leaf of the water lily.
+          - show: frog
+    - key: frog
+      name: A frog
+      description: A croaking frog.
+      grabbable: no
+      visible: no
+      actions:
+        - requires:
+          - basket
+          grab:
+            - take: frog
+            - disable: frog
+  brook:
+    description: You are next to a babbling brook.
+    items:
+    - key: brooktopond
+      name: Brook leading to a pond
+      description: There is a brook leading down to a pond.
+      visible: yes
+      actions:
+        - go:
+          - room: pond
+    - key: pathtobridge
+      name: Bridge
+      description: You see a bridge further up along the brook.
+      visible: yes
+      actions:
+        - go:
+          - room: bridge
+    - key: bee
+      name: Bee
+      description: There is a bee buzzing over the brook.
+      grabbable: no
+      visible: yes
+      actions:
+        - examine:
+          - say: The bee seems angry and is in the way of a shield lying next to the brook.
+          - show: shield
+    - key: shield
+      name: Shield
+      description: A small wooden shield
+      grabbable: no
+      visible: yes
+      actions:
+        - examine:
+          - say: You can't reach the shield because of the bee.
+    - key: can
+      name: Empty can
+      description: An empty can of beans
+      grabbable: no
+      visible: yes
+      actions:
+        - examine:
+          - say: The can is too far out in the water to reach.
+  bridge:
+    description: There is a bridge over the brook.
+    items:
+    - key: overthebridge
+      name: Bridge
+      description: You see a forest on the other side of the bridge.
+      visible: yes
+      actions:
+        - go:
+          - room: forest
+    - key: pathtobrook
+      name: Brook
+      description: A brook beneath the bridge.
+      visible: yes
+      actions:
+        - go:
+          - room: brook
+    - key: goat
+      name: Goat
+      description: There is an old goat standing on the bridge.
+      grabbable: no
+      visible: yes
+      actions:
+        - examine:
+          - say: The goat seems to be munching on a jar.
+          - show: jar
+          - disable: goat
+    - key: jar
+      name: Cloudberry Jam Jar
+      description: A jar of cloudberry jam.
+      grabbable: no
+      visible: no
+      actions:
+        - grab:
+          - say: The goat doesn't seem to want to give up the jar.
   forest:
     description: You are in a forest.
+    items:
+    - key: pathtobridge
+      name: Bridge
+      description: A bridge at the edge of the forest.
+      visible: yes
+      actions:
+        - go:
+          - room: bridge
+    - key: deeperforest
+      name: Deeper
+      description: Deeper into the forest.
+      visible: yes
+      actions:
+        - go:
+          - room: deepforest
+    - key: pathtobog
+      name: Bog
+      description: A bog in the woods.
+      grabbable: no
+      visible: yes
+      actions:
+        - go:
+          - room: bog
+    - key: basket
+      name: Basket
+      description: A wicker basket
+      grabbable: yes
+      visible: yes
+      actions:
+        - examine:
+          - say: There is a discarded wicker basket lying next to the path.
+        - grab:
+          - say: You pick up the basket.
+          - take: basket
+          - disable: basket
+    - key: wolf
+      name: Wolf
+      description: A growling wolf
+      grabbable: no
+      visible: yes
+      actions:
+        - examine:
+          - say: The wolf seems to be chewing on a stick.
+          - show: stick
+    - key: stick
+      name: Stick
+      description: A stick
+      grabbable: no
+      visible: no
+      actions:
+        - examine:
+          - say: A wooden stick with chew marks.
+        - grab:
+          - say: You pick up the stick now that you've lured the wolf away.
+          - take: stick
+    - key: rubikscube
+      name: Rubik's Cube
+      description: A Rubik's Cube
+      grabbable: yes
+      visible: yes
+      actions:
+        - examine:
+          - say: There is a Rubik's Cube lying on the ground.
+        - grab:
+          - say: You pick up the Rubik's Cube.
+          - take: rubikscube
+          - disable: rubikscube
+  deepforest:
+    description: You are deep in the forest.
+    items:
+    - key: pathtoclearing
+      name: A clearing
+      description: The path leads to a clearing in the woods.
+      visible: yes
+      actions:
+        - go:
+          - room: clearing
+    - key: pathtoforest
+      name: Forest
+      description: The path back out of the forest.
+      visible: yes
+      actions:
+        - go:
+    - key: breadcrumbs
+      name: Bread crumbs
+      description: Bread crumbs
+      grabbable: yes
+      visible: yes
+      actions:
+        - examine:
+          - say: You see a trail of bread crumbs on the path.
+        - grab:
+          - say: Not thinking about the consequences you pick up the bread crumbs.
+          - take: breadcrumbs
+          - disable: breadcrumbs
+    - key: rock
+      name: Rock
+      description: A rock
+      grabbable: yes
+      visible: yes
+      actions:
+        - examine:
+          - say: A hard rock.
+        - grab:
+          - say: You have always wanted a pet rock, so you pick it up.
+          - take: rock
+          - disable: rock
+  clearing:
+    description: You are in a clearing in the forest.
+    items:
+    - key: backintoforest
+      name: The deep forest
+      description: You see a path leading back into the deep forest.
+      visible: yes
+      actions:
+        - go:
+          - room: deepforest
+    - key: cottage
+      name: Cottage
+      description: A small cottage
+      grabbable: no
+      visible: yes
+      actions:
+        - examine:
+          - say: In the middle of the clearing there is an old cottage.
+          - show: window
+    - key: window
+      name: Window
+      description: A window on the side of the cottage.
+      grabbable: no
+      visible: no
+      actions:
+        - examine:
+          - say: An old hag sits by the window inside the cottage.
+          - show: keyonhag
+    - key: keyonhag
+      name: Key
+      description: A rusty key
+      grabbable: no
+      visible: no
+      actions:
+        - examine:
+          - say: The old hag has a rusty key hanging from a chain around her neck.
+        - grab:
+          - say: The old hag cackles and slaps your hand as you reach for her key.
+    - key: key
+      name: Key
+      description: A rusty key
+      grabbable: no
+      visible: no
+      actions:
+        - grab:
+          - say: The old hag munches on the sandwich and doesn't notice when you grab the key.
+          - take: key
+          - disable: key
+    - key: bucket
+      name: Bucket
+      description: A bucket
+      grabbable: yes
+      visible: yes
+      actions:
+        - examine:
+          - say: A wooden bucket is standing next to the cottage.
+        - grab:
+          - say: A bucket might be useful, so you quickly pick it up when no-one is looking.
+          - take: bucket
+          - disable: bucket
+  bog:
+    description: You stand in a smelly bog.
+    items:
+    - key: bogtodeepforest
+      name: Deep forest
+      description: Back into the deep forest.
+      visible: yes
+      actions:
+        - go:
+          - room: deepforest
+    - key: bug
+      name: Bug
+      description: A buzzing bug
+      grabbable: no
+      visible: yes
+      actions:
+        - examine:
+          - say: 'A bug is buzzing over something buried in the bog:'
+          - list: baginbog
+    - key: baginbog
+      name: Bag
+      description: A muddy bag
+      grabbable: no
+      visible: no
+      actions:
+        - examine:
+          - say: There is a bug stuck in the mud below the buzzing bug.
+        - grab:
+          - say: You reach down into the bog and pull out the bag.
+          - take: bag
+          - show: bag
+          - hide: baginbog
+    - key: bag
+      name: Bag
+      description: A muddy bag
+      grabbable: no
+      visible: no
+      actions:
+        - examine:
+          - say: 'There seems to be something in the bag:'
+          - list: stickylollipop
+          - show: stickylollipop
+    - key: stickylollipop
+      name: A sticky lollipop
+      description: A sticky lollipop with some fuzz on it.
+      grabbable: no
+      visible: no
+      actions:
+        - examine:
+          - say: 'There seems to be something in the bag:'
+          - list: stickylollipop
+          - show: stickylollipop
+        - grab:
+          - say: You take the sticky lollipop out of the bag.
+          - take: stickylollipop
+          - disable: stickylollipop
+  sentrybox:
+    description: You see a sentry box guarding the exit from the park.
+    items:
+    - key: north
+      name: A path to the north.
+      description: You see a path leading to the north.
+      visible: yes
+      actions:
+        - go:
+          - room: meadow
+
+  prisoncell:
+    description: You are in a dirty prison cell.
+    items:
+    - key: north
+      name: A path to the north.
+      description: You see a path leading to the north.
+      visible: yes
+      actions:
+        - go:
+          - room: meadow
+  trunk:
+    description: It is dark and crowded.
+    items:
+    - key: north
+      name: A path to the north.
+      description: You see a path leading to the north.
+      visible: yes
+      actions:
+        - go:
+          - room: meadow
+  cartrunk:
+    description: It is dark and smell of gasoline.
     items:
     - key: north
       name: A path to the north.
