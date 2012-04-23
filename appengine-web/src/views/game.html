@@ -30,11 +30,5 @@
 {% endblock %}
 
 {% block footer %}
-{% autoescape off %}
-{% for name, content in templates.items %}
-<script id="{{ name }}Template" type="text/x-goldframe-template">
-{{ content }}
-</script>
-{% endfor %}
-{% endautoescape %}
+{% goldframe_templates templates %}
 {% endblock %}
