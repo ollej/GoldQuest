@@ -29,16 +29,6 @@
 
 {% block footer %}
 {% goldframe_templates templates %}
-{% autoescape off %}
-<script id="appiconTemplate" type="text/x-goldframe-template">
-    <div class="appIconDiv">
-        <a href="#" title="[[ gameKey ]]">
-            <img src="images/[[ gameKey ]]/icon-[[ gameKey ]].png" class="appIcon" alt="[[ gameKey ]]" title="[[ gameKey ]]" /><br />
-            <p class="appIconText">[[ gameName ]]</p>
-        </a>
-    </div>
-</script>
-{% endautoescape %}
 <script type="text/javascript">
     var gameKey = '{{ gamekey }}';
 {% if channel_client_id %}

@@ -49,6 +49,16 @@ class Game(GoldFrame.GamePlugin):
                 'type': 'integer',
             },
         ],
+        'templates': {
+            'appicon': """
+    <div class="appIconDiv">
+        <a href="#" title="[[ gameKey ]]">
+            <img src="images/[[ gameKey ]]/icon-[[ gameKey ]].png" class="appIcon" alt="[[ gameKey ]]" title="[[ gameKey ]]" /><br />
+            <p class="appIconText">[[ gameName ]]</p>
+        </a>
+    </div>
+            """
+        }
     }
 
     def template_charsheet(self):
