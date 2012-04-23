@@ -1,12 +1,19 @@
-$(document).ready(function() {
+/*jslint browser: true, white: true */
+/*global $ */
+
+$(document).ready(function () {
+    'use strict';
     var appIconTmpl = $('#appiconTemplate').html();
 
     function onAppList(data, textStatus, jqXhr) {
-        if (!data) return;
-        $.each(data['games'], function(i, item) {
-            var html, gameName;
-            if (item == 'goldapps') return;
-            //html = '<img src="images/icon-' + item + '.png" class="appIcon" alt="' + item + '" title="' + item + '" />';
+        if (!data) {
+            return;
+        }
+        $.each(data.games, function (i, item) {
+            var html;
+            if (item === 'goldapps') {
+                return;
+            }
             html = $.tache(appIconTmpl, { 'gameKey': item, 'gameName': item });
             $('#appsDiv').append(html);
         });
@@ -23,7 +30,7 @@ $(document).ready(function() {
         success: onAppList
     });
 
-    $('.appIcon').live('click', function(ev) {
+    $('.appIcon').live('click', function (ev) {
         var game = $(ev.target).attr('title');
         if (game) {
             document.location = '?game=' + game;
