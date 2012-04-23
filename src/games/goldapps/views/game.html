@@ -29,23 +29,19 @@
 
 {% block footer %}
 {% autoescape off %}
-  <div id="charsheetTemplate" style="display: none">
-{{ template_charsheet }}
-  </div>
-  <div id="actionlineTemplate" style="display: none">
-{{ template_actionline }}
-  </div>
-  <div id="actionbuttonTemplate" style="display: none">
-{{ template_actionbutton }}
-  </div>
-  <div id="appiconTemplate" style="display: none">
+{% for name, content in templates.items %}
+<script id="{{ name }}Template" type="text/x-goldframe-template">
+{{ content }}
+</script>
+{% endfor %}
+<script id="appiconTemplate" type="text/x-goldframe-template">
     <div class="appIconDiv">
         <a href="#" title="[[ gameKey ]]">
             <img src="images/[[ gameKey ]]/icon-[[ gameKey ]].png" class="appIcon" alt="[[ gameKey ]]" title="[[ gameKey ]]" /><br />
             <p class="appIconText">[[ gameName ]]</p>
         </a>
     </div>
-  </div>
+</script>
 {% endautoescape %}
 <script type="text/javascript">
     var gameKey = '{{ gamekey }}';

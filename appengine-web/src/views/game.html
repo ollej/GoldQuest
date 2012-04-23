@@ -31,17 +31,10 @@
 
 {% block footer %}
 {% autoescape off %}
-  <div id="charsheetTemplate" style="display: none">
-{{ template_charsheet }}
-  </div>
-  <div id="actionlineTemplate" style="display: none">
-{{ template_actionline }}
-  </div>
-  <div id="actionbuttonTemplate" style="display: none">
-{{ template_actionbutton }}
-  </div>
-  <div id="extrainfoTemplate" style="display: none">
-{{ template_extrainfo }}
-  </div>
+{% for name, content in templates.items %}
+<script id="{{ name }}Template" type="text/x-goldframe-template">
+{{ content }}
+</script>
+{% endfor %}
 {% endautoescape %}
 {% endblock %}

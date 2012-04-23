@@ -114,6 +114,19 @@ class GamePlugin(object):
 
         return self.return_response(response, asdict)
 
+    def get_templates(self):
+        """
+        Return list of all html templates for the game.
+        TODO: No need to have templates as methods, move to separate files or to metadata.
+        """
+        templates = dict(
+            charsheet = self.template_charsheet(),
+            actionline = self.template_actionline(),
+            actionbutton = self.template_actionbutton(),
+            extrainfo = self.template_extrainfo()
+        )
+        return templates
+
     def template_charsheet(self):
         """
         Override this method and return the html to use for the character sheet in the web client.

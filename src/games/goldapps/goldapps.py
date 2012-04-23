@@ -56,4 +56,3 @@ class Game(GoldFrame.GamePlugin):
         <h1 style="padding-top: 6px">Total Apps: <span id="appsValue" class="appsValue">[[ apps ]]</span></h1>
         """
 
-
