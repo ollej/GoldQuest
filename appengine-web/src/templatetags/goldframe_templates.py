@@ -33,9 +33,9 @@ register = template.Library()
 @register.simple_tag
 def goldframe_templates(templates):
     """Include all GoldFrame templates."""
-    fmt = u'<script id="{name}Template" type="text/x-goldframe-template">{content}</script>'
-    tmpl = u""
+    fmt = '<script id="%(name)sTemplate" type="text/x-goldframe-template">%(content)s</script>'
+    tmpl = ""
     for name, content in templates.items():
-        tmpl = tmpl + fmt.format(name=name, content=content)
+        tmpl = tmpl + fmt % dict(name=name, content=content)
     return mark_safe(tmpl)
 

@@ -126,8 +126,11 @@ class GamePlugin(object):
             extrainfo = self.template_extrainfo()
         )
         # Add template overrides from metadata
-        for name, content in self.metadata['templates'].items():
-            templates[name] = content
+        try:
+            for name, content in self.metadata['templates'].items():
+                templates[name] = content
+        except KeyError:
+            pass
         return templates
 
     def template_charsheet(self):
