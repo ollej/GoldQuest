@@ -100,11 +100,11 @@ class Game(GoldFrame.GamePlugin):
 
     def template_charsheet(self):
         return """
-        <h1 style="padding-top: 6px">Rolls: <span id="rollsValue" class="rollsValue">[[ rolls ]]</span></h1>
+        <h1 style="padding-top: 6px">Rolls: <span id="rollsValue" class="rollsValue">{{ rolls }}</span></h1>
         """
 
     def template_actionline(self):
-        return "<li class='actionLine [[ cls ]]' id='action_[[ id ]]'>[[ line ]][[ extraInfo ]]</li>"
+        return "<li class='actionLine {{ cls }}' id='action_{{ id }}'>{{ line }}{{ extraInfo }}</li>"
 
     def setup(self):
         self.rolls = get_value('dicey_rolls')

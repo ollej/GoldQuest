@@ -61,11 +61,11 @@ class Game(GoldFrame.GamePlugin):
 
     def template_charsheet(self):
         return """
-        <h1 style="padding-top: 6px">Predictions: <span id="predictionsValue" class="predictionsValue">[[ predictions ]]</span></h1>
+        <h1 style="padding-top: 6px">Predictions: <span id="predictionsValue" class="predictionsValue">{{ predictions }}</span></h1>
         """
 
     def template_actionline(self):
-        return "<li class='actionLine [[ cls ]]' id='action_[[ id ]]'>[[ line ]][[ extraInfo ]]</li>"
+        return "<li class='actionLine {{ cls }}' id='action_{{ id }}'>{{ line }}{{ extraInfo }}</li>"
 
     def setup(self):
         self.predictions = get_value('8ball_predictions')

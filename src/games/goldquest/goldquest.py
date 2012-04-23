@@ -204,18 +204,18 @@ class Game(GoldFrame.GamePlugin):
         #return file(path,'r').read()
         return """
         <img src="images/goldquest/icon-stats.png" class="statsImage" style="float: left" width="32" height="32" alt="Stats" title="Stats" />
-        <h1 id="nameValue" class="nameValue">[[ name ]]</h1>
+        <h1 id="nameValue" class="nameValue">{{ name }}</h1>
         <ul class="charsheetList">
-          <li class="statItem" id="strengthStatDiv"><img src="images/goldquest/tiny-icon-strength.png" width="16" height="16" alt="Strength" title="Strength" /><span class="statValue" id="strengthValue">[[ strength ]]</span></li>
-          <li class="statItem" id="healthStatDiv"><img src="images/goldquest/tiny-icon-health.png" width="16" height="16" alt="Health" title="Health" /><span class="statValue" id="hurthealthValue">[[ current_health ]]/[[ health ]]</span></li>
-          <li class="statItem" id="levelStatDiv"><img src="images/goldquest/tiny-icon-level.png" width="16" height="16" alt="Level" title="Level" /><span class="statValue" id="levelValue">[[ level ]]</span></li>
-          <li class="statItem" id="killsStatDiv"><img src="images/goldquest/tiny-icon-kills.png" width="16" height="16" alt="Kills" title="Kills" /><span class="statValue" id="killsValue">[[ kills ]]</span></li>
-          <li class="statItem" id="goldStatDiv"><img src="images/goldquest/tiny-icon-gold.png" width="16" height="16" alt="Gold" title="Gold" /><span class="statValue" id="goldValue">[[ gold ]]</span></li>
+          <li class="statItem" id="strengthStatDiv"><img src="images/goldquest/tiny-icon-strength.png" width="16" height="16" alt="Strength" title="Strength" /><span class="statValue" id="strengthValue">{{ strength }}</span></li>
+          <li class="statItem" id="healthStatDiv"><img src="images/goldquest/tiny-icon-health.png" width="16" height="16" alt="Health" title="Health" /><span class="statValue" id="hurthealthValue">{{ current_health }}/{{ health }}</span></li>
+          <li class="statItem" id="levelStatDiv"><img src="images/goldquest/tiny-icon-level.png" width="16" height="16" alt="Level" title="Level" /><span class="statValue" id="levelValue">{{ level }}</span></li>
+          <li class="statItem" id="killsStatDiv"><img src="images/goldquest/tiny-icon-kills.png" width="16" height="16" alt="Kills" title="Kills" /><span class="statValue" id="killsValue">{{ kills }}</span></li>
+          <li class="statItem" id="goldStatDiv"><img src="images/goldquest/tiny-icon-gold.png" width="16" height="16" alt="Gold" title="Gold" /><span class="statValue" id="goldValue">{{ gold }}</span></li>
         </ul>
         """
 
     def template_actionline(self):
-        return "<li class='actionLine [[ cls ]]' id='action_[[ id ]]'>[[ line ]][[ extraInfo ]]</li>"
+        return "<li class='actionLine {{ cls }}' id='action_{{ id }}'>{{ line }}{{ extraInfo }}</li>"
 
     @LogUsageCPU
     def setup_database(self):

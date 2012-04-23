@@ -69,7 +69,7 @@ class Game(GoldFrame.GamePlugin):
 
     def template_charsheet(self):
         return """
-        <h1 style="padding-top: 6px">Online Users: <span id="usersValue" class="usersValue">[[ users ]]</span></h1>
+        <h1 style="padding-top: 6px">Online Users: <span id="usersValue" class="usersValue">{{ users }}</span></h1>
         """
 
     def action_chat(self, arguments=None):

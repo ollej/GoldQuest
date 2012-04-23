@@ -19,10 +19,11 @@
 jQuery.tache = function (template, ctx) {
     var t = template;
     // Original regexp: /{{(.*?)}}/, 
+                // /\[\[\s*(.*?)\s*\]\]/, 
     while (true) {
         var res = t.replace(
-                /\[\[\s*(.*?)\s*\]\]/, 
-            function (matched,p1,offset,src) { return ctx[p1]; }
+            /{{\s*(.*?)\s*}}/, 
+            function (matched, p1, offset, src) { return ctx[p1]; }
         );
         if (res == t) {
             break;

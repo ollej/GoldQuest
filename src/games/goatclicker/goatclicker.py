@@ -130,14 +130,14 @@ class Game(GoldFrame.GamePlugin):
 
     def template_charsheet(self):
         return """
-        <h1 id="nameValue" class="nameValue">[[ name ]]</h1>
+        <h1 id="nameValue" class="nameValue">{{ name }}</h1>
         <ul class="charsheetList">
-          <li class="clicksItem" id="clicksStatDiv"><img src="images/tiny-icon-clicks.png" width="16" height="16" alt="Clicks" title="Goat clicks" /><span class="statValue" id="clicksValue">[[ clicks ]]</span></li>
+          <li class="clicksItem" id="clicksStatDiv"><img src="images/tiny-icon-clicks.png" width="16" height="16" alt="Clicks" title="Goat clicks" /><span class="statValue" id="clicksValue">{{ clicks }}</span></li>
         </ul>
         """
 
     def template_actionline(self):
-        return "<li class='actionLine [[ cls ]]' id='action_[[ id ]]'>[[ line ]][[ extraInfo ]]</li>"
+        return "<li class='actionLine {{ cls }}' id='action_{{ id }}'>{{ line }}{{ extraInfo }}</li>"
 
     def play(self, command, asdict=False, arguments=None):
 

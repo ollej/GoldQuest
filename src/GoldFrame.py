@@ -136,27 +136,27 @@ class GamePlugin(object):
     def template_charsheet(self):
         """
         Override this method and return the html to use for the character sheet in the web client.
-        Surround field names with "[[ ]]" to output the value of that field.
+        Surround field names with "{{ }}" to output the value of that field.
         """
         #path = os.path.join(os.path.dirname(__file__), 'extras', 'goldquest_template_charsheet.html')
         #return file(path,'r').read()
         return """
-        [[ name ]]
+        {{ name }}
         """
 
     def template_actionline(self):
         """
         Override this method and return the html to use for the action lines in the web client.
-        Surround field names with "[[ ]]" to output the value of that field.
+        Surround field names with "{{ }}" to output the value of that field.
         """
-        return "<li class='actionLine [[ cls ]]' id='action_[[ id ]]'>[[ line ]][[ extraInfo ]]</li>"
+        return "<li class='actionLine {{ cls }}' id='action_{{ id }}'>{{ line }}{{ extraInfo }}</li>"
 
     def template_actionbutton(self):
         """
         Override this method and return the html to use to display an action button.
         """
         return """
-    <div id="[[ key ]]Div" class="taskDiv [[ button ]]State"><button id="[[ key ]]Btn" name="[[ key ]]" class="commandBtn" style="background: url([[ img ]]) no-repeat center center"><a href="#[[ key ]]Task" class="taskHover"><img src="/images/goldframe/icon-hover.png" width="32" height="32" alt="[[ name ]]" title="[[ description ]]" style="visibility: hidden" /></a></button></div>
+    <div id="{{ key }}Div" class="taskDiv {{ button }}State"><button id="{{ key }}Btn" name="{{ key }}" class="commandBtn" style="background: url({{ img }}) no-repeat center center"><a href="#{{ key }}Task" class="taskHover"><img src="/images/goldframe/icon-hover.png" width="32" height="32" alt="{{ name }}" title="{{ description }}" style="visibility: hidden" /></a></button></div>
         """
 
     def template_extrainfo(self):
@@ -164,7 +164,7 @@ class GamePlugin(object):
         Override this method and return the html to display extraInfo values after the action line message.
         """
         return """
-        <span class="extraInfo [[ cls ]]" style="[[ style ]]"> [[ name ]]: [[ value ]]</span>
+        <span class="extraInfo {{ cls }}" style="{{ style }}"> {{ name }}: {{ value }}</span>
         """
 
     def get_metadata(self):

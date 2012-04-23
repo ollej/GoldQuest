@@ -282,20 +282,20 @@ class Game(GoldFrame.GamePlugin):
 
     def template_charsheet(self):
         return """
-        <h1 id="nameValue" class="nameValue">[[ name ]]</h1>
+        <h1 id="nameValue" class="nameValue">{{ name }}</h1>
         <ul class="charsheetList">
-          <li class="statItem" id="strengthStatDiv"><img src="/images/assassinsgreed/tiny-icon-strength.png" width="16" height="16" alt="Strength" title="Strength" /><span class="statValue" id="strengthValue">[[ strength ]]</span></li>
-          <li class="statItem" id="healthStatDiv"><img src="/images/assassinsgreed/tiny-icon-health.png" width="16" height="16" alt="Health" title="Health" /><span class="statValue" id="hurthealthValue">[[ current_health ]]/[[ health ]]</span></li>
-          <li class="statItem" id="towersStatDiv"><img src="/images/assassinsgreed/tiny-icon-towers.png" width="16" height="16" alt="Towers" title="Towers" /><span class="statValue" id="towersValue">[[ towers ]]</span></li>
-          <li class="statItem" id="assassinationsStatDiv"><img src="/images/assassinsgreed/tiny-icon-assassinations.png" width="16" height="16" alt="Assassinations" title="Assassinations" /><span class="statValue" id="assassinationsValue">[[ assassinations ]]</span></li>
-          <li class="statItem" id="killsStatDiv"><img src="/images/assassinsgreed/tiny-icon-kills.png" width="16" height="16" alt="Kills" title="Kills" /><span class="statValue" id="killsValue">[[ kills ]]</span></li>
-          <li class="statItem" id="feathersStatDiv"><img src="/images/assassinsgreed/tiny-icon-feathers.png" width="16" height="16" alt="Feathers" title="Feathers" /><span class="statValue" id="feathersValue">[[ feathers ]]</span></li>
-          <li class="statItem" id="goldStatDiv"><img src="/images/assassinsgreed/tiny-icon-gold.png" width="16" height="16" alt="Gold" title="Gold" /><span class="statValue" id="lootValue">[[ gold ]]</span></li>
+          <li class="statItem" id="strengthStatDiv"><img src="/images/assassinsgreed/tiny-icon-strength.png" width="16" height="16" alt="Strength" title="Strength" /><span class="statValue" id="strengthValue">{{ strength }}</span></li>
+          <li class="statItem" id="healthStatDiv"><img src="/images/assassinsgreed/tiny-icon-health.png" width="16" height="16" alt="Health" title="Health" /><span class="statValue" id="hurthealthValue">{{ current_health }}/{{ health }}</span></li>
+          <li class="statItem" id="towersStatDiv"><img src="/images/assassinsgreed/tiny-icon-towers.png" width="16" height="16" alt="Towers" title="Towers" /><span class="statValue" id="towersValue">{{ towers }}</span></li>
+          <li class="statItem" id="assassinationsStatDiv"><img src="/images/assassinsgreed/tiny-icon-assassinations.png" width="16" height="16" alt="Assassinations" title="Assassinations" /><span class="statValue" id="assassinationsValue">{{ assassinations }}</span></li>
+          <li class="statItem" id="killsStatDiv"><img src="/images/assassinsgreed/tiny-icon-kills.png" width="16" height="16" alt="Kills" title="Kills" /><span class="statValue" id="killsValue">{{ kills }}</span></li>
+          <li class="statItem" id="feathersStatDiv"><img src="/images/assassinsgreed/tiny-icon-feathers.png" width="16" height="16" alt="Feathers" title="Feathers" /><span class="statValue" id="feathersValue">{{ feathers }}</span></li>
+          <li class="statItem" id="goldStatDiv"><img src="/images/assassinsgreed/tiny-icon-gold.png" width="16" height="16" alt="Gold" title="Gold" /><span class="statValue" id="lootValue">{{ gold }}</span></li>
         </ul>
         """
 
     def template_actionline(self):
-        return "<li class='actionLine [[ cls ]]' id='action_[[ id ]]'>[[ line ]][[ extraInfo ]]</li>"
+        return "<li class='actionLine {{ cls }}' id='action_{{ id }}'>{{ line }}{{ extraInfo }}</li>"
 
     def setup(self):
         # Configure datahandler backend.
