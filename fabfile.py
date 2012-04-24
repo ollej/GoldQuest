@@ -13,7 +13,6 @@ def test():
     # jslint
     # pychecker
     # run jasmine tests
-    pass
 
 def compile():
     # Minimize javascript using google closure.
@@ -21,7 +20,6 @@ def compile():
 
 def deploy_appengine():
     local("appcfg.py update " + appengine_dir)
-    pass
 
 def prepare_deploy():
     test()
@@ -29,7 +27,6 @@ def prepare_deploy():
 
 def deploy():
     update()
-    test()
     prepare_deploy()
     deploy_appengine()
     # tweet about release
