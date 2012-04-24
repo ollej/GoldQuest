@@ -343,7 +343,7 @@ $(document).ready(function() {
             title: arg['name'], autoOpen: false, dialogClass: 'argumentDialog'
         });
 
-        $('.argumentMenuItem', $dialog).bind('click', function(ev) {
+        $($dialog).on('click', '.argumentMenuItem', function(ev) {
             var item = {}, items = [], value = '';
 
             // Add given value to argument list.
@@ -421,10 +421,10 @@ $(document).ready(function() {
 
     function setup() {
         // Setup command buttons
-        $('.commandBtn').live('click', handleButtonClick);
+        $(document).on('click', '.commandBtn', handleButtonClick);
 
         // Update charsheet when clicked.
-        $('#heroDiv').live('click', function(ev) {
+        $(document).on('click', '#heroDiv', function(ev) {
             ajaxAction('stats', onStats);
         });
 
