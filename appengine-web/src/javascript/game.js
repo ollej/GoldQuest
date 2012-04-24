@@ -1,3 +1,6 @@
+/*jslint browser: true, white: true */
+/*global $ */
+
 $(document).ready(function() {
     var gameUrl = '/api/',
         MAX_LINES = 50,
@@ -13,7 +16,7 @@ $(document).ready(function() {
     // Log if console.log exists and we are running on localhost
     function log() {
         if (window.console && console.log && document.domain == 'localhost') {
-            console.log.apply(console, arguments)
+            console.log.apply(console, arguments);
         }
     }
 
@@ -47,7 +50,7 @@ $(document).ready(function() {
     function onStats(data, textStatus, jqXhr) {
         var hero;
         if (!data['data'] || !data['data']['hero']) return;
-        hero = data['data']['hero']
+        hero = data['data']['hero'];
         //log('Got stats!', data, textStatus, jqXhr);
         updateCharsheet(hero);
     }
@@ -70,7 +73,7 @@ $(document).ready(function() {
     function getAction(name) {
         var action;
         $.each(metadata['actions'], function(i, item) {
-            if (item['key'] == name) {
+            if (name === item['key']) {
                 action = item;
             }
         });
@@ -87,8 +90,15 @@ $(document).ready(function() {
     }
 
     function ajaxAction(cmd, successFn, url, data) {
-        data = data || {};
-        if (!data['format']) data['format'] = 'json';
+        if (!data) {
+            data = {};
+        }
+        if (!data['format']) {
+            data['format'] = 'json';
+        }
+        if (!successFn) {
+            successFn = onAction;
+        }
         if (!url) {
             url = gameKey ? gameUrl + gameKey + '/' : gameUrl;
         }
@@ -101,7 +111,7 @@ $(document).ready(function() {
                 'Content-Type': 'text/plain; charset=utf-8'
             },
             dataType: 'json',
-            success: successFn || onAction,
+            success: successFn,
             error: onError
         });
     }
@@ -146,7 +156,7 @@ $(document).ready(function() {
         }
 
         // Create html
-        line = $.tache(getTemplates().actionline, { 'line': data.message, 'id': data.id, cls: cls, extraInfo: extraInfo });
+        line = $.tache(getTemplates().actionline, { 'line': data.message, 'id': data.id, cls: cls, extraInfo: extraInfo });
         return line;
     }
 
@@ -206,6 +216,7 @@ $(document).ready(function() {
         } else {
             ajaxAction(cmd, fn);
         }
+        return false;
     }
 
     function updateCharsheet(hero) {
@@ -245,7 +256,7 @@ $(document).ready(function() {
         log('taskbar actions', actions);
         for (i in actions) if (actions.hasOwnProperty(i)) {
             action = actions[i];
-            if (action['img'] && (!action['button'] || $.inArray(action['button'], ['active', 'disabled']) >= 0)) {
+            if (action['img'] && (!action['button'] || $.inArray(action['button'], ['active', 'disabled']) >= 0)) {
                 actionbutton = $.tache(getTemplates().actionbutton, action);
                 taskbar += actionbutton;
             }
@@ -260,7 +271,7 @@ $(document).ready(function() {
             channel_token = data['channel_token'];
             channel_client_id = data['channel_client_id'];
             channel = setup_channel(channel_token);
-        } catch (e) {
+        } catch (e) {
             log('Failed setting up channel.', e);
         }
     }
@@ -309,7 +320,7 @@ $(document).ready(function() {
         if (!argumenttree || argumenttree.length == 0) {
             log('Argument tree is empty.', argumenttree, action, arglist);
             ajaxAction(action['key'], onAction, undefined, arglist);
-            return true;
+            return;
         }
         arg = argumenttree[0];
         if (arg['type'] == 'list') {
@@ -356,7 +367,7 @@ $(document).ready(function() {
             items = $.grep(arg['items'], function(itm, idx) {
                 if ($.type(itm) != 'string' && itm['key'] == value && itm['items']) {
                     return true;
-                } else {
+                } else {
                     return false;
                 }
             });
@@ -390,7 +401,7 @@ $(document).ready(function() {
         $dialog = $('<div></div>').html(html).dialog({
             draggable: false, width: 240, modal: true, resizable: false,
             title: arg['name'], dialogClass: 'argumentDialog',
-            buttons: { 
+            buttons: {
                 "Ok": function (ev) {
                     var item = {}, value = '';
 
