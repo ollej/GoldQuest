@@ -9,11 +9,17 @@
     <meta name="viewport" content="width = 320, initial-scale = 1.0, user-scalable = no" />
     <link type="text/css" rel="stylesheet" href="/stylesheets/game.css" />
     <link type="text/css" rel="stylesheet" href="/stylesheets/hero.css" />
+{% if gamecss %}
+    <link type="text/css" rel="stylesheet" href="{{ gamecss }}" />
+{% endif %}
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.js"></script>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
     <script type="text/javascript" src="/javascript/jquery.tache.js"></script>
     <script type="text/javascript" src="/_ah/channel/jsapi"></script>
     <script type="text/javascript" src="/javascript/game.js"></script>
+{% if gamejs %}
+    <script type="text/javascript" src="{{ gamejs }}"></script>
+{% endif %}
 {% block head_includes %}{% endblock %}
     </head>
 <body onload="init()">
