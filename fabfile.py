@@ -1,11 +1,19 @@
 from fabric.api import *
 from fabric.contrib.console import confirm
 
+import simplejson
+
 cfg = dict(
     appengine_dir='appengine-web/src',
     goldquest_dir='src',
-    appengine_token='',
+    oauth_cfg_path='/Users/olle/.appcfg_oauth2_tokens',
+    appengine_refresh_token='',
 )
+
+def read_appcfg_oauth():
+    fp = open(cfg['oauth_cfg_path'])
+    oauth_cfg = simplejson.load(fp)
+    cfg['appengine_refresh_token'] = oauth_cfg['refresh_token']
 
 def update():
     # update to latest code from repo
@@ -23,7 +31,8 @@ def compile():
     local("java -jar ~/bin/compiler.jar --js %(appengine_dir)s/javascript/game.js --js_output_file %(appengine_dir)s/javascript/game.min.js" % cfg)
 
 def deploy_appengine():
-    local("appcfg.py --oauth2_refresh_token=%(appengine_token)s update %(appengine_dir)s" % cfg)
+    read_appcfg_oauth()
+    local("appcfg.py --oauth2_refresh_token=%(appengine_refresh_token)s update %(appengine_dir)s" % cfg)
 
 def prepare_deploy():
     test()
