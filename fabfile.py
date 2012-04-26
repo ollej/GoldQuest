@@ -12,7 +12,8 @@ def update():
     local('git pull') 
 
 def test():
-    local("nosetests -m 'Test|test_' -w %(goldquest_dir)s" % cfg)
+    #local("nosetests -m 'Test|test_' -w %(goldquest_dir)s" % cfg)
+    local("find . -name '*Test.py' -exec python '{}' \;")
     # jslint
     # pychecker
     # run jasmine tests
