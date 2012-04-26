@@ -29,6 +29,15 @@ For development:
  * Google Closure Compiler
  * Google AppEngine SDK
 
+Installation
+------------
+ * Install the required Python libraries using easy_install.
+ * Create a symbolic link to GoldFrame games in appengine-web:
+    $ cd appengine-web/src/ && ln -s ../../src GoldFrame
+ * Run fabric script to compile javascript
+    $ fab compile
+
+
 Multiple Clients
 ----------------
 
