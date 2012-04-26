@@ -15,6 +15,20 @@ License
 
 Gold Quest is released under The MIT License. See LICENSE file for more details.
 
+Requirements
+------------
+
+To run:
+ * PyYAML
+ * nose
+ * simplejson
+
+For development:
+ * fabric
+ * minimock
+ * Google Closure Compiler
+ * Google AppEngine SDK
+
 Multiple Clients
 ----------------
 
