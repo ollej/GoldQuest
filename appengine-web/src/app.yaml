@@ -43,6 +43,9 @@ handlers:
 - url: /javascript/(.+)
   static_files: javascript/\1
   upload: javascript/.+
+- url: /static/(.+)
+  static_files: static/\1
+  upload: static/.+
 - url: /images/(.+)
   static_files: images/\1
   upload: images/.+

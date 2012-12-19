@@ -1,0 +1,13 @@
+{
+  "name": "Gold Quest",
+  "description": "A simple multi-user co-op text based dungeon quest game with multiple client options.",
+  "launch_path": "/",
+  "icons": {
+    "256": "/images/images/coinstack.png"
+  },
+  "developer": {
+    "name": "Olle Johansson",
+    "url": "http://www.jxdevelopment.com/"
+  },
+  "default_locale": "en"
+}
